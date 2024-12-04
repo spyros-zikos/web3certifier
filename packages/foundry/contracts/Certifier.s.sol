@@ -2,26 +2,27 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 enum Status {
-  Success,
-  Fail
+    Success,
+    Fail
 }
 
 struct Exam {
-  uint256 id;
-  string name;
-  string description;
-  uint256 score;
-  uint256 timeStart;
-  Status status;
+    uint256 id;
+    string name;
+    string description;
+    uint256 score;
+    uint256 timeStart;
+    Status status;
 }
 
 contract Certifier {
-  mapping(address => Exam[]) public exams;
+    mapping(address => Exam[]) public exams;
 
-  // make an exam
-  function makeExam() external payable { }
+    // make an exam
+    function makeExam() external payable {}
 
-  function submitAnswers() external payable { }
+    // submit answers
+    function submitAnswers() external payable {}
 
-  function updatePfp() external { }
+    function updatePfp() external {}
 }
