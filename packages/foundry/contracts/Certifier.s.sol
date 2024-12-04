@@ -18,6 +18,7 @@ struct Exam {
 contract Certifier {
   mapping(address => Exam[]) public exams;
 
+  // make an exam
   function makeExam() external payable { }
 
   function submitAnswers() external payable { }
