@@ -28,6 +28,12 @@ struct Exam {
     address certifier;
 }
 
+/**
+ * A smart contract that allows certifiers to create exams and users to get certified with NFT certificates.
+ * Prevents users from seeing other students' answers until they claim their NFT certificate.
+ * Also prevents frontrunning attacks when users try to claim their NFT certificate.
+ * @author Spyros Zikos
+ */
 contract Certifier is ERC721, ReentrancyGuard {
     using Strings for uint256;
     using Strings for address;
