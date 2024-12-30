@@ -116,7 +116,7 @@ This uses `VerifyAll.s.sol` script located in `packages/foundry/script` to verif
 - Edit your smart contract `YourContract.sol` in `packages/foundry/contracts`
 - Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit your deployment scripts in `packages/script/deploy/Deploy.s.sol`
-- Edit your smart contract test in: `packages/foundry/test`. To run test use `yarn foundry:test`
+- Edit your smart contract test in: `packages/foundry/test`. To run test use `yarn foundry:test --via-ir`
 
 ## Documentation
 
