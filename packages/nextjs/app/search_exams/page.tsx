@@ -26,9 +26,7 @@ const MarketplacePage: React.FC = () => {
 
     return (
         <PageWrapper>
-            <Text fontSize={34} fontWeight="bold" w="100%" m={0} mb={14}>
-                Explore Exams
-            </Text>
+            <Title>Explore Exams</Title>
             <SearchBar setSearchTerm={setSearchTerm} /> {/*To fix border colors*/}
             {/* <ExamCard id={BigInt(0)} searchTerm={searchTerm} /> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 space-4">

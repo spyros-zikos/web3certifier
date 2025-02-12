@@ -5,6 +5,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {PriceConverter} from "./PriceConverter.sol";
 
 enum Status {
     Started,
@@ -43,17 +44,18 @@ contract Certifier is ERC721, ReentrancyGuard {
     address[] private s_certifiers;
     mapping(address certifier => uint256[] examIds) private s_certifierToExamIds;
     address[] private s_users;
-    mapping(address user => uint256[] examIds) private s_userToExamIds;
     mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
     // user can claim either ether if exam is cancelled or NFT if exam has ended
     mapping(address user => mapping(uint256 id => bool hasClaimed)) private s_userHasClaimed;
 
     mapping(uint256 id => Exam exam) private s_examIdToExam;
     uint256 private s_lastExamId; // starts from 0
-    uint256 private immutable i_timeToCorrectExam;
 
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
+
+    uint256 private immutable i_timeToCorrectExam;
+    address private immutable i_priceFeed;
 
     // Errors
     error Certifier__ExamEnded(uint256 examId);
@@ -70,9 +72,11 @@ contract Certifier is ERC721, ReentrancyGuard {
     error Certifier__WrongAnswers(uint256 expected, uint256 actual);
     error Certifier__UserFailedExam(uint256 userScore, uint256 examBaseScore);
     error Certifier__AnswersLengthDontMatch(uint256 correctAnswersLength, uint256 userAnswersLength);
+    error Certifier__UserDidNotParticipate(uint256 examId);
 
-    constructor(uint256 timeToCorrectExam) ERC721("Certificate", "CERT") {
+    constructor(uint256 timeToCorrectExam, address priceFeed) ERC721("Certificate", "CERT") {
         i_timeToCorrectExam = timeToCorrectExam;
+        i_priceFeed = priceFeed;
     }
 
     /**
@@ -121,8 +125,9 @@ contract Certifier is ERC721, ReentrancyGuard {
         if (block.timestamp > s_examIdToExam[examId].endTime) {
             revert Certifier__ExamEnded(examId);
         }
-        if (msg.value < s_examIdToExam[examId].price) { // TODO: convert msg.value to usd
-            revert Certifier__NotEnoughEther(msg.value, s_examIdToExam[examId].price);
+        uint256 usdValue = PriceConverter.getConversionRate(msg.value, i_priceFeed);
+        if (usdValue < s_examIdToExam[examId].price) {
+            revert Certifier__NotEnoughEther(usdValue, s_examIdToExam[examId].price);
         }
         s_examIdToExam[examId].etherAccumulated += msg.value;
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
@@ -192,6 +197,9 @@ contract Certifier is ERC721, ReentrancyGuard {
     function refundExam(uint256 examId) external nonReentrant {
         if (s_examIdToExam[examId].status != Status.Cancelled) {
             revert Certifier__ExamIsNotCancelled(examId);
+        }
+        if (s_userToAnswers[msg.sender][examId] == "") {
+            revert Certifier__UserDidNotParticipate(examId);
         }
         if (s_userHasClaimed[msg.sender][examId]) {
             revert Certifier__UserAlreadyClaimedCancelledExam(examId);
@@ -286,10 +294,6 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     function getUser(uint256 index) public view returns (address) {
         return s_users[index];
-    }
-
-    function getUserExamIds(address user) public view returns (uint256[] memory) {
-        return s_userToExamIds[user];
     }
 
     function getUserAnswer(address user, uint256 examId) external view returns (bytes32) {

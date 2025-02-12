@@ -1,4 +1,5 @@
 .PHONY: build deploy generate-abis verify-keystore account chain compile deploy-verify flatten fork format lint test verify
+# -include .env
 
 # install dependencies
 install:
@@ -83,7 +84,7 @@ lint:
 
 # Verify contracts
 verify:
-	forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL)
+	forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL) --via-ir
 
 build-and-verify: build verify
 

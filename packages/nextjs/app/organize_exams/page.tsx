@@ -106,114 +106,111 @@ const CreateExam = () => {
     return (
         <PageWrapper>
             {/* <div className="container my-10"> */}
-            <Text fontSize={34} fontWeight="bold" w="100%" m={0} mb={14}>
-                Create Exam
-            </Text>
+            <Title>Create Exams</Title>
             <div>
-            {/* <Title>Create Exam</Title> */}
-            <label className={`${labelMarginAndPadding}`}>Name</label>
-            <Input
-                value={examName}
-                type="text"
-                placeholder="Name"
-                onChange={(e: any) => {
-                    setExamName(e.target.value);
-                }}
-            />
-            <label className={`${labelMarginAndPadding}`}>Description</label>
-            <Input
-                value={examDescription}
-                type="text"
-                placeholder="Description"
-                onChange={(e: any) => {
-                    setExamDescription(e.target.value);
-                }}
-            />
-            <label className={`${labelMarginAndPadding}`}>End Time</label>
-            <Input
-                value={examEndTime}
-                type="datetime-local"
-                onChange={(e: any) => {
-                    setExamEndTime(e.target.value);
-                }}
-            />
-            <label className={`${labelMarginAndPadding}`}>Price ($)</label>
-            <Input
-                value={examPrice}
-                type="number"
-                placeholder="Price"
-                onChange={(e: any) => {
-                    if (e.target.value >= 0)
-                    setExamPrice(e.target.value);
-                }}
-            />
-            <label className={`${labelMarginAndPadding}`}>Base Score</label>
-            <Input
-                value={examBaseScore}
-                className="mb-4"
-                type="number"
-                placeholder="Base Score"
-                onChange={(e: any) => {
-                    setExamBaseScore(e.target.value);
-                }}
-            />
-            <label className={`${labelMarginAndPadding}`}>Questions</label>
-            {questions.map((question, indx) => (
-                <TextArea
-                key={indx}
-                value={question}
-                placeholder={`Question ${indx+1}`}
-                onChange={(e: any) => {
-                    setQuestions(questions.map((q, n) => n===indx?e.target.value:q));
-                }}
-            />
-            ))}
+                <label className={`${labelMarginAndPadding}`}>Name</label>
+                <Input
+                    value={examName}
+                    type="text"
+                    placeholder="Name"
+                    onChange={(e: any) => {
+                        setExamName(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>Description</label>
+                <Input
+                    value={examDescription}
+                    type="text"
+                    placeholder="Description"
+                    onChange={(e: any) => {
+                        setExamDescription(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>End Time</label>
+                <Input
+                    value={examEndTime}
+                    type="datetime-local"
+                    onChange={(e: any) => {
+                        setExamEndTime(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>Price ($)</label>
+                <Input
+                    value={examPrice}
+                    type="number"
+                    placeholder="Price"
+                    onChange={(e: any) => {
+                        if (e.target.value >= 0)
+                        setExamPrice(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>Base Score</label>
+                <Input
+                    value={examBaseScore}
+                    className="mb-4"
+                    type="number"
+                    placeholder="Base Score"
+                    onChange={(e: any) => {
+                        setExamBaseScore(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>Questions</label>
+                {questions.map((question, indx) => (
+                    <TextArea
+                    key={indx}
+                    value={question}
+                    placeholder={`Question ${indx+1}`}
+                    onChange={(e: any) => {
+                        setQuestions(questions.map((q, n) => n===indx?e.target.value:q));
+                    }}
+                />
+                ))}
 
-            <Button onClick={() => setQuestions([...questions, ""])}>
-                Add Question
-            </Button>
-            <Button onClick={() => { if (questions.length > 1) setQuestions([...questions.slice(0, -1)]) }}>
-                Remove Question
-            </Button>
+                <Button onClick={() => setQuestions([...questions, ""])}>
+                    Add Question
+                </Button>
+                <Button onClick={() => { if (questions.length > 1) setQuestions([...questions.slice(0, -1)]) }}>
+                    Remove Question
+                </Button>
 
-            <label className={`${labelMarginAndPadding} block`}>Image</label>
-            <div className="ml-2 my-4 w-[350px] border border-gray-300 rounded-lg">
-                <div
-                    {...getRootProps()}
-                    ref={dropZoneRef}
-                    className="m-auto my-4 w-[300px] min-h-96 bg-neutral flex justify-center items-center rounded-lg"
-                >
-                    {imageUrl ?
-                    (
-                        <div className="self-center flex justify-center items-center w-full h-full">
-                            <img src={imageUrl} className="max-w-full max-h-full" />
-                        </div>
-                    ) :
-                    (
-                        <div className="self-center flex flex-col justify-center ">
-                            <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                            <div className="text-gray-300">Upload Image</div>
-                        </div>
-                    )}
+                <label className={`${labelMarginAndPadding} block`}>Image</label>
+                <div className="ml-2 my-4 w-[350px] border border-gray-300 rounded-lg">
+                    <div
+                        {...getRootProps()}
+                        ref={dropZoneRef}
+                        className="m-auto my-4 w-[300px] min-h-96 bg-neutral flex justify-center items-center rounded-lg"
+                    >
+                        {imageUrl ?
+                        (
+                            <div className="self-center flex justify-center items-center w-full h-full">
+                                <img src={imageUrl} className="max-w-full max-h-full" />
+                            </div>
+                        ) :
+                        (
+                            <div className="self-center flex flex-col justify-center ">
+                                <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                                <div className="text-gray-300">Upload Image</div>
+                            </div>
+                        )}
+                    </div>
+
+                        <div className="m-auto divider my-4 max-w-[300px]">OR</div>
+                        <Input
+                            placeholder="https://ipfs.io/pathToImage.jpg"
+                            value={imageUrl}
+                            onChange={(e: any) => setImageUrl(e.target.value)}
+                            className='m-auto my-4'
+                        />
                 </div>
 
-                    <div className="m-auto divider my-4 max-w-[300px]">OR</div>
-                    <Input
-                        placeholder="https://ipfs.io/pathToImage.jpg"
-                        value={imageUrl}
-                        onChange={(e: any) => setImageUrl(e.target.value)}
-                        className='m-auto my-4'
-                    />
-            </div>
-
-            <Button onClick={handleCreateExam} className="block mt-8">
-                Create Exam
-            </Button>
-            {/* <Alert
-                type="success"
-                message="Exam Created Successfully!"
-                className='w-[350px] mt-4'
-            /> */}
+                <Button onClick={handleCreateExam} className="block mt-8">
+                    Create Exam
+                </Button>
+                {/* <Alert
+                    type="success"
+                    message="Exam Created Successfully!"
+                    className='w-[350px] mt-4'
+                /> */}
             </div>
 
             {/* <button onClick={()=>console.log(data)}>-CLICKME-</button> */}
