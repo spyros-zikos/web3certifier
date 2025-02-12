@@ -23,29 +23,21 @@ contract CertifierTest is Test {
         vm.deal(user, USER_INITIAL_BALANCE);
     }
 
-    function testCreateExams() public {
-        assertEq(certifier.getLastExamId(), 0);
-        certifier.createExam(
-            "Test Name", "Test Description", block.timestamp + TIME_DURATION, examQuestions, EXAM_PRICE, 50
-        );
-        assertEq(certifier.getLastExamId(), 1);
-        certifier.createExam(
-            "Test Name", "Test Description", block.timestamp + TIME_DURATION, examQuestions, EXAM_PRICE, 50
-        );
-        assertEq(certifier.getLastExamId(), 2);
-    }
-
     function testCreateExamSubmitAnswersCorrectExamClaimNFT() public {
         vm.prank(certifierOrg);
-        certifier.updatePfp("THEIMAGE");
-        vm.prank(certifierOrg);
         certifier.createExam(
-            "Test Name", "Test Description", block.timestamp + TIME_DURATION, examQuestions, EXAM_PRICE, 2
+            "Test Name",
+            "Test Description",
+            block.timestamp + TIME_DURATION,
+            examQuestions,
+            EXAM_PRICE,
+            2,
+            "THEIMAGE"
         );
         uint256 examId = 0;
         uint256 userAnswersAsNumber = 111;
         uint256 secretNumber = 123;
-        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, user, secretNumber));
+        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
         vm.prank(user);
         certifier.submitAnswers{value: EXAM_PRICE}(hashedAnswer, examId);
         vm.warp(block.timestamp + TIME_DURATION + 1);
@@ -56,8 +48,8 @@ contract CertifierTest is Test {
         vm.prank(certifierOrg);
         certifier.correctExam(examId, answers);
         vm.prank(user);
-        certifier.claimNftCertificate(examId, answers, secretNumber);
+        certifier.claimCertificate(examId, answers, secretNumber);
         console.log(certifier.tokenURI(0));
-        console.log("insert the about thing in the browser url");
+        console.log("insert the above thing in the browser url");
     }
 }

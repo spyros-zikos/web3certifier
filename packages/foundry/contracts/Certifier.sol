@@ -21,8 +21,9 @@ struct Exam {
     Status status;
     string[] questions;
     uint256[] answers;
-    uint256 price;
+    uint256 price; // in $
     uint256 baseScore;
+    string imageUrl;
     address[] users;
     uint256 etherAccumulated;
     address certifier;
@@ -37,10 +38,10 @@ struct Exam {
 contract Certifier is ERC721, ReentrancyGuard {
     using Strings for uint256;
     using Strings for address;
+    using Strings for string;
 
     address[] private s_certifiers;
     mapping(address certifier => uint256[] examIds) private s_certifierToExamIds;
-    mapping(address certifier => string pfp) private s_certifierToPfp;
     address[] private s_users;
     mapping(address user => uint256[] examIds) private s_userToExamIds;
     mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
@@ -72,7 +73,6 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     constructor(uint256 timeToCorrectExam) ERC721("Certificate", "CERT") {
         i_timeToCorrectExam = timeToCorrectExam;
-        // TODO set default certificate image
     }
 
     /**
@@ -89,7 +89,8 @@ contract Certifier is ERC721, ReentrancyGuard {
         uint256 endTime, // (new Date()).getTime() in js
         string[] memory questions,
         uint256 price,
-        uint256 baseScore
+        uint256 baseScore,
+        string memory imageUrl
     ) external payable {
         Exam memory exam = Exam({
             id: s_lastExamId,
@@ -101,6 +102,7 @@ contract Certifier is ERC721, ReentrancyGuard {
             answers: new uint256[](0),
             price: price,
             baseScore: baseScore,
+            imageUrl: imageUrl,
             users: new address[](0),
             etherAccumulated: 0,
             certifier: msg.sender
@@ -113,13 +115,13 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     /**
      *
-     * @param hashedAnswer The hash of the answers and the msg.sender and a secret number
+     * @param hashedAnswer The hash of the answers and the secret number and msg.sender
      */
     function submitAnswers(bytes32 hashedAnswer, uint256 examId) external payable {
         if (block.timestamp > s_examIdToExam[examId].endTime) {
             revert Certifier__ExamEnded(examId);
         }
-        if (msg.value < s_examIdToExam[examId].price) {
+        if (msg.value < s_examIdToExam[examId].price) { // TODO: convert msg.value to usd
             revert Certifier__NotEnoughEther(msg.value, s_examIdToExam[examId].price);
         }
         s_examIdToExam[examId].etherAccumulated += msg.value;
@@ -158,7 +160,7 @@ contract Certifier is ERC721, ReentrancyGuard {
         s_examIdToExam[examId].status = Status.Cancelled;
     }
 
-    function claimNftCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external {
+    function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external {
         if (s_examIdToExam[examId].status != Status.Ended) {
             revert Certifier__ExamIsCancelled(examId);
         }
@@ -166,7 +168,7 @@ contract Certifier is ERC721, ReentrancyGuard {
             revert Certifier__UserAlreadyClaimedNFT(examId);
         }
         uint256 userAnswersAsNumber = getAnswerAsNumber(answers);
-        bytes32 expectedHashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, msg.sender, secretNumber));
+        bytes32 expectedHashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, msg.sender));
         if (expectedHashedAnswer != s_userToAnswers[msg.sender][examId]) {
             revert Certifier__AnswerHashesDontMatch(expectedHashedAnswer, s_userToAnswers[msg.sender][examId]);
         }
@@ -183,7 +185,11 @@ contract Certifier is ERC721, ReentrancyGuard {
         s_tokenCounter++;
     }
 
-    function claimExamPriceFromCancelledExam(uint256 examId) external nonReentrant {
+    /**
+    * Refund the price of the cancelled exam to the user
+    * @param examId The id of the exam
+    */
+    function refundExam(uint256 examId) external nonReentrant {
         if (s_examIdToExam[examId].status != Status.Cancelled) {
             revert Certifier__ExamIsNotCancelled(examId);
         }
@@ -195,10 +201,6 @@ contract Certifier is ERC721, ReentrancyGuard {
         if (!success) {
             revert Certifier__EtherTransferFailed();
         }
-    }
-
-    function updatePfp(string memory pfp) external {
-        s_certifierToPfp[msg.sender] = pfp;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -231,15 +233,14 @@ contract Certifier is ERC721, ReentrancyGuard {
     }
 
     function makeTokenUri(uint256 examId, uint256 score) private view returns (string memory) {
-        address certifierAddress = s_examIdToExam[examId].certifier;
-        string memory certifier = certifierAddress.toHexString();
-        string memory imageURI = s_certifierToPfp[certifierAddress];
-        string memory base = s_examIdToExam[examId].baseScore.toString();
-        string memory numOfQuestions = s_examIdToExam[examId].questions.length.toString();
         string memory tokenId = s_tokenCounter.toString();
-        string memory scoreStr = score.toString();
         string memory examName = s_examIdToExam[examId].name;
         string memory examDescription = s_examIdToExam[examId].description;
+        string memory scoreStr = score.toString();
+        string memory numOfQuestions = s_examIdToExam[examId].questions.length.toString();
+        string memory base = s_examIdToExam[examId].baseScore.toString();
+        string memory certifier = s_examIdToExam[examId].certifier.toHexString();
+        string memory imageUrl = s_examIdToExam[examId].imageUrl;
 
         return string(
             abi.encodePacked(
@@ -247,31 +248,15 @@ contract Certifier is ERC721, ReentrancyGuard {
                 Base64.encode(
                     bytes(
                         abi.encodePacked(
-                            '{"name": "',
-                            name(),
-                            " #",
-                            tokenId,
+                            '{"name": "', name(), " #", tokenId,
                             '", "description": "An NFT that represents a certificate.", ',
-                            '"attributes":[{"trait_type": "certifier", "value": "',
-                            certifier,
-                            '"}, ',
-                            '{"trait_type": "exam_name", "value": "',
-                            examName,
-                            '"}, ',
-                            '{"trait_type": "exam_description", "value": "',
-                            examDescription,
-                            '"}, ',
-                            '{"trait_type": "my_score", "value": "',
-                            scoreStr,
-                            "/",
-                            numOfQuestions,
-                            '"}, ',
-                            '{"trait_type": "exam_base_score", "value": ',
-                            base,
-                            "}",
-                            '], "image": "',
-                            imageURI,
-                            '"}'
+                            '"attributes":[',
+                            '{"trait_type": "exam_name", "value": "', examName, '"}, ',
+                            '{"trait_type": "exam_description", "value": "', examDescription, '"}, ',
+                            '{"trait_type": "my_score", "value": "', scoreStr, "/", numOfQuestions, '"}, ',
+                            '{"trait_type": "exam_base_score", "value": ', base, "}, ",
+                            '{"trait_type": "certifier", "value": "', certifier, '"}',
+                            '], "image": "', imageUrl, '"}'
                         )
                     )
                 )
@@ -293,10 +278,6 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     function getCertifierExams(address certifier) public view returns (uint256[] memory) {
         return s_certifierToExamIds[certifier];
-    }
-
-    function getCertifierPfp(address certifier) public view returns (string memory) {
-        return s_certifierToPfp[certifier];
     }
 
     function getUsers() public view returns (address[] memory) {

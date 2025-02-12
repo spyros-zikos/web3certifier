@@ -5,7 +5,7 @@ import {Certifier} from "../contracts/Certifier.sol";
 import "./DeployHelpers.s.sol";
 
 contract DeployCertifier is ScaffoldETHDeploy {
-    uint256 private constant TIME_TO_CORRECT_EXAM = 1000;
+    uint256 private constant TIME_TO_CORRECT_EXAM = 5*60; // 5 minutes
     // use `deployer` from `ScaffoldETHDeploy`
 
     function run() external ScaffoldEthDeployerRunner {

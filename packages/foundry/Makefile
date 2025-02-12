@@ -1,5 +1,9 @@
 .PHONY: build deploy generate-abis verify-keystore account chain compile deploy-verify flatten fork format lint test verify
 
+# install dependencies
+install:
+	forge install openzeppelin/openzeppelin-contracts --no-commit; forge install smartcontractkit/chainlink-brownie-contracts@1.3.0 --no-commit
+	
 # setup wallet for anvil
 setup-anvil-wallet:
 	shx rm ~/.foundry/keystores/scaffold-eth-default 2>/dev/null; \
@@ -15,14 +19,14 @@ fork: setup-anvil-wallet
 
 # Build the project
 build:
-	forge build --build-info --build-info-path out/build-info/
+	forge build --build-info --build-info-path out/build-info/ --via-ir
 
 # Deploy the project
 deploy:
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
-		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi; \
+		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi --via-ir; \
 	else \
-		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --ffi; \
+		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --ffi --via-ir; \
 	fi
 
 # Build and deploy target
