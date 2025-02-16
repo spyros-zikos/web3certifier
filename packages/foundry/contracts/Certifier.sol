@@ -34,6 +34,12 @@ struct Exam {
  * A smart contract that allows certifiers to create exams and users to get certified with NFT certificates.
  * Prevents users from seeing other students' answers until they claim their NFT certificate.
  * Also prevents frontrunning attacks when users try to claim their NFT certificate.
+ * System operates in stages. 
+ * - Stage 1: The exam is created and users can submit their answers
+ *     until the exam exceeds the date set by the certifier.
+ * - Stage 2: The exam is corrected by the certifier and the users can't submit their answers anymore.
+ * - Stage 3: The users can claim their NFT certificate or their refund depending on weather 
+ *     the certifier corrected the exam in time.
  * @author Spyros Zikos
  */
 contract Certifier is ERC721, ReentrancyGuard {
@@ -41,7 +47,6 @@ contract Certifier is ERC721, ReentrancyGuard {
     using Strings for address;
     using Strings for string;
 
-    address[] private s_certifiers;
     mapping(address certifier => uint256[] examIds) private s_certifierToExamIds;
     address[] private s_users;
     mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
@@ -56,6 +61,8 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     uint256 private immutable i_timeToCorrectExam;
     address private immutable i_priceFeed;
+
+    uint256 private constant DECIMALS = 1e18;
 
     // Errors
     error Certifier__ExamEnded(uint256 examId);
@@ -73,6 +80,8 @@ contract Certifier is ERC721, ReentrancyGuard {
     error Certifier__UserFailedExam(uint256 userScore, uint256 examBaseScore);
     error Certifier__AnswersLengthDontMatch(uint256 correctAnswersLength, uint256 userAnswersLength);
     error Certifier__UserDidNotParticipate(uint256 examId);
+    error Certifier__UserAlreadySubmittedAnswers(uint256 examId);
+    error Certifier__OnlyCertifierCanCorrect(uint256 examId);
 
     constructor(uint256 timeToCorrectExam, address priceFeed) ERC721("Certificate", "CERT") {
         i_timeToCorrectExam = timeToCorrectExam;
@@ -80,7 +89,7 @@ contract Certifier is ERC721, ReentrancyGuard {
     }
 
     /**
-     *
+     * @notice Creates a new exam
      * @param name The name of the exam
      * @param description The description of the exam
      * @param endTime The time the exam ends (unix timestamp)
@@ -90,7 +99,7 @@ contract Certifier is ERC721, ReentrancyGuard {
     function createExam(
         string memory name,
         string memory description,
-        uint256 endTime, // (new Date()).getTime() in js
+        uint256 endTime,
         string[] memory questions,
         uint256 price,
         uint256 baseScore,
@@ -113,74 +122,83 @@ contract Certifier is ERC721, ReentrancyGuard {
         });
         s_examIdToExam[s_lastExamId] = exam;
         s_certifierToExamIds[msg.sender].push(s_lastExamId);
-        s_certifiers.push(msg.sender);
         s_lastExamId++;
     }
 
     /**
-     *
-     * @param hashedAnswer The hash of the answers and the secret number and msg.sender
+     * @notice Submits the answers of the user.
+     * @notice The user has to pay the cost of the exam.
+     * @notice The user can only submit answers before the exam ends.
+     * @notice The user can only submit answers once.
+     * @param examId The id of the exam
+     * @param hashedAnswer The hash of the answers and the key and msg.sender
      */
-    function submitAnswers(bytes32 hashedAnswer, uint256 examId) external payable {
-        if (block.timestamp > s_examIdToExam[examId].endTime) {
-            revert Certifier__ExamEnded(examId);
+    function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable {
+        if (block.timestamp > s_examIdToExam[examId].endTime) revert Certifier__ExamEnded(examId);
+        if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
+        if (s_examIdToExam[examId].price > 0) {
+            uint256 ethAmountRequired = getUsdToEthRate(s_examIdToExam[examId].price);
+            if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
+            s_examIdToExam[examId].etherAccumulated += msg.value;
         }
-        uint256 usdValue = PriceConverter.getConversionRate(msg.value, i_priceFeed);
-        if (usdValue < s_examIdToExam[examId].price) {
-            revert Certifier__NotEnoughEther(usdValue, s_examIdToExam[examId].price);
-        }
-        s_examIdToExam[examId].etherAccumulated += msg.value;
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
     }
 
+    /**
+    * @notice Corrects the exam
+    * @notice Only the certifier can call this function
+    * @param examId The id of the exam
+    * @param answers The answers of the user in an array
+    */
     function correctExam(uint256 examId, uint256[] memory answers) external nonReentrant {
-        if (
-            block.timestamp < s_examIdToExam[examId].endTime
-                || block.timestamp > s_examIdToExam[examId].endTime + i_timeToCorrectExam
-        ) {
-            revert Certifier__NotTheTimeForExamCorrection(examId);
-        }
-        if (s_examIdToExam[examId].status == Status.Ended) {
-            revert Certifier__ExamAlreadyEnded(examId);
-        }
+        if (block.timestamp < s_examIdToExam[examId].endTime ||
+            block.timestamp > s_examIdToExam[examId].endTime + i_timeToCorrectExam
+        ) revert Certifier__NotTheTimeForExamCorrection(examId);
+        if (s_examIdToExam[examId].status == Status.Ended) revert Certifier__ExamAlreadyEnded(examId);
+        if (msg.sender != s_examIdToExam[examId].certifier) revert Certifier__OnlyCertifierCanCorrect(examId);
+
         s_examIdToExam[examId].answers = answers;
         s_examIdToExam[examId].status = Status.Ended;
-        (bool success,) = msg.sender.call{value: s_examIdToExam[examId].etherAccumulated}("");
-        if (!success) {
-            revert Certifier__EtherTransferFailed();
+
+        uint256 ethToCollect = s_examIdToExam[examId].etherAccumulated;
+        if (ethToCollect > 0) {
+            (bool success,) = msg.sender.call{value: ethToCollect}("");
+            if (!success) revert Certifier__EtherTransferFailed();
+            s_examIdToExam[examId].etherAccumulated = 0;
         }
-        s_examIdToExam[examId].etherAccumulated = 0;
     }
 
+    /**
+    * @notice Cancels the exam
+    * @notice Anyone can call this function
+    * @param examId The id of the exam
+    */
     function cancelUncorrectedExam(uint256 examId) external {
-        if (s_examIdToExam[examId].status == Status.Cancelled) {
-            revert Certifier__ExamIsCancelled(examId);
-        }
-        if (s_examIdToExam[examId].status == Status.Ended) {
-            revert Certifier__ExamEnded(examId);
-        }
-        if (block.timestamp <= s_examIdToExam[examId].endTime + i_timeToCorrectExam) {
-            revert Certifier__TooSoonToCancelExam(examId);
-        }
+        if (s_examIdToExam[examId].status == Status.Cancelled) revert Certifier__ExamIsCancelled(examId);
+        if (s_examIdToExam[examId].status == Status.Ended) revert Certifier__ExamEnded(examId);
+        if (block.timestamp <= s_examIdToExam[examId].endTime + i_timeToCorrectExam) revert Certifier__TooSoonToCancelExam(examId);
         s_examIdToExam[examId].status = Status.Cancelled;
     }
 
+    /**
+    * @notice Claims the NFT certificate
+    * @notice The user can only claim their certificate once
+    * @notice answers and secretNumber are used to get the exact answers that the user submitted and 
+    * to ensure that he was the one who submitted them
+    * @param examId The id of the exam
+    * @param answers The answers of the user in an array
+    * @param secretNumber The secret number of the user
+    */
     function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external {
-        if (s_examIdToExam[examId].status != Status.Ended) {
-            revert Certifier__ExamIsCancelled(examId);
-        }
-        if (s_userHasClaimed[msg.sender][examId]) {
-            revert Certifier__UserAlreadyClaimedNFT(examId);
-        }
+        if (s_examIdToExam[examId].status != Status.Ended) revert Certifier__ExamIsCancelled(examId);
+        if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedNFT(examId);
+
         uint256 userAnswersAsNumber = getAnswerAsNumber(answers);
         bytes32 expectedHashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, msg.sender));
-        if (expectedHashedAnswer != s_userToAnswers[msg.sender][examId]) {
-            revert Certifier__AnswerHashesDontMatch(expectedHashedAnswer, s_userToAnswers[msg.sender][examId]);
-        }
+        if (expectedHashedAnswer != s_userToAnswers[msg.sender][examId]) revert Certifier__AnswerHashesDontMatch(expectedHashedAnswer, s_userToAnswers[msg.sender][examId]);
+
         uint256 score = getScore(s_examIdToExam[examId].answers, answers);
-        if (score < s_examIdToExam[examId].baseScore) {
-            revert Certifier__UserFailedExam(score, s_examIdToExam[examId].baseScore);
-        }
+        if (score < s_examIdToExam[examId].baseScore) revert Certifier__UserFailedExam(score, s_examIdToExam[examId].baseScore);
 
         s_userHasClaimed[msg.sender][examId] = true;
 
@@ -195,20 +213,12 @@ contract Certifier is ERC721, ReentrancyGuard {
     * @param examId The id of the exam
     */
     function refundExam(uint256 examId) external nonReentrant {
-        if (s_examIdToExam[examId].status != Status.Cancelled) {
-            revert Certifier__ExamIsNotCancelled(examId);
-        }
-        if (s_userToAnswers[msg.sender][examId] == "") {
-            revert Certifier__UserDidNotParticipate(examId);
-        }
-        if (s_userHasClaimed[msg.sender][examId]) {
-            revert Certifier__UserAlreadyClaimedCancelledExam(examId);
-        }
+        if (s_examIdToExam[examId].status != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId);
+        if (s_userToAnswers[msg.sender][examId] == "") revert Certifier__UserDidNotParticipate(examId);
+        if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedCancelledExam(examId);
         s_userHasClaimed[msg.sender][examId] = true;
-        (bool success,) = msg.sender.call{value: s_examIdToExam[examId].price}("");
-        if (!success) {
-            revert Certifier__EtherTransferFailed();
-        }
+        (bool success,) = msg.sender.call{value: getUsdToEthRate(s_examIdToExam[examId].price)}("");
+        if (!success) revert Certifier__EtherTransferFailed();
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -224,15 +234,12 @@ contract Certifier is ERC721, ReentrancyGuard {
     }
 
     function getScore(uint256[] memory correctAnswers, uint256[] memory userAnswers) private pure returns (uint256) {
+        if (correctAnswers.length != userAnswers.length) revert Certifier__AnswersLengthDontMatch(correctAnswers.length, userAnswers.length);
+
         uint256 score = 0;
-        if (correctAnswers.length != userAnswers.length) {
-            revert Certifier__AnswersLengthDontMatch(correctAnswers.length, userAnswers.length);
-        }
-        for (uint256 i = 0; i < correctAnswers.length; i++) {
-            if (correctAnswers[i] == userAnswers[i]) {
+        for (uint256 i = 0; i < correctAnswers.length; i++)
+            if (correctAnswers[i] == userAnswers[i])
                 score++;
-            }
-        }
         return score;
     }
 
@@ -276,14 +283,6 @@ contract Certifier is ERC721, ReentrancyGuard {
                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function getCertifiers() public view returns (address[] memory) {
-        return s_certifiers;
-    }
-
-    function getCertifier(uint256 index) public view returns (address) {
-        return s_certifiers[index];
-    }
-
     function getCertifierExams(address certifier) public view returns (uint256[] memory) {
         return s_certifierToExamIds[certifier];
     }
@@ -318,5 +317,12 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return s_tokenIdToUri[tokenId];
+    }
+
+    function getUsdToEthRate(uint256 usdAmount) public view returns (uint256) {
+        uint256 ethToUsd = PriceConverter.getConversionRate(1e18, i_priceFeed);
+        uint256 usdToEthRate = 1e18 * DECIMALS / ethToUsd;
+        uint256 ethAmount = usdAmount * usdToEthRate / DECIMALS;
+        return ethAmount;
     }
 }

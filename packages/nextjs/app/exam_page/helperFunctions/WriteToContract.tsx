@@ -1,53 +1,13 @@
 /*//////////////////////////////////////////////////////////////
-                        CLAIM CERTIFICATE
-//////////////////////////////////////////////////////////////*/
-
-// export const handleClaimCertificate = async (id: bigint, answers: bigint[], secretNumber: bigint) => {
-//     console.log("Exam refund begun");
-//     await claimCertificate(
-//         {
-//         functionName: "claimCertificate",
-//         args: [id, answers, secretNumber],
-//         },
-//         {
-//         onBlockConfirmation: res => {
-//             console.log("block confirm", res);
-//             // router.push(`/`);
-//         },
-//         },
-//     );
-// };
-
-/*//////////////////////////////////////////////////////////////
                             SUBMIT EXAM
 //////////////////////////////////////////////////////////////*/
 
-export const handlesubmitAnswers = async (submitAnswers: any, hashedAnswer: string, id: bigint) => {
-    console.log("Exam submission begun");
+export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: BigInt) => {
     await submitAnswers(
         {
         functionName: "submitAnswers",
-        args: [`0x${hashedAnswer?.substring(2)}`, id], // TODO check that
-        },
-        {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-            // router.push(`/`);
-        },
-        },
-    );
-};
-
-/*//////////////////////////////////////////////////////////////
-                    REFUND UNSUCCESSFUL EXAM
-//////////////////////////////////////////////////////////////*/
-
-export const handleRefundExam = async (refundExam: any, id: bigint) => {
-    console.log("Exam refund begun");
-    await refundExam(
-        {
-        functionName: "refundExam",
-        args: [id],
+        args: [id, `0x${hashedAnswer?.substring(2)}`], // TODO check that
+        value: examPrice
         },
         {
         onBlockConfirmation: (res: any) => {
@@ -63,7 +23,6 @@ export const handleRefundExam = async (refundExam: any, id: bigint) => {
 //////////////////////////////////////////////////////////////*/
 
 export const handleCancelExam = async (cancelExam: any, id: bigint) => {
-    console.log("Exam cancelation begun");
     try {
         await cancelExam(
             {
@@ -82,13 +41,11 @@ export const handleCancelExam = async (cancelExam: any, id: bigint) => {
     }
 };
 
-
 /*//////////////////////////////////////////////////////////////
                             CORRECT EXAM
 //////////////////////////////////////////////////////////////*/
 
 export const handleCorrectExam = async (correctExam: any, id: bigint, answers: bigint[]) => {
-    console.log("Exam correction begun");
     try {
         await correctExam(
             {
@@ -105,4 +62,42 @@ export const handleCorrectExam = async (correctExam: any, id: bigint, answers: b
     } catch (error) {
         console.log("nft mint error", error);
     }
+};
+
+/*//////////////////////////////////////////////////////////////
+                    REFUND UNSUCCESSFUL EXAM
+//////////////////////////////////////////////////////////////*/
+
+export const handleRefundExam = async (refundExam: any, id: bigint) => {
+    await refundExam(
+        {
+        functionName: "refundExam",
+        args: [id],
+        },
+        {
+        onBlockConfirmation: (res: any) => {
+            console.log("block confirm", res);
+            // router.push(`/`);
+        },
+        },
+    );
+};
+
+/*//////////////////////////////////////////////////////////////
+                        CLAIM CERTIFICATE
+//////////////////////////////////////////////////////////////*/
+
+export const handleClaimCertificate = async (claimCertificate: any, id: bigint, answersArray: bigint[], key: bigint) => {
+    await claimCertificate(
+        {
+        functionName: "claimCertificate",
+        args: [id, answersArray, key],
+        },
+        {
+        onBlockConfirmation: (res: any) => {
+            console.log("block confirm", res);
+            // router.push(`/`);
+        },
+        },
+    );
 };

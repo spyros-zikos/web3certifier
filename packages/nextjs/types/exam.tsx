@@ -1,16 +1,16 @@
 
 interface Exam {
-    id: BigInt;
+    id: bigint;
     name: string;
     description: string;
-    endTime: BigInt;
+    endTime: bigint;
     status: number;
     questions: readonly string[];
-    answers: readonly BigInt[];
-    price: BigInt;
-    baseScore: BigInt;
+    answers: readonly bigint[];
+    price: bigint;
+    baseScore: bigint;
     imageUrl: string;
     users: readonly string[];
-    etherAccumulated: BigInt;
+    etherAccumulated: bigint;
     certifier: string;
 }

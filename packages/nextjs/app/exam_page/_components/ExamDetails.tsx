@@ -1,12 +1,23 @@
 import React from 'react'
-import { Box, Text } from '@chakra-ui/react';
+import { VStack, Image } from '@chakra-ui/react';
+import ExamDetail from './ExamDetail';
 
-const ExamDetails = ({name, value}: {name: any, value: any}) => {
+const ExamDetails = ({exam, questions, callToAction}: {exam: Exam|undefined, questions: any, callToAction: any}) => {
     return (
-        <Box>
-            <label className="fontsize-12 mt-4">{name}: </label>
-            <Text fontWeight="bold" fontSize="12" p="0" m="0" mb="4">{value}</Text>
-        </Box>
+        <VStack>
+            <div className="max-w-[400px]">
+            <Image src={exam?.imageUrl} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" />
+            <ExamDetail name="Name" value={exam?.name} />
+            <ExamDetail name="Description" value={exam?.description} />
+            <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
+            <ExamDetail name="Status" value={exam?.status == 0 ? "Open" : "Ended"} />
+            <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
+            <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
+            <ExamDetail name="Certifier" value={exam?.certifier} />
+            {questions}
+            {callToAction}
+            </div>
+        </VStack>
     );
 }
 

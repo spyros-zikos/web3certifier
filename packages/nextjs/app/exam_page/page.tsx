@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { SimpleGrid, Box, Text, VStack, HStack, Image } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { PageWrapper, Button, Title } from "~~/components";
 import { useAccount } from "wagmi";
 import { Web3 } from 'web3';
-import { handleCancelExam, handleCorrectExam, handleRefundExam, handlesubmitAnswers } from "./helperFunctions/WriteToContract";
-import ExamDetails from "./_components/ExamDetails";
-import CancelExamPage from "./_components/CancelExamPage";
+import { handleCancelExam, handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/WriteToContract";
+import ExamPageWithMessage from "./_components/ExamPageWithMessage";
+import { ExamStage } from "../../types/ExamStage";
+import ExamPageWithSubmit from "./_components/ExamPageWithSubmit";
 
 const ExamPage = () => {
     const searchParams = useSearchParams();
@@ -22,11 +23,35 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
+    const userHasClaimed = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getUserHasClaimed",
+        args: [address, id],
+    }).data;
+
     const userAnswer = useScaffoldReadContract({
         contractName: "Certifier",
         functionName: "getUserAnswer",
         args: [address, id],
     }).data;
+
+    const examPriceInEth = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getUsdToEthRate",
+        args: [BigInt(exam ? exam.price.toString() : 0)],
+    }).data;
+
+    const userHashedSubmittedAnswer = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getUserAnswer",
+        args: [address, id],
+    }).data;
+
+    const getTimeToCorrectExam: BigInt | undefined = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getTimeToCorrectExam",
+    }).data;
+
     const userHasNotParticipated = userAnswer==="0x0000000000000000000000000000000000000000000000000000000000000000";
 
     const { writeContractAsync: submitAnswers } = useScaffoldWriteContract("Certifier");
@@ -37,6 +62,8 @@ const ExamPage = () => {
 
     const initialAnswers = exam?.questions.map(() => BigInt(0));
     const [answers, setAnswers] = useState<bigint[]>(initialAnswers!);
+    const [userPasswordInput, setUserPasswordInput] = useState<string>("");
+    const [correctAnswersLength, setCorrectAnswersLength] = useState<number>(-1);
 
     useEffect(() => {
         if (answers === undefined)
@@ -51,31 +78,21 @@ const ExamPage = () => {
         return result;
     }
 
-
     /*//////////////////////////////////////////////////////////////
                               SUBMIT EXAM
     //////////////////////////////////////////////////////////////*/
 
     // Get answers, key, address
+    const keyLength = 10;
     const answersAsNumber: BigInt = answers ? getAnswerAsNumber(answers) : BigInt(0);
-    const [key, _] = useState(Math.floor(1e10 * Math.random()));
+    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
 
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
-    const hashedAnswer = address ? web3.utils.soliditySha3(answersAsNumber, key, address) : '0x0';
+    const hashedAnswer = address ? web3.utils.soliditySha3(answersAsNumber, randomKey, address) : '0x0';
 
-    const code = String(answersAsNumber) + String(key);
-
-
-
-    /*//////////////////////////////////////////////////////////////
-                              CANCEL EXAM
-    //////////////////////////////////////////////////////////////*/
+    const userPassword = String(answersAsNumber) + String(randomKey);
 
 
-    const getTimeToCorrectExam: BigInt | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getTimeToCorrectExam",
-    }).data;
 
     const currentTimestamp = BigInt(Math.floor(new Date().getTime() / 1000));
     const needsCorrecting = exam && (exam.status === 0 &&
@@ -83,142 +100,201 @@ const ExamPage = () => {
     const correctionTimePassed = exam && getTimeToCorrectExam && needsCorrecting &&
         (BigInt(exam.endTime.toString()) + BigInt(getTimeToCorrectExam!.toString()) < currentTimestamp);
 
-    // exam needs to be cancelled
-    if (needsCorrecting && correctionTimePassed) {
+
+    const getExamStage = () => {
+        if (address === exam?.certifier) {
+            if (exam?.status === 2)
+                return ExamStage.Certifier_EndStats;
+            if (needsCorrecting) {
+                if (!correctionTimePassed)
+                    return ExamStage.Certifier_Correct;
+                return ExamStage.Both_Cancel;
+            }
+            if (exam?.status === 1)
+                return ExamStage.Both_CancelStats;
+            return ExamStage.Certifier_Started;
+        }
+        else {
+            if (exam?.status === 2) {
+                if (userHasNotParticipated)
+                    return ExamStage.User_Details;
+                else {
+                    if (userHasClaimed)
+                        return ExamStage.User_EndStats;
+                    return ExamStage.User_ClaimCertificate;
+                }
+            } else if (exam?.status === 1) {
+                if (!userHasClaimed && !userHasNotParticipated)
+                    return ExamStage.User_ClaimRefund;
+                return ExamStage.Both_CancelStats;
+            } else if (needsCorrecting) {
+                if (!correctionTimePassed)
+                    return ExamStage.User_WaitForCorrection;
+                return ExamStage.Both_Cancel;
+            } else if (exam?.status === 0) {
+                if (userHasNotParticipated)
+                    return ExamStage.User_StartedNotSubmitted;
+                else
+                    return ExamStage.User_StartedSubmitted;
+            }
+        }
+    }
+
+    const getExamStageMessage = (stage: any) => {
+        switch (stage) {
+            case ExamStage.Certifier_Started:
+                return "This exam is ongoing!";
+            case ExamStage.User_StartedSubmitted:
+                return "Your answers are submitted!";
+            case ExamStage.User_WaitForCorrection:
+                return "This exam is being corrected by the certifier!";
+            case ExamStage.Certifier_EndStats:
+                return "This exam has ended! View the certifier stats!"; // TODO add stats
+            case ExamStage.User_EndStats:
+                return "This exam has ended! View your stats!"; // TODO add stats
+            case ExamStage.User_Details:
+                return "This exam has ended. You did not participate!";
+            case ExamStage.Both_CancelStats:
+                return "The exam has been cancelled!";
+            default:
+                return "";
+        }
+    }
+
+    function getExamStageAction(stage: any) {
+        switch (stage) {
+            case ExamStage.User_StartedNotSubmitted:
+                return <>
+                    <Box className="mt-12 mb-8">
+                        <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.</div>
+                    </Box>
+                    <Box>
+                        <Button className="ml-0" onClick={() => 
+                        {hashedAnswer&&examPriceInEth ? handleSubmitAnswers(submitAnswers, id, hashedAnswer, examPriceInEth) : 0}}>Submit</Button>
+                    </Box>
+                </>;
+            case ExamStage.Both_Cancel:
+                return <>
+                    <Box className="mt-12 mb-8">
+                        <div>This exam was not corrected in time. You can cancel it and get your refund if you've submitted your answers.</div>
+                    </Box>
+                    <Box>
+                        <Button className="ml-0" onClick={() => {handleCancelExam(cancelExam, id)}}>Cancel Exam</Button>
+                    </Box>
+                </>;
+            case ExamStage.Certifier_Correct:
+                return <>
+                    <Box className="mt-12 mb-8">
+                        <div>This exam needs correcting. Please provide the correct answers.</div>
+                    </Box>
+                    <Box>
+                        <Button className="ml-0" onClick={() => {handleCorrectExam(correctExam, id, answers)}}>Correct Exam</Button>
+                    </Box>
+                </>;
+            case ExamStage.User_ClaimRefund:
+                return <>
+                    <Box className="mt-12 mb-8">
+                        <div>You can claim your refund.</div>
+                    </Box>
+                    <Box>
+                        <Button className="ml-0" onClick={() => {handleRefundExam(refundExam, id)}}>Refund Exam</Button>
+                    </Box>
+                </>;
+            case ExamStage.User_ClaimCertificate:
+                const key = parseInt(userPasswordInput.substring(userPasswordInput.length - keyLength));
+                let answersInt = parseInt(userPasswordInput.substring(0, userPasswordInput.length - keyLength));
+                let answersIntCopy = answersInt;
+                let answersArray: bigint[] = [];
+                for (let i = 0; i < userPasswordInput.length - keyLength; i++) {
+                    answersArray.push(BigInt(answersInt % 10));
+                    answersInt = Math.floor(answersInt / 10);
+                }
+                const numberOfCorrectAnswers = answersArray.filter((answer: any, i: any) => answer === exam?.answers[i]).length;
+
+                if (correctAnswersLength > -1) { // if we know the correct answers length
+                    return (
+                        <Box className="mt-12 mb-8">
+                            <div>You failed this exam! Your score was {correctAnswersLength}/{exam!.questions.length} {""}
+                                but you needed at least {exam!.baseScore.toString()}/{exam!.questions.length} to pass.</div>
+                        </Box>
+                    );
+                }
+
+                const passwordLengthGood = answersArray.length === exam!.questions.length;
+                const hashFromInputedPassword = (answersIntCopy && key && address) ?  web3.utils.soliditySha3(answersIntCopy, key, address) : '0x0';
+                const passwordHashGood = hashFromInputedPassword === userHashedSubmittedAnswer;
+                return <>
+                    <Box className="mt-12 mb-8">
+                        <div>You can claim your certificate! To do so, enter your password below.</div>
+                    </Box>
+                    <input
+                        className="border-2 border-blue-400 text-base-content bg-base-100 p-2 mr-2 mb-4 min-w-[200px] sm:w-1/2 md:w-1/3 lg:w-1/4 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+                        type="text"
+                        value={userPasswordInput}
+                        placeholder="Password"
+                        onChange={e => setUserPasswordInput(e.target.value)}
+                    />
+                    {(passwordLengthGood && passwordHashGood) ?
+                    <Box>
+                        <Button className="ml-0"
+                            onClick={() => {
+                                if (numberOfCorrectAnswers < exam!.baseScore)
+                                    setCorrectAnswersLength(numberOfCorrectAnswers);
+                                else
+                                    userPasswordInput ? handleClaimCertificate(claimCertificate, id, answersArray, BigInt(key)) : 0
+                        }}>Claim Certificate</Button>
+                    </Box>
+                    :
+                    <Box>
+                        <div>Your password is incorrect!</div>
+                    </Box>
+                    }
+                </>;
+            default:
+                return "";
+        }
+    }
+
+    const pageDoesAction = () => {
+        if ((getExamStage() === ExamStage.User_StartedNotSubmitted) ||
+            (getExamStage() === ExamStage.Both_Cancel) ||
+            (getExamStage() === ExamStage.Certifier_Correct) ||
+            (getExamStage() === ExamStage.User_ClaimRefund) ||
+            (getExamStage() === ExamStage.User_ClaimCertificate)) {
+            return true;
+        }
+    }
+
+    if (exam?.certifier === "0x0000000000000000000000000000000000000000") {
         return (
-            <CancelExamPage onClick={() => handleCancelExam(cancelExam, id)} />
-        );
-    }
-
-    // exam needs to be corrected
-    if (needsCorrecting && !correctionTimePassed) {
-        return address !== exam?.certifier ? (
             <PageWrapper>
                 <Title>Exam Page</Title>
-                <Text>This exam is being corrected! You are not the certifier!</Text>
-            </PageWrapper>
-        ) : (
-            <PageWrapper>
-                <Title>Exam Page</Title>
-                <Text>You need to correct the exam!</Text>
-            </PageWrapper>
-        );
-    }
-
-    // exam has been cancelled, users can redeem
-    if (exam?.status === 1) {
-        if (userHasNotParticipated)
-            return (
                 <Box>
-                    <Text>This exam has been cancelled!</Text>
+                    <div>Exam does not exist!</div>
                 </Box>
-            );
-        return (
-            <Box>
-                <Text>This exam has been cancelled! Claim your refund!</Text>
-                <Button onClick={()=>handleRefundExam(refundExam, id)}>Claim Refund</Button>
-            </Box>
-        );
+            </PageWrapper>
+        )
     }
-
-
 
     return (
         <PageWrapper>
             <Title>Exam Page</Title>
 
-            <VStack>
-                <div className="max-w-[400px]">
-                <Image src={exam?.imageUrl} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" />
-                <Box>
-                    <ExamDetails name="Name" value={exam?.name} />
-                </Box>
-                <Box>
-                    <ExamDetails name="Description" value={exam?.description} />
-                </Box>
-                <Box>
-                    <ExamDetails name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
-                </Box>
-                <Box>
-                    <ExamDetails name="Status" value={exam?.status == 0 ? "Open" : "Ended"} />
-                </Box>
-                <Box>
-                    <ExamDetails name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
-                </Box>
-                <Box>
-                    <ExamDetails name="Base Score" value={exam?.baseScore.toString()} />
-                </Box>
-                <Box>
-                    <ExamDetails name="Certifier" value={exam?.certifier} />
-                </Box>
-
-                <Box>
-                    {exam?.questions.map((question, index) => (
-                        <Box key={index}>
-                            <form
-                                onChange={e => {
-                                    const target = e.target as HTMLInputElement;
-                                    if (target.checked) {
-                                        const value = Number(target.value);
-                                        if (!isNaN(value)) {
-                                            setAnswers([
-                                                ...answers.slice(0, index),
-                                                BigInt(value),
-                                                ...answers.slice(index + 1),
-                                            ]);
-                                        }
-                                    }
-                                }}
-                            >
-                                <div className="mt-6 mb-2">{question}</div>
-                                <label className="mr-5">
-                                    <input type="radio" name={`question-${index}`} value="1" />
-                                    <span className="ml-1">1</span>
-                                </label>
-                                <label className="mr-5">
-                                    <input type="radio" name={`question-${index}`} value="2" />
-                                    <span className="ml-1">2</span>
-                                </label>
-                                <label className="mr-5">
-                                    <input type="radio" name={`question-${index}`} value="3" />
-                                    <span className="ml-1">3</span>
-                                </label>
-                                <label className="mr-5">
-                                    <input type="radio" name={`question-${index}`} value="4" />
-                                    <span className="ml-1">4</span>
-                                </label>
-                            </form>
-                        </Box>
-                    ))}
-                </Box>
-
-                {address !== exam?.certifier ?
-                // user submission
-                (<>
-                    <Box className="mt-4">
-                        <div>Your code is {code}. You&apos;ll need it to claim your certificate.</div>
-                    </Box>
-                    <Box>
-                        <Button onClick={() => {hashedAnswer ? handlesubmitAnswers(submitAnswers, hashedAnswer, id) : 0}}>Submit</Button>
-                    </Box>
-                </>) : 
-                // certifier submission to correct exam // TODO: certifier can correct only on the 'correct' period
-                // In this period, the user has to see an appropriate message
-                (<>
-                    <Box className="mt-6">
-                        <div>Correct the exam by submitting your answers.</div>
-                    </Box>
-                    <Box>
-                        <Button onClick={() => {answers ? handleCorrectExam(correctExam, id, answers) : 0}}>
-                            Submit
-                        </Button>
-                    </Box>
-                </>)}
-                
-
-                {/* <div> Copy this password and use it to claim your certificate: {code}</div> */}
-                </div>
-            </VStack>
+            {pageDoesAction() ? 
+                <ExamPageWithSubmit
+                    exam={exam}
+                    answers={answers} 
+                    setAnswers={setAnswers} 
+                    action={getExamStageAction(getExamStage()!)}
+                    showAnswers={
+                        (getExamStage() === ExamStage.User_StartedNotSubmitted) ||
+                        (getExamStage() === ExamStage.Certifier_Correct)
+                    }
+                />
+            :
+                <ExamPageWithMessage exam={exam} message={getExamStageMessage(getExamStage()!)}/>
+            }
+            
         </PageWrapper>
     )
 }

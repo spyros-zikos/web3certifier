@@ -180,25 +180,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getCertifier",
-          inputs: [
-            {
-              name: "index",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "getCertifierExams",
           inputs: [
             {
@@ -212,19 +193,6 @@ const deployedContracts = {
               name: "",
               type: "uint256[]",
               internalType: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getCertifiers",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address[]",
-              internalType: "address[]",
             },
           ],
           stateMutability: "view",
@@ -343,6 +311,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getUsdToEthRate",
+          inputs: [
+            {
+              name: "usdAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getUser",
           inputs: [
             {
@@ -380,25 +367,6 @@ const deployedContracts = {
               name: "",
               type: "bytes32",
               internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserExamIds",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256[]",
-              internalType: "uint256[]",
             },
           ],
           stateMutability: "view",
@@ -583,14 +551,14 @@ const deployedContracts = {
           name: "submitAnswers",
           inputs: [
             {
-              name: "hashedAnswer",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
+            },
+            {
+              name: "hashedAnswer",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           outputs: [],
@@ -855,6 +823,17 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__OnlyCertifierCanCorrect",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
           name: "Certifier__TooSoonToCancelExam",
           inputs: [
             {
@@ -878,6 +857,28 @@ const deployedContracts = {
         {
           type: "error",
           name: "Certifier__UserAlreadyClaimedNFT",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__UserAlreadySubmittedAnswers",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__UserDidNotParticipate",
           inputs: [
             {
               name: "examId",
@@ -1043,12 +1044,33 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {},
+      inheritedFunctions: {
+        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        balanceOf:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        getApproved:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        isApprovedForAll:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        safeTransferFrom:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        setApprovalForAll:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        supportsInterface:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        tokenURI:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        transferFrom:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+      },
     },
   },
   11155111: {
     Certifier: {
-      address: "0x0bfa72c04d02b39cd1b7492bcd508a66dcf573fa",
+      address: "0x4ca8ceda587ae8b1be0e5560ee55e0d6a9505434",
       abi: [
         {
           type: "constructor",
@@ -1221,25 +1243,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getCertifier",
-          inputs: [
-            {
-              name: "index",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "getCertifierExams",
           inputs: [
             {
@@ -1253,19 +1256,6 @@ const deployedContracts = {
               name: "",
               type: "uint256[]",
               internalType: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getCertifiers",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address[]",
-              internalType: "address[]",
             },
           ],
           stateMutability: "view",
@@ -1384,6 +1374,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getUsdToEthRate",
+          inputs: [
+            {
+              name: "usdAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getUser",
           inputs: [
             {
@@ -1421,25 +1430,6 @@ const deployedContracts = {
               name: "",
               type: "bytes32",
               internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserExamIds",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256[]",
-              internalType: "uint256[]",
             },
           ],
           stateMutability: "view",
@@ -1624,14 +1614,14 @@ const deployedContracts = {
           name: "submitAnswers",
           inputs: [
             {
-              name: "hashedAnswer",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
+            },
+            {
+              name: "hashedAnswer",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           outputs: [],
@@ -1896,6 +1886,17 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__OnlyCertifierCanCorrect",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
           name: "Certifier__TooSoonToCancelExam",
           inputs: [
             {
@@ -1919,6 +1920,28 @@ const deployedContracts = {
         {
           type: "error",
           name: "Certifier__UserAlreadyClaimedNFT",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__UserAlreadySubmittedAnswers",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__UserDidNotParticipate",
           inputs: [
             {
               name: "examId",
@@ -2084,7 +2107,28 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {},
+      inheritedFunctions: {
+        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        balanceOf:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        getApproved:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        isApprovedForAll:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        safeTransferFrom:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        setApprovalForAll:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        supportsInterface:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        tokenURI:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        transferFrom:
+          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+      },
     },
   },
 } as const;
