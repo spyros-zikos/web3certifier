@@ -7,7 +7,7 @@ import { Box } from '@chakra-ui/react';
 import { PageWrapper, Button, Title } from "~~/components";
 import { useAccount } from "wagmi";
 import { Web3 } from 'web3';
-import { handleCancelExam, handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/WriteToContract";
+import { handleCancelExam, handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswersFree, handleSubmitAnswersPaid } from "./helperFunctions/WriteToContract";
 import ExamPageWithMessage from "./_components/ExamPageWithMessage";
 import { ExamStage } from "../../types/ExamStage";
 import ExamPageWithSubmit from "./_components/ExamPageWithSubmit";
@@ -54,7 +54,8 @@ const ExamPage = () => {
 
     const userHasNotParticipated = userAnswer==="0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const { writeContractAsync: submitAnswers } = useScaffoldWriteContract("Certifier");
+    const { writeContractAsync: submitAnswersFree } = useScaffoldWriteContract("Certifier");
+    const { writeContractAsync: submitAnswersPaid } = useScaffoldWriteContract("Certifier");
     const { writeContractAsync: cancelExam } = useScaffoldWriteContract("Certifier");
     const { writeContractAsync: refundExam } = useScaffoldWriteContract("Certifier");
     const { writeContractAsync: claimCertificate } = useScaffoldWriteContract("Certifier");
@@ -124,7 +125,7 @@ const ExamPage = () => {
                     return ExamStage.User_ClaimCertificate;
                 }
             } else if (exam?.status === 1) {
-                if (!userHasClaimed && !userHasNotParticipated)
+                if (!userHasClaimed && !userHasNotParticipated && (exam.price>0))
                     return ExamStage.User_ClaimRefund;
                 return ExamStage.Both_CancelStats;
             } else if (needsCorrecting) {
@@ -170,13 +171,21 @@ const ExamPage = () => {
                     </Box>
                     <Box>
                         <Button className="ml-0" onClick={() => 
-                        {hashedAnswer&&examPriceInEth ? handleSubmitAnswers(submitAnswers, id, hashedAnswer, examPriceInEth) : 0}}>Submit</Button>
+                        {hashedAnswer ?
+                            (
+                                (exam && (exam.price > 0) && examPriceInEth) ?
+                                    handleSubmitAnswersPaid(submitAnswersPaid, id, hashedAnswer, examPriceInEth)
+                                    : 
+                                    exam && (exam.price === BigInt(0)) && handleSubmitAnswersFree(submitAnswersFree, id, hashedAnswer)
+                            ) 
+                            : 0
+                        }}>Submit</Button>
                     </Box>
                 </>;
             case ExamStage.Both_Cancel:
                 return <>
                     <Box className="mt-12 mb-8">
-                        <div>This exam was not corrected in time. You can cancel it and get your refund if you've submitted your answers.</div>
+                    <div>This exam was not corrected in time. {exam!.price > 0 ? "You can cancel it and get your refund if you've submitted your answers.":""}</div>
                     </Box>
                     <Box>
                         <Button className="ml-0" onClick={() => {handleCancelExam(cancelExam, id)}}>Cancel Exam</Button>
@@ -278,7 +287,7 @@ const ExamPage = () => {
 
     return (
         <PageWrapper>
-            <Title>Exam Page</Title>
+            {/* <Title>Exam Page</Title> */}
 
             {pageDoesAction() ? 
                 <ExamPageWithSubmit

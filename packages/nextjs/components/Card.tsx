@@ -43,13 +43,13 @@ const Card: React.FC<CardProps & { compact?: boolean }> = ({
   compact = false,
 }) => {
   return (
-    <StyledCard className={`${className + " card bg-neutral text-neutral-content rounded-lg overflow-hidden"}`}>
+    <StyledCard className={`${className + " card bg-neutral text-neutral-content rounded-lg overflow-hidden w-[300px]"}`}>
       {imageUrl && (
         <ImageWrapper>
           <Image src={imageUrl} alt={"Exam Image"} />
         </ImageWrapper>
       )}
-      <div className={`card-body ${compact && "p-5"} items-${align} flex flex-col justify-between`}>
+      <div className={`card-body ${compact && "p-5 pb-2"} items-${align} flex flex-col justify-between`}>
         <div>
           {title && <h1 className={`card-title ${compact && "font-bold"}`}>{title}</h1>}
           {children}

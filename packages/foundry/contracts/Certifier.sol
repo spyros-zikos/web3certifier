@@ -82,6 +82,8 @@ contract Certifier is ERC721, ReentrancyGuard {
     error Certifier__UserDidNotParticipate(uint256 examId);
     error Certifier__UserAlreadySubmittedAnswers(uint256 examId);
     error Certifier__OnlyCertifierCanCorrect(uint256 examId);
+    error Certifier__ThisExamIsNotFree(uint256 examId, uint256 price);
+    error Certifier__ThisExamIsNotPaid(uint256 examId);
 
     constructor(uint256 timeToCorrectExam, address priceFeed) ERC721("Certificate", "CERT") {
         i_timeToCorrectExam = timeToCorrectExam;
@@ -127,20 +129,37 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     /**
      * @notice Submits the answers of the user.
-     * @notice The user has to pay the cost of the exam.
+     * @notice The user has to pay the price of the exam.
      * @notice The user can only submit answers before the exam ends.
      * @notice The user can only submit answers once.
      * @param examId The id of the exam
      * @param hashedAnswer The hash of the answers and the key and msg.sender
      */
-    function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable {
+    function submitAnswersPaid(uint256 examId, bytes32 hashedAnswer) external payable {
         if (block.timestamp > s_examIdToExam[examId].endTime) revert Certifier__ExamEnded(examId);
         if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
-        if (s_examIdToExam[examId].price > 0) {
-            uint256 ethAmountRequired = getUsdToEthRate(s_examIdToExam[examId].price);
-            if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
-            s_examIdToExam[examId].etherAccumulated += msg.value;
-        }
+        if (s_examIdToExam[examId].price == 0) revert Certifier__ThisExamIsNotPaid(examId);
+
+        uint256 ethAmountRequired = getUsdToEthRate(s_examIdToExam[examId].price);
+        if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
+
+        s_examIdToExam[examId].etherAccumulated += msg.value;
+        s_userToAnswers[msg.sender][examId] = hashedAnswer;
+    }
+
+    /**
+     * @notice Submits the answers of the user.
+     * @notice The exam is free.
+     * @notice The user can only submit answers before the exam ends.
+     * @notice The user can only submit answers once.
+     * @param examId The id of the exam
+     * @param hashedAnswer The hash of the answers and the key and msg.sender
+     */
+    function submitAnswersFree(uint256 examId, bytes32 hashedAnswer) external {
+        if (block.timestamp > s_examIdToExam[examId].endTime) revert Certifier__ExamEnded(examId);
+        if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
+        if (s_examIdToExam[examId].price > 0) revert Certifier__ThisExamIsNotFree(examId, s_examIdToExam[examId].price);
+        
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
     }
 
@@ -210,12 +229,14 @@ contract Certifier is ERC721, ReentrancyGuard {
 
     /**
     * Refund the price of the cancelled exam to the user
+    * Only if the exam is paid (price > 0)
     * @param examId The id of the exam
     */
     function refundExam(uint256 examId) external nonReentrant {
         if (s_examIdToExam[examId].status != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId);
         if (s_userToAnswers[msg.sender][examId] == "") revert Certifier__UserDidNotParticipate(examId);
         if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedCancelledExam(examId);
+        if (s_examIdToExam[examId].price == 0) revert Certifier__ThisExamIsNotPaid(examId);
         s_userHasClaimed[msg.sender][examId] = true;
         (bool success,) = msg.sender.call{value: getUsdToEthRate(s_examIdToExam[examId].price)}("");
         if (!success) revert Certifier__EtherTransferFailed();

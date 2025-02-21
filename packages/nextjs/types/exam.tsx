@@ -1,4 +1,3 @@
-
 interface Exam {
     id: bigint;
     name: string;

@@ -1,44 +1,48 @@
 /*//////////////////////////////////////////////////////////////
-                            SUBMIT EXAM
+                         SUBMIT EXAM PAID
 //////////////////////////////////////////////////////////////*/
 
-export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: BigInt) => {
-    await submitAnswers(
-        {
-        functionName: "submitAnswers",
-        args: [id, `0x${hashedAnswer?.substring(2)}`], // TODO check that
+export const handleSubmitAnswersPaid = async (submitAnswersPaid: any, id: bigint, hashedAnswer: string, examPrice: BigInt) => {
+    await submitAnswersPaid({
+        functionName: "submitAnswersPaid",
+        args: [id, `0x${hashedAnswer?.substring(2)}`],
         value: examPrice
-        },
-        {
+    }, {
         onBlockConfirmation: (res: any) => {
             console.log("block confirm", res);
-            // router.push(`/`);
         },
-        },
-    );
+    });
 };
+
+/*//////////////////////////////////////////////////////////////
+                         SUBMIT EXAM FREE
+//////////////////////////////////////////////////////////////*/
+
+export const handleSubmitAnswersFree = async (submitAnswersFree: any, id: bigint, hashedAnswer: string) => {
+    await submitAnswersFree({
+        functionName: "submitAnswersFree",
+        args: [id, `0x${hashedAnswer?.substring(2)}`]
+    }, {
+        onBlockConfirmation: (res: any) => {
+            console.log("block confirm", res);
+        },
+    });
+};
+
 
 /*//////////////////////////////////////////////////////////////
                             CANCEL EXAM
 //////////////////////////////////////////////////////////////*/
 
 export const handleCancelExam = async (cancelExam: any, id: bigint) => {
-    try {
-        await cancelExam(
-            {
-            functionName: "cancelUncorrectedExam",
-            args: [id],
-            },
-            {
-            onBlockConfirmation: (res: any) => {
-                console.log("block confirm", res);
-                // router.push(`/`);
-            },
-            },
-        );
-    } catch (error) {
-        console.log("nft mint error", error);
-    }
+    await cancelExam({
+        functionName: "cancelUncorrectedExam",
+        args: [id],
+    }, {
+        onBlockConfirmation: (res: any) => {
+            console.log("block confirm", res);
+        },
+    });
 };
 
 /*//////////////////////////////////////////////////////////////
@@ -46,22 +50,14 @@ export const handleCancelExam = async (cancelExam: any, id: bigint) => {
 //////////////////////////////////////////////////////////////*/
 
 export const handleCorrectExam = async (correctExam: any, id: bigint, answers: bigint[]) => {
-    try {
-        await correctExam(
-            {
-            functionName: "correctExam",
-            args: [id, answers],
-            },
-            {
-            onBlockConfirmation: (res: any) => {
-                console.log("block confirm", res);
-                // router.push(`/`);
-            },
-            },
-        );
-    } catch (error) {
-        console.log("nft mint error", error);
-    }
+    await correctExam({
+        functionName: "correctExam",
+        args: [id, answers],
+    }, {
+        onBlockConfirmation: (res: any) => {
+            console.log("block confirm", res);
+        },
+    });
 };
 
 /*//////////////////////////////////////////////////////////////
@@ -69,35 +65,28 @@ export const handleCorrectExam = async (correctExam: any, id: bigint, answers: b
 //////////////////////////////////////////////////////////////*/
 
 export const handleRefundExam = async (refundExam: any, id: bigint) => {
-    await refundExam(
-        {
+    await refundExam({
         functionName: "refundExam",
         args: [id],
-        },
-        {
+    }, {
         onBlockConfirmation: (res: any) => {
             console.log("block confirm", res);
-            // router.push(`/`);
         },
-        },
-    );
+    });
 };
+
 
 /*//////////////////////////////////////////////////////////////
                         CLAIM CERTIFICATE
 //////////////////////////////////////////////////////////////*/
 
 export const handleClaimCertificate = async (claimCertificate: any, id: bigint, answersArray: bigint[], key: bigint) => {
-    await claimCertificate(
-        {
+    await claimCertificate({
         functionName: "claimCertificate",
         args: [id, answersArray, key],
-        },
-        {
+    }, {
         onBlockConfirmation: (res: any) => {
             console.log("block confirm", res);
-            // router.push(`/`);
         },
-        },
-    );
+    });
 };

@@ -31,6 +31,28 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
     const needsCorrecting = exam && (exam.status === 0 &&
         (BigInt(exam.endTime.toString()) < BigInt(Math.floor(new Date().getTime() / 1000))));
 
+    const getFormattedDate = () => {
+        const splittedDate = endDate?.toLocaleString().split(",")!;
+
+        const date = splittedDate[0].slice(0,-4) + splittedDate[0].slice(-2);
+        const time = (endDate?.toLocaleString().slice(-2)==="AM" ?
+            (
+                Number(splittedDate[1].slice(0, -9)) === 12
+                ? ("00" + splittedDate[1].slice(3, -3))
+                : splittedDate[1].slice(0, -3)
+            )
+            :
+            (
+                Number(splittedDate[1].slice(0, -9)) === 12
+                ? splittedDate[1].slice(0, -3)
+                : ((Number(splittedDate[1].slice(0, -9)) + 12).toString()
+                    + splittedDate[1].slice(-9, -3))
+            )
+        ).slice(0,-3);
+
+        return date+'\n'+time;
+    }
+
     return (
         exam?.name &&
         dataString.includes(searchTerm) && (
@@ -45,20 +67,16 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             }
             compact={true}
         >
-            {exam.description}
-            <SimpleGrid columns={2} gap={2}>
+            {/* {exam.description} */}
+            <SimpleGrid columns={2} gap={0}>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="4">Price</Text>
+                    <Text fontSize="12" p="0" m="0" mt="3">Price</Text>
                 </Box>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="4">Status</Text>
+                    <Text fontSize="12" p="0" m="0" mt="3">Status</Text>
                 </Box>
 
                 <Box fontWeight="bold">
-                    {/* <div className="w-[150px]">{// TODO: fix the etherInput to show the dollar amount
-                    }
-                    <EtherInput usdMode={true} value={(parseFloat(exam.price.toString())/1e18).toString()} onChange={() => {}} />
-                    </div> */}
                     ${parseFloat(exam.price.toString())/1e18}
                 </Box>
                 <Box fontWeight="bold" w="120px">
@@ -71,34 +89,14 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                 </Box>
 
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="4">End Time</Text>
+                    <Text fontSize="12" p="0" m="0" mt="3">End Time</Text>
                 </Box>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="4">Certifier</Text>
+                    <Text fontSize="12" p="0" m="0" mt="3">Certifier</Text>
                 </Box>
 
-                {/* <Box fontWeight="bold">{exam.endTime.toString()}</Box> */}
-                {/* <Box fontWeight="bold">{new Date(Number(exam.endTime)).toString()}</Box> */}
-
                 <Box fontWeight="bold">
-                    {
-                        endDate?.toLocaleString().split(",")[0]+"\n"+
-                        (endDate?.toLocaleString().slice(-2)==="AM" ?
-                            (
-                                Number(endDate?.toLocaleString().split(",")[1].slice(0, -9)) === 12 ?
-                                    ("00" + endDate?.toLocaleString().split(",")[1].slice(3, -3)) :
-                                    endDate?.toLocaleString().split(",")[1].slice(0, -3)
-                            )
-                            :
-                            (
-                                Number(endDate?.toLocaleString().split(",")[1].slice(0, -9)) === 12 ?
-                                endDate?.toLocaleString().split(",")[1].slice(0, -3)
-                                :
-                                ((Number(endDate?.toLocaleString().split(",")[1].slice(0, -9)) + 12).toString()
-                                + endDate?.toLocaleString().split(",")[1].slice(-9, -3))
-                            )
-                        )
-                    }
+                    { getFormattedDate() }
                 </Box>
                 <Box fontWeight="bold">
                     <Address address={exam.certifier.toString()} />

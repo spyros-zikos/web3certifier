@@ -6,8 +6,8 @@ const ExamDetails = ({exam, questions, callToAction}: {exam: Exam|undefined, que
     return (
         <VStack>
             <div className="max-w-[400px]">
-            <Image src={exam?.imageUrl} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" />
-            <ExamDetail name="Name" value={exam?.name} />
+            <div className="text-[40px] font-bold mb-4 ">{exam?.name}</div>
+            <Image src={exam?.imageUrl} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" w={350} h={350} objectFit={"cover"}/>
             <ExamDetail name="Description" value={exam?.description} />
             <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
             <ExamDetail name="Status" value={exam?.status == 0 ? "Open" : "Ended"} />

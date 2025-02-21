@@ -548,7 +548,25 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "submitAnswers",
+          name: "submitAnswersFree",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "hashedAnswer",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "submitAnswersPaid",
           inputs: [
             {
               name: "examId",
@@ -834,6 +852,33 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__ThisExamIsNotFree",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "price",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__ThisExamIsNotPaid",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
           name: "Certifier__TooSoonToCancelExam",
           inputs: [
             {
@@ -1070,7 +1115,7 @@ const deployedContracts = {
   },
   11155111: {
     Certifier: {
-      address: "0x4ca8ceda587ae8b1be0e5560ee55e0d6a9505434",
+      address: "0xedf64dd9979456995ee8999d1bc34a7b6d307400",
       abi: [
         {
           type: "constructor",
@@ -1611,7 +1656,25 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "submitAnswers",
+          name: "submitAnswersFree",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "hashedAnswer",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "submitAnswersPaid",
           inputs: [
             {
               name: "examId",
@@ -1887,6 +1950,33 @@ const deployedContracts = {
         {
           type: "error",
           name: "Certifier__OnlyCertifierCanCorrect",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__ThisExamIsNotFree",
+          inputs: [
+            {
+              name: "examId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "price",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "Certifier__ThisExamIsNotPaid",
           inputs: [
             {
               name: "examId",
