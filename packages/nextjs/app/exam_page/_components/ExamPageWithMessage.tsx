@@ -11,9 +11,7 @@ const ExamPageWithMessage = ({exam, message}:
                 <Box>
                 {exam?.questions.map((question, index) => (
                     <Box key={index}>
-                        <form>
-                            <div className="mt-6 mb-2">{question}</div>
-                        </form>
+                        <div className="mt-6 mb-2 whitespace-pre-wrap border-2 border-gray-400 p-2">{question}</div>
                     </Box>
                 ))}
                 </Box>

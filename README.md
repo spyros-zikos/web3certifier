@@ -1,3 +1,15 @@
+for agent:
+`pnpm i`
+`pnpm approve-builds`
+approve: better-sqlite3 by selecting it with 'space' and 'enter'
+`pnpm build`
+`pnpm start`
+
+
+
+`yarn deploy --network sepolia`
+`yarn verify --network sepolia`
+
 # 🏗 Scaffold-ETH 2
 
 <h4 align="center">

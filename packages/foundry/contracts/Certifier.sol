@@ -47,11 +47,15 @@ contract Certifier is ERC721, ReentrancyGuard {
     using Strings for address;
     using Strings for string;
 
+    /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+
     mapping(address certifier => uint256[] examIds) private s_certifierToExamIds;
     address[] private s_users;
     mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
     // user can claim either ether if exam is cancelled or NFT if exam has ended
-    mapping(address user => mapping(uint256 id => bool hasClaimed)) private s_userHasClaimed;
+    mapping(address user => mapping(uint256 examId => bool hasClaimed)) private s_userHasClaimed;
 
     mapping(uint256 id => Exam exam) private s_examIdToExam;
     uint256 private s_lastExamId; // starts from 0
@@ -59,12 +63,45 @@ contract Certifier is ERC721, ReentrancyGuard {
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
 
+    // X usernames
+    mapping(address user => string username) private s_userToUsername;
+    mapping(string username => address user) private s_usernameToUser;
+
     uint256 private immutable i_timeToCorrectExam;
     address private immutable i_priceFeed;
 
     uint256 private constant DECIMALS = 1e18;
 
-    // Errors
+    /*//////////////////////////////////////////////////////////////
+                                EVENTS
+    //////////////////////////////////////////////////////////////*/
+
+    event CreateExam(
+        uint256 indexed id,
+        string name,
+        string description,
+        uint256 endTime,
+        Status status,
+        string[] questions,
+        uint256[] answers,
+        uint256 price,
+        uint256 baseScore,
+        string imageUrl,
+        address[] users,
+        uint256 etherAccumulated,
+        address certifier
+    );
+    event SubmitAnswersPaid(address user, uint256 examId, bytes32 hashedAnswer);
+    event SubmitAnswersFree(address user, uint256 examId, bytes32 hashedAnswer);
+    event CorrectExam(uint256 examId, uint256[] answers);
+    event CancelExam(uint256 examId);
+    event ClaimNFT(address user, uint256 examId, uint256 tokenId);
+    event ClaimRefund(address user, uint256 examId);
+
+    /*//////////////////////////////////////////////////////////////
+                                ERRORS
+    //////////////////////////////////////////////////////////////*/
+
     error Certifier__ExamEnded(uint256 examId);
     error Certifier__ExamAlreadyEnded(uint256 examId);
     error Certifier__ExamIsCancelled(uint256 examId);
@@ -85,10 +122,18 @@ contract Certifier is ERC721, ReentrancyGuard {
     error Certifier__ThisExamIsNotFree(uint256 examId, uint256 price);
     error Certifier__ThisExamIsNotPaid(uint256 examId);
 
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
+
     constructor(uint256 timeToCorrectExam, address priceFeed) ERC721("Certificate", "CERT") {
         i_timeToCorrectExam = timeToCorrectExam;
         i_priceFeed = priceFeed;
     }
+
+    /*//////////////////////////////////////////////////////////////
+                          EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Creates a new exam
@@ -122,6 +167,23 @@ contract Certifier is ERC721, ReentrancyGuard {
             etherAccumulated: 0,
             certifier: msg.sender
         });
+
+        emit CreateExam(
+            exam.id,
+            exam.name,
+            exam.description,
+            exam.endTime,
+            exam.status,
+            exam.questions,
+            exam.answers,
+            exam.price,
+            exam.baseScore,
+            exam.imageUrl,
+            exam.users,
+            exam.etherAccumulated,
+            exam.certifier
+        );
+
         s_examIdToExam[s_lastExamId] = exam;
         s_certifierToExamIds[msg.sender].push(s_lastExamId);
         s_lastExamId++;
@@ -145,6 +207,8 @@ contract Certifier is ERC721, ReentrancyGuard {
 
         s_examIdToExam[examId].etherAccumulated += msg.value;
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
+
+        emit SubmitAnswersPaid(msg.sender, examId, hashedAnswer);
     }
 
     /**
@@ -161,6 +225,7 @@ contract Certifier is ERC721, ReentrancyGuard {
         if (s_examIdToExam[examId].price > 0) revert Certifier__ThisExamIsNotFree(examId, s_examIdToExam[examId].price);
         
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
+        emit SubmitAnswersFree(msg.sender, examId, hashedAnswer);
     }
 
     /**
@@ -185,6 +250,8 @@ contract Certifier is ERC721, ReentrancyGuard {
             if (!success) revert Certifier__EtherTransferFailed();
             s_examIdToExam[examId].etherAccumulated = 0;
         }
+
+        emit CorrectExam(examId, answers);
     }
 
     /**
@@ -197,6 +264,8 @@ contract Certifier is ERC721, ReentrancyGuard {
         if (s_examIdToExam[examId].status == Status.Ended) revert Certifier__ExamEnded(examId);
         if (block.timestamp <= s_examIdToExam[examId].endTime + i_timeToCorrectExam) revert Certifier__TooSoonToCancelExam(examId);
         s_examIdToExam[examId].status = Status.Cancelled;
+
+        emit CancelExam(examId);
     }
 
     /**
@@ -224,6 +293,8 @@ contract Certifier is ERC721, ReentrancyGuard {
         string memory tokenUri = makeTokenUri(examId, score);
         s_tokenIdToUri[s_tokenCounter] = tokenUri;
         _safeMint(msg.sender, s_tokenCounter);
+        emit ClaimNFT(msg.sender, examId, s_tokenCounter);
+
         s_tokenCounter++;
     }
 
@@ -240,10 +311,42 @@ contract Certifier is ERC721, ReentrancyGuard {
         s_userHasClaimed[msg.sender][examId] = true;
         (bool success,) = msg.sender.call{value: getUsdToEthRate(s_examIdToExam[examId].price)}("");
         if (!success) revert Certifier__EtherTransferFailed();
+
+        emit ClaimRefund(msg.sender, examId);
+    }
+
+    function setUsername(string memory username) external nonReentrant {
+        s_userToUsername[msg.sender] = username;
+        s_usernameToUser[username] = msg.sender;
     }
 
     /*//////////////////////////////////////////////////////////////
-                           HELPER FUNCTIONS
+                           PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+    
+    // override
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        return s_tokenIdToUri[tokenId];
+    }
+
+    // chainlink oracle
+    function getUsdToEthRate(uint256 usdAmount) public view returns (uint256) {
+        uint256 ethToUsd = PriceConverter.getConversionRate(1e18, i_priceFeed);
+        uint256 usdToEthRate = 1e18 * DECIMALS / ethToUsd;
+        uint256 ethAmount = usdAmount * usdToEthRate / DECIMALS;
+        return ethAmount;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                          INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "data:application/json;base64,";
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                           PRIVATE FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
     function getAnswerAsNumber(uint256[] memory answers) private pure returns (uint256) {
@@ -262,10 +365,6 @@ contract Certifier is ERC721, ReentrancyGuard {
             if (correctAnswers[i] == userAnswers[i])
                 score++;
         return score;
-    }
-
-    function _baseURI() internal pure override returns (string memory) {
-        return "data:application/json;base64,";
     }
 
     function makeTokenUri(uint256 examId, uint256 score) private view returns (string memory) {
@@ -304,15 +403,15 @@ contract Certifier is ERC721, ReentrancyGuard {
                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function getCertifierExams(address certifier) public view returns (uint256[] memory) {
+    function getCertifierExams(address certifier) external view returns (uint256[] memory) {
         return s_certifierToExamIds[certifier];
     }
 
-    function getUsers() public view returns (address[] memory) {
+    function getUsers() external view returns (address[] memory) {
         return s_users;
     }
 
-    function getUser(uint256 index) public view returns (address) {
+    function getUser(uint256 index) external view returns (address) {
         return s_users[index];
     }
 
@@ -324,7 +423,7 @@ contract Certifier is ERC721, ReentrancyGuard {
         return s_userHasClaimed[user][examId];
     }
 
-    function getExam(uint256 id) public view returns (Exam memory) {
+    function getExam(uint256 id) external view returns (Exam memory) {
         return s_examIdToExam[id];
     }
 
@@ -336,14 +435,19 @@ contract Certifier is ERC721, ReentrancyGuard {
         return i_timeToCorrectExam;
     }
 
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        return s_tokenIdToUri[tokenId];
+    function getTokenCounter() external view returns (uint256) {
+        return s_tokenCounter;
     }
 
-    function getUsdToEthRate(uint256 usdAmount) public view returns (uint256) {
-        uint256 ethToUsd = PriceConverter.getConversionRate(1e18, i_priceFeed);
-        uint256 usdToEthRate = 1e18 * DECIMALS / ethToUsd;
-        uint256 ethAmount = usdAmount * usdToEthRate / DECIMALS;
-        return ethAmount;
+    function getUsername(address user) external view returns (string memory) {
+        return s_userToUsername[user];
+    }
+
+    function getUserFromUsername(string memory username) external view returns (address) {
+        return s_usernameToUser[username];
+    }
+
+    function getDecimals() external pure returns (uint256) {
+        return DECIMALS;
     }
 }
