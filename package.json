@@ -5,7 +5,8 @@
   "workspaces": {
     "packages": [
       "packages/foundry",
-      "packages/nextjs"
+      "packages/nextjs",
+      "packages/the-graph"
     ]
   },
   "scripts": {
