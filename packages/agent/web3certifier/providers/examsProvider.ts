@@ -1,25 +1,14 @@
 import { generateText, IAgentRuntime, Memory, messageCompletionFooter, ModelClass, Provider, State, stringToUuid } from "@elizaos/core";
 import { gql, request } from 'graphql-request';
 import { ethers } from 'ethers';
-import { ABI } from "./ABI.ts";
+import { ABI } from "../ABI.ts";
 import { Certification } from "../types.ts";
 import { promptExamId, promptRecommendationExplanation, promptUserWantsRecommendation } from "../prompts.ts";
 import { getTweetsStringFromUser, getUserUsernameFromMessage, processTweet, getExamsStringFromGraph } from "../helpers.ts";
 
-const contractAddress = "0x00840ff961C471dDd33b17d188e72eE4C4694FAd";
-const contractABI = ABI;
-const provider = new ethers.AlchemyProvider(
-    11155111,
-    process.env.ALCHEMY_API_KEY
-);
+const provider = new ethers.AlchemyProvider(process.env.CHAIN_ID, process.env.ALCHEMY_API_KEY);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, ABI, provider);
 
-const contract = new ethers.Contract(
-    contractAddress,
-    contractABI,
-    provider
-)
-
-//
 const examsProvider: Provider = {
     get: async (_runtime: IAgentRuntime, _message: Memory, _state?: State) => {
         if (_message.agentId == _message.userId) return;
@@ -51,7 +40,7 @@ const examsProvider: Provider = {
             const recommendationExplanation = await promptRecommendationExplanation(_runtime, tweetsString, examName);
             console.log("recommendationExplanation:", recommendationExplanation);
 
-            return "#IMPORTANT ADMIN INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "#IMPORTANT ADMIN INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "#IMPORTANT ADMIN INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
+            return "#IMPORTANT ADMIN INSTRUCTION: THE USER WANTS YOU TO GIVE THEM A RECOMMENDATION.\n\n" + "#IMPORTANT ADMIN INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "#IMPORTANT ADMIN INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
         }
 
         // try 5 times
