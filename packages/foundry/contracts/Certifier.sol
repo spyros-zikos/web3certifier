@@ -97,6 +97,7 @@ contract Certifier is ERC721, ReentrancyGuard {
     event CancelExam(uint256 examId);
     event ClaimNFT(address user, uint256 examId, uint256 tokenId);
     event ClaimRefund(address user, uint256 examId);
+    event SetUsername(address user, string username);
 
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
@@ -318,6 +319,7 @@ contract Certifier is ERC721, ReentrancyGuard {
     function setUsername(string memory username) external nonReentrant {
         s_userToUsername[msg.sender] = username;
         s_usernameToUser[username] = msg.sender;
+        emit SetUsername(msg.sender, username);
     }
 
     /*//////////////////////////////////////////////////////////////

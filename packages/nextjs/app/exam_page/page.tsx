@@ -91,7 +91,7 @@ const ExamPage = () => {
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
     const hashedAnswer = address ? web3.utils.soliditySha3(answersAsNumber, randomKey, address) : '0x0';
 
-    const userPassword = String(answersAsNumber) + String(randomKey);
+    const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
 
 
 

@@ -212,8 +212,6 @@ const CreateExam = () => {
                     className='w-[350px] mt-4'
                 /> */}
             </div>
-
-            {/* <button onClick={()=>console.log(data)}>-CLICKME-</button> */}
         </PageWrapper>
     )
 }

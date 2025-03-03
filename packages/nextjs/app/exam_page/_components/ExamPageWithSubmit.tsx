@@ -36,7 +36,7 @@ const ExamPageWithSubmit = ({exam, answers, setAnswers, action, showAnswers}:
                                 <div className="whitespace-pre-wrap">{question}</div>
                                 {showAnswers &&
                                 <>
-                                <label className="mr-5">
+                                <label className="mr-5 mt-4">
                                     <input type="radio" name={`question-${index}`} value="1" />
                                     <span className="ml-1">1</span>
                                 </label>
