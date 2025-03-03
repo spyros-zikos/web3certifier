@@ -6,8 +6,8 @@ import { Certification } from "../types.ts";
 import { promptExamId, promptRecommendationExplanation, promptUserWantsRecommendation } from "../prompts.ts";
 import { getTweetsStringFromUser, getUserUsernameFromMessage, processTweet, getExamsStringFromGraph } from "../helpers.ts";
 
-const provider = new ethers.AlchemyProvider(process.env.CHAIN_ID, process.env.ALCHEMY_API_KEY);
-const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, ABI, provider);
+const provider = new ethers.AlchemyProvider(parseInt(process.env.CHAIN_ID), process.env.ALCHEMY_API_KEY);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, ABI, provider )
 
 const examsProvider: Provider = {
     get: async (_runtime: IAgentRuntime, _message: Memory, _state?: State) => {
@@ -40,7 +40,7 @@ const examsProvider: Provider = {
             const recommendationExplanation = await promptRecommendationExplanation(_runtime, tweetsString, examName);
             console.log("recommendationExplanation:", recommendationExplanation);
 
-            return "#IMPORTANT ADMIN INSTRUCTION: THE USER WANTS YOU TO GIVE THEM A RECOMMENDATION.\n\n" + "#IMPORTANT ADMIN INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "#IMPORTANT ADMIN INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
+            return "#IMPORTANT ADMIN INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "#IMPORTANT ADMIN INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "#IMPORTANT ADMIN INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
         }
 
         // try 5 times
