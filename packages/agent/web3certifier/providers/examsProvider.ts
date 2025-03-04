@@ -17,31 +17,42 @@ const examsProvider: Provider = {
         // get mentioned user's twitter username
         const userUsername = getUserUsernameFromMessage(message);
         console.log("userUsername:", userUsername);
+        if (!userUsername) return "";
+        
+        // if (!userUsername) {
+        //     const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
+        //     // const agentUsername = "web3certifier";
+        //     const giveRecommendation = await promptUserWantsRecommendation(_runtime, message, agentUsername);
+        //     console.log("giveRecommendation:", giveRecommendation);
+        //     if (giveRecommendation === 'yes') return "\n# IMPORTANT INSTRUCTION: Your response should be very short and end with an exclamation mark.";
+        //     return "";
+        // }
 
-        if (!userUsername) {
-            // const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
-            const agentUsername = "web3certifier";
-            const giveRecommendation = await promptUserWantsRecommendation(_runtime, message, agentUsername);
-            console.log("giveRecommendation:", giveRecommendation);
-            if (giveRecommendation === 'no') return "";
+        // if (!userUsername) {
+        //     // const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
+        //     const agentUsername = "web3certifier";
+        //     const giveRecommendation = await promptUserWantsRecommendation(_runtime, message, agentUsername);
+        //     console.log("giveRecommendation:", giveRecommendation);
+        //     if (giveRecommendation === 'no') return "";
 
-            // const senderUsername = _state.actorsData.find((e: any) => e.id==_message.userId).username;
-            const senderUsername = "testthechar22";
-            const tweetsString = await getTweetsStringFromUser(senderUsername);
+        //     // TODO
+        //     // const senderUsername = _state.actorsData.find((e: any) => e.id==_message.userId).username;
+        //     const senderUsername = "testthechar22";
+        //     const tweetsString = await getTweetsStringFromUser(senderUsername);
 
-            const examsString = await getExamsStringFromGraph();
+        //     const examsString = await getExamsStringFromGraph();
 
-            const examId = await promptExamId(_runtime, tweetsString, examsString);
-            console.log("examId:", examId);
+        //     const examId = await promptExamId(_runtime, tweetsString, examsString);
+        //     console.log("examId:", examId);
 
-            const examName = examsString.split("\n").find((e: string) => e.includes(examId)).split(": ")[1];
-            console.log("examName:", examName);
+        //     const examName = examsString.split("\n").find((e: string) => e.includes(examId)).split(": ")[1];
+        //     console.log("examName:", examName);
 
-            const recommendationExplanation = await promptRecommendationExplanation(_runtime, tweetsString, examName);
-            console.log("recommendationExplanation:", recommendationExplanation);
+        //     const recommendationExplanation = await promptRecommendationExplanation(_runtime, tweetsString, examName);
+        //     console.log("recommendationExplanation:", recommendationExplanation);
 
-            return "#IMPORTANT ADMIN INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "#IMPORTANT ADMIN INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "#IMPORTANT ADMIN INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
-        }
+        //     return "# IMPORTANT INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "# IMPORTANT INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "# IMPORTANT INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
+        // }
 
         // try 5 times
         for (let i = 0; i < 5; i++) 

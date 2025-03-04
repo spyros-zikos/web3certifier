@@ -1,21 +1,32 @@
 import { Scraper } from 'agent-twitter-client';
 import { gql, request } from 'graphql-request';
 
-export function getUserUsernameFromMessage(message: string) {
-    const agentUsername = process.env.TWITTER_USERNAME;
-    const usernames = message.split("@").map(e=>e.split(" ")[0]).filter((e,i)=>(e!==agentUsername&&i!=0));
-    const numOfUsernames = usernames.length;
-    console.log("message:", message);
-    console.log("usernames:", usernames);
-    if (numOfUsernames === 0 || numOfUsernames === 2) return;
+// GET USERNAME FROM MESSAGE
 
-    let username = usernames[0];
-    const symbols = ['.', '!', '?', ':', ';', ','];
+function processUsername(unprocessedUsername: string) {
+    let username = unprocessedUsername;
+    const symbols = [' ', '.', '!', '?', ':', ';', ','];
     for (let i = 0; i < symbols.length; i++) {
         username = username.split(symbols[i])[0];
     }
-    return username;
+    return username
 }
+
+export function getUserUsernameFromMessage(message: string) {
+    const agentUsername = process.env.TWITTER_USERNAME;
+    const usernames = message.split("@");
+    const processedUsernames = usernames.map(processUsername);
+    const usernamesWithoutAgent = processedUsernames.filter((e,i)=>(e!==agentUsername&&i!=0));
+
+    const numOfUsernames = usernamesWithoutAgent.length;
+    console.log("message:", message);
+    console.log("usernames:", usernamesWithoutAgent);
+    if (numOfUsernames === 0 || numOfUsernames === 2) return;
+
+    return usernamesWithoutAgent[0];
+}
+
+// GET USER TWEETS
 
 export function processTweet(tweet: string) {
     let processedTweet = "";
@@ -54,6 +65,9 @@ export async function getTweetsStringFromUser(senderUsername: string) {
     console.log("\ntweetsString:\n", tweetsString);
     return tweetsString;
 }
+
+// GRAPH QUERIES
+
 export async function getExamsStringFromGraph() {
     // Get open certificate names and ids
     const query = gql`{

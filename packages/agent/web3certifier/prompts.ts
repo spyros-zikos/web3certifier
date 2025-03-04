@@ -48,6 +48,9 @@ your response: yes
 message: Are there certificates suitable for me? @${agentUsername}
 your response: yes
 
+message: Hi there! @${agentUsername} Are there any certificates for me?
+your response: yes
+
 message: Could you recommend some exams @${agentUsername}
 your response: yes
 
@@ -66,14 +69,17 @@ your response: yes
 message: Are there exams suitable for me? @${agentUsername}
 your response: yes
 
+message: Hi there! @${agentUsername} Are there any examns for me?
+your response: yes
+
 Your job is to answer 'yes' or 'no'. This answer depends on whether the user wants to get exam or certificate recommendations or proposals or not.
-Use the examples above as a guide to answer to the following message. Also use common sense to understand if the user want you to recommend an exam or a certificate or not.
+Use the above examples as examples to answer to the following message. Also, definitely use common sense to understand if the user want you to recommend an exam or a certificate or not.
 The message is:
 """
 ${message}
 """
 
-Only respond with 'yes' or 'no', do not include any other text.`;
+Only respond with 'yes' or 'no' depending on whether the user wants a recommendation or not, do not include any other text.`;
 
     const response = await generateText({
         runtime: _runtime,
@@ -115,7 +121,9 @@ export async function promptRecommendationExplanation(_runtime: IAgentRuntime, t
     const contextRecommendationExplanation = `HERE ARE THE USER's TWEETS:\n
 ${tweetsString}
 
-EXPLAIN BRIEFLY WHY THE EXAM WITH NAME ${exam} IS WILL BE INTERESTING AND USEFUL TO THE USER.
+EXPLAIN BRIEFLY WHY THE EXAM WITH NAME ${exam} IS WILL BE THE MOST INTERESTING AND USEFUL EXAM FOR THE USER.
+USE 'YOU' TO TALK DIRECTLY TO THE USER.
+THE ANSWER SHOULD BE LESS THAN 240 CHARACTERS.
 `;
 
     const response = await generateText({
