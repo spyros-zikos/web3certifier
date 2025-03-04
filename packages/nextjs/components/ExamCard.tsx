@@ -32,7 +32,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
         (BigInt(exam.endTime.toString()) < BigInt(Math.floor(new Date().getTime() / 1000))));
 
     const getFormattedDate = () => {
-        const splittedDate = endDate?.toLocaleString().split(",")!;
+        const splittedDate = endDate?.toLocaleString().split(",")!; //
 
         const date = splittedDate[0].slice(0,-4) + splittedDate[0].slice(-2);
         const time = (endDate?.toLocaleString().slice(-2)==="AM" ?
