@@ -12,9 +12,10 @@ import ExamPageWithMessage from "./_components/ExamPageWithMessage";
 import { ExamStage } from "../../types/ExamStage";
 import ExamPageWithSubmit from "./_components/ExamPageWithSubmit";
 
+
 const ExamPage = () => {
-    const searchParams = useSearchParams();
     const { address } = useAccount();
+    const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
 
     const exam: Exam | undefined = useScaffoldReadContract({
@@ -234,7 +235,7 @@ const ExamPage = () => {
                 const passwordHashGood = hashFromInputedPassword === userHashedSubmittedAnswer;
                 return <>
                     <Box className="mt-12 mb-8">
-                        <div>You can claim your certificate! To do so, enter your password below.</div>
+                        <div>The exam has ended. You can claim your certificate! To do so, enter your password below.</div>
                     </Box>
                     <input
                         className="border-2 border-blue-400 text-base-content bg-base-100 p-2 mr-2 mb-4 min-w-[200px] sm:w-1/2 md:w-1/3 lg:w-1/4 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
