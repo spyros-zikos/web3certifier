@@ -5,7 +5,7 @@ import { gql, request } from 'graphql-request';
 
 function processUsername(unprocessedUsername: string) {
     let username = unprocessedUsername;
-    const symbols = [' ', '.', '!', '?', ':', ';', ',', '\n', '\r', '\t'];
+    const symbols = [' ', '.', '!', '?', ':', ';', ',', '<', '>', '\n', '\r', '\t'];
     for (let i = 0; i < symbols.length; i++) {
         username = username.split(symbols[i])[0];
     }
@@ -78,8 +78,7 @@ export async function getExamsStringFromGraph() {
             name
         }
     }`;
-    const url = 'https://api.studio.thegraph.com/query/103564/web3certifier-sepolia/version/latest';
-    const response: any = await request(url, query);
+    const response: any = await request(process.env.THE_GRAPH_URL, query);
     const data = await response;
     const examsList = data.createExams;
     const exams = examsList

@@ -1,4 +1,4 @@
-import { generateText, IAgentRuntime, Memory, messageCompletionFooter, ModelClass, Provider, State, stringToUuid } from "@elizaos/core";
+import { Clients, generateText, IAgentRuntime, Memory, messageCompletionFooter, ModelClass, Provider, State, stringToUuid } from "@elizaos/core";
 import { gql, request } from 'graphql-request';
 import { ethers } from 'ethers';
 import { ABI } from "../ABI.ts";
@@ -14,47 +14,16 @@ const examsProvider: Provider = {
         if (_message.agentId == _message.userId) return;
         const message = _message.content.text;
 
+
+        // console.log("client", _state.senderName);
+        // console.log("client", _runtime.clients[0] === Clients.DISCORD);
+        // return;
+
         // get mentioned user's twitter username
         const userUsername = getUserUsernameFromMessage(message);
         console.log("userUsername:", userUsername);
         if (!userUsername) return "";
         
-        // if (!userUsername) {
-        //     const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
-        //     // const agentUsername = "web3certifier";
-        //     const giveRecommendation = await promptUserWantsRecommendation(_runtime, message, agentUsername);
-        //     console.log("giveRecommendation:", giveRecommendation);
-        //     if (giveRecommendation === 'yes') return "\n# IMPORTANT INSTRUCTION: Your response should be very short and end with an exclamation mark.";
-        //     return "";
-        // }
-
-        // if (!userUsername) {
-        //     // const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
-        //     const agentUsername = "web3certifier";
-        //     const giveRecommendation = await promptUserWantsRecommendation(_runtime, message, agentUsername);
-        //     console.log("giveRecommendation:", giveRecommendation);
-        //     if (giveRecommendation === 'no') return "";
-
-        //     // TODO
-        //     // const senderUsername = _state.actorsData.find((e: any) => e.id==_message.userId).username;
-        //     const senderUsername = "testthechar22";
-        //     const tweetsString = await getTweetsStringFromUser(senderUsername);
-
-        //     const examsString = await getExamsStringFromGraph();
-
-        //     const examId = await promptExamId(_runtime, tweetsString, examsString);
-        //     console.log("examId:", examId);
-
-        //     const examName = examsString.split("\n").find((e: string) => e.includes(examId)).split(": ")[1];
-        //     console.log("examName:", examName);
-
-        //     const recommendationExplanation = await promptRecommendationExplanation(_runtime, tweetsString, examName);
-        //     console.log("recommendationExplanation:", recommendationExplanation);
-
-        //     return "# IMPORTANT INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "# IMPORTANT INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "# IMPORTANT INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
-        // }
-
-        // return "";
         // try 5 times
         for (let i = 0; i < 5; i++) 
             try {
@@ -71,8 +40,7 @@ const examsProvider: Provider = {
                         tokenId
                     }
                 }`;
-                const url = 'https://api.studio.thegraph.com/query/103564/web3certifier-sepolia/version/latest';
-                const response: any = await request(url, query);
+                const response: any = await request(process.env.THE_GRAPH_URL, query);
                 const data = await response;
                 const tokenIdList = data.claimNFTs;
                 const tokenIds = tokenIdList.map((tokenIdObject: any) => tokenIdObject["tokenId"]);

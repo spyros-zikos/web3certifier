@@ -5,7 +5,7 @@ export const character: Character = {
     name: "Web3 Certifier",
     // plugins: [],
     // clients: [],
-    clients: [Clients.DISCORD],
+    clients: [Clients.TWITTER],
     modelProvider: ModelProviderName.OPENAI,
     // settings: {
     //     secrets: {},
