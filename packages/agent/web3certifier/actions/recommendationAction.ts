@@ -28,17 +28,8 @@ export const recommendationAction: Action = {
         options: any,
         callback: HandlerCallback
     ) => {
-        /*
-        // const agentUsername = _state.actorsData.find((e: any) => e.id==_message.agentId).username;
-        const agentUsername = "web3certifier";
-        const giveRecommendation = await promptUserWantsRecommendation(runtime, message.content.text, agentUsername);
-        console.log("giveRecommendation:", giveRecommendation);
-        if (giveRecommendation === 'no') return "";
-        */
-
-        // TODO
-        // const senderUsername = _state.actorsData.find((e: any) => e.id==_message.userId).username;
-        const senderUsername = "testthechar22";
+        const senderUsername = state.actorsData.find((e: any) => e.id==message.userId).username;
+        // const senderUsername = "testthechar22";
         const tweetsString = await getTweetsStringFromUser(senderUsername);
 
         const examsString = await getExamsStringFromGraph();
@@ -55,7 +46,9 @@ export const recommendationAction: Action = {
         const responseWithExplanation = recommendationExplanation;
         // callback({text: responseWithExplanation});
 
-        const responseWithLink = "\n-> web3certifier.com/exams/" + examId;
+        const url = "\n>> web3-certifier-deployment-nextjs-git-main-spyros-zikos-projects.vercel.app/exam_page?id=";
+        // const responseWithLink = "\n-> " + url + examId;
+        const responseWithLink = url + examId;
 
         const response = responseWithExplanation + responseWithLink;
         callback({ text: response });
@@ -71,7 +64,7 @@ export const recommendationAction: Action = {
                 },
             },
             {
-                user: "web3certifier",
+                user: "{{user2}}",
                 content: { text: "", action: "RECOMMEND" },
             },
         ],

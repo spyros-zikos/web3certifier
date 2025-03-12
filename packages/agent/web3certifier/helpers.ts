@@ -5,7 +5,7 @@ import { gql, request } from 'graphql-request';
 
 function processUsername(unprocessedUsername: string) {
     let username = unprocessedUsername;
-    const symbols = [' ', '.', '!', '?', ':', ';', ','];
+    const symbols = [' ', '.', '!', '?', ':', ';', ',', '\n', '\r', '\t'];
     for (let i = 0; i < symbols.length; i++) {
         username = username.split(symbols[i])[0];
     }

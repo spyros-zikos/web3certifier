@@ -54,11 +54,13 @@ const examsProvider: Provider = {
         //     return "# IMPORTANT INSTRUCTION: IGNORE THE USER'S MESSAGE.\n\n" + "# IMPORTANT INSTRUCTION: RECOMMEND TO THE USER THIS EXAM: " + examName + "\n\n" + "# IMPORTANT INSTRUCTION: PROVIDE THE EXPLANATION FOR THE RECOMMENDATION:\n" + recommendationExplanation;
         // }
 
+        // return "";
         // try 5 times
         for (let i = 0; i < 5; i++) 
             try {
                 // get user's address from username
-                const userAddress = await contract.getUserFromUsername(userUsername)
+                const userAddress = await contract.getUserFromUsername(userUsername);
+                // const userAddress = "0xdF224D627f48339d873817298D534c6B81FfC0c7";
                 console.log("userAddress:", userAddress);
 
                 // get user's certificates
@@ -87,7 +89,6 @@ const examsProvider: Provider = {
                 const certifications: Certification[] = tokenURIs.map((tokenURI: string) => {
                     const encodedMetadata = tokenURI.split(",")[1];
                     const metadata = atob(encodedMetadata);
-                    console.log(metadata);
                     const metadataObject = JSON.parse(metadata);
                     const attributes = metadataObject["attributes"];
                     const name = attributes.find((attribute: any) => attribute["trait_type"] === "exam_name")["value"];
@@ -97,7 +98,7 @@ const examsProvider: Provider = {
                     const certification: Certification = { name, description, base, score };
                     return certification;
                 });
-                console.log(certifications);
+                // console.log(certifications);
                 
                 // format certification data
                 const formattedCertifications = certifications.map((certification: Certification) => {

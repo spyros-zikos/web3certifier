@@ -12,6 +12,7 @@ import ExamPageWithMessage from "./_components/ExamPageWithMessage";
 import { ExamStage } from "../../types/ExamStage";
 import ExamPageWithSubmit from "./_components/ExamPageWithSubmit";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
+import { add } from "lodash";
 
 
 const ExamPage = () => {
@@ -52,6 +53,12 @@ const ExamPage = () => {
     const getTimeToCorrectExam: bigint | undefined = useScaffoldReadContract({
         contractName: "Certifier",
         functionName: "getTimeToCorrectExam",
+    }).data;
+
+    const status: number | undefined = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getStatus",
+        args: [id],
     }).data;
     
     const { writeContractAsync: submitAnswersFree } = useScaffoldWriteContract("Certifier");
@@ -112,8 +119,44 @@ const ExamPage = () => {
         if (exam) fetchData();
     }, [exam]);
     
-
     const getExamStage = () => {
+        if (address === exam?.certifier) {
+            if (status === 0)  // Started
+                return ExamStage.Certifier_Started
+            else if (status === 1)  // NeedsCorrection
+                return ExamStage.Certifier_Correct
+            else if (status === 2)  // NeedsCancelling
+                return ExamStage.Both_Cancel;
+            else if (status === 3)  // Cancelled
+                return ExamStage.Both_CancelStats;
+            else if (status === 4)  // Ended
+                return ExamStage.Certifier_EndStats;
+        } else {
+            if (status === 0) {  // Started
+                if (userHasNotParticipated)
+                    return ExamStage.User_StartedNotSubmitted;
+                else
+                    return ExamStage.User_StartedSubmitted;
+            } else if (status === 1)  // NeedsCorrection
+                return ExamStage.User_WaitForCorrection
+            else if (status === 2)  // NeedsCancelling
+                return ExamStage.Both_Cancel;
+            else if (status === 3) {  // Cancelled
+                if (!userHasClaimed && !userHasNotParticipated && (exam ? exam.price>0 : 0))
+                    return ExamStage.User_ClaimRefund;
+                return ExamStage.Both_CancelStats;
+            } else if (status === 4) {  // Ended
+                if (userHasNotParticipated)
+                    return ExamStage.User_Details;
+                else {
+                    if (userHasClaimed)
+                        return ExamStage.User_EndStats;
+                    return ExamStage.User_ClaimCertificate;
+                }
+            }
+        }
+    }
+    const getExamStage2 = () => {
         if (address === exam?.certifier) {
             if (exam?.status === 2)
                 return ExamStage.Certifier_EndStats;
@@ -155,7 +198,7 @@ const ExamPage = () => {
     const getExamStageMessage = (stage: any) => {
         switch (stage) {
             case ExamStage.Certifier_Started:
-                return "This exam is ongoing!";
+                return "This exam is ongoing! The certifier cannot submit.";
             case ExamStage.User_StartedSubmitted:
                 return "Your answers are submitted!";
             case ExamStage.User_WaitForCorrection:
@@ -234,8 +277,11 @@ const ExamPage = () => {
                 if (correctAnswersLength > -1) { // if we know the correct answers length
                     return (
                         <Box className="mt-12 mb-8">
-                            <div>You failed this exam! Your score was {correctAnswersLength}/{exam!.questions.length} {""}
-                                but you needed at least {exam!.baseScore.toString()}/{exam!.questions.length} to pass.</div>
+                            {exam ? 
+                            <div>You failed this exam! Your score was {correctAnswersLength}/{exam.questions.length} {""}
+                                but you needed at least {exam!.baseScore.toString()}/{exam.questions.length} to pass.</div>
+                            : <div>Loading...</div>
+                            }
                         </Box>
                     );
                 }
