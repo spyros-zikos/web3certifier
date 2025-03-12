@@ -9,8 +9,8 @@ contract ICertifier {
     
     enum Status {
         Started,
-        NeedsCorrection,  // not used, only visual
-        NeedsCancelling,  // not used, only visual
+        NeedsCorrection,  // not used in contract, only externally
+        NeedsCancelling,  // not used in contract, only externally
         Cancelled,
         Ended
     }

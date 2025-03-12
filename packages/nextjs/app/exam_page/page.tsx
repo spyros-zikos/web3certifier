@@ -12,7 +12,7 @@ import ExamPageWithMessage from "./_components/ExamPageWithMessage";
 import { ExamStage } from "../../types/ExamStage";
 import ExamPageWithSubmit from "./_components/ExamPageWithSubmit";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
-import { add } from "lodash";
+import { getStatusStr } from "~~/utils/StatusStr";
 
 
 const ExamPage = () => {
@@ -50,17 +50,12 @@ const ExamPage = () => {
         args: [address, id],
     }).data;
 
-    const getTimeToCorrectExam: bigint | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getTimeToCorrectExam",
-    }).data;
-
-    const status: number | undefined = useScaffoldReadContract({
+    const statusNum: number | undefined = useScaffoldReadContract({
         contractName: "Certifier",
         functionName: "getStatus",
         args: [id],
     }).data;
-    
+
     const { writeContractAsync: submitAnswersFree } = useScaffoldWriteContract("Certifier");
     const { writeContractAsync: submitAnswersPaid } = useScaffoldWriteContract("Certifier");
     const { writeContractAsync: cancelExam } = useScaffoldWriteContract("Certifier");
@@ -102,13 +97,6 @@ const ExamPage = () => {
 
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
 
-    // Check if the exam needs to be corrected and if the correction time has passed
-    const currentTimestamp = BigInt(Math.floor(new Date().getTime() / 1000));
-    const needsCorrecting = exam && (exam.status === 0 &&
-        (BigInt(exam.endTime.toString()) < currentTimestamp));
-    const correctionTimePassed = exam && getTimeToCorrectExam && needsCorrecting &&
-        (BigInt(exam.endTime.toString()) + BigInt(getTimeToCorrectExam!.toString()) < currentTimestamp);
-
     // Stats
     useEffect(() => {
         const fetchData = async () => {
@@ -120,77 +108,31 @@ const ExamPage = () => {
     }, [exam]);
     
     const getExamStage = () => {
+        const status = getStatusStr(statusNum);
         if (address === exam?.certifier) {
-            if (status === 0)  // Started
-                return ExamStage.Certifier_Started
-            else if (status === 1)  // NeedsCorrection
-                return ExamStage.Certifier_Correct
-            else if (status === 2)  // NeedsCancelling
-                return ExamStage.Both_Cancel;
-            else if (status === 3)  // Cancelled
-                return ExamStage.Both_CancelStats;
-            else if (status === 4)  // Ended
-                return ExamStage.Certifier_EndStats;
+            if (status === "Started") return ExamStage.Certifier_Started
+            else if (status === "Needs Correction") return ExamStage.Certifier_Correct
+            else if (status === "Needs Cancelling") return ExamStage.Both_Cancel;
+            else if (status === "Cancelled") return ExamStage.Both_CancelStats;
+            else if (status === "Ended") return ExamStage.Certifier_EndStats;
         } else {
-            if (status === 0) {  // Started
-                if (userHasNotParticipated)
-                    return ExamStage.User_StartedNotSubmitted;
-                else
-                    return ExamStage.User_StartedSubmitted;
-            } else if (status === 1)  // NeedsCorrection
-                return ExamStage.User_WaitForCorrection
-            else if (status === 2)  // NeedsCancelling
-                return ExamStage.Both_Cancel;
-            else if (status === 3) {  // Cancelled
+            if (status === "Started") {
+                if (userHasNotParticipated) return ExamStage.User_StartedNotSubmitted;
+                else return ExamStage.User_StartedSubmitted;
+            }
+            else if (status === "Needs Correction") return ExamStage.User_WaitForCorrection
+            else if (status === "Needs Cancelling") return ExamStage.Both_Cancel;
+            else if (status === "Cancelled") {
                 if (!userHasClaimed && !userHasNotParticipated && (exam ? exam.price>0 : 0))
                     return ExamStage.User_ClaimRefund;
                 return ExamStage.Both_CancelStats;
-            } else if (status === 4) {  // Ended
-                if (userHasNotParticipated)
-                    return ExamStage.User_Details;
+            }
+            else if (status === "Ended") {
+                if (userHasNotParticipated) return ExamStage.User_Details;
                 else {
-                    if (userHasClaimed)
-                        return ExamStage.User_EndStats;
+                    if (userHasClaimed) return ExamStage.User_EndStats;
                     return ExamStage.User_ClaimCertificate;
                 }
-            }
-        }
-    }
-    const getExamStage2 = () => {
-        if (address === exam?.certifier) {
-            if (exam?.status === 2)
-                return ExamStage.Certifier_EndStats;
-            if (needsCorrecting) {
-                if (!correctionTimePassed)
-                    return ExamStage.Certifier_Correct;
-                return ExamStage.Both_Cancel;
-            }
-            if (exam?.status === 1)
-                return ExamStage.Both_CancelStats;
-            return ExamStage.Certifier_Started;
-        }
-        else {
-            if (exam?.status === 2) {
-                if (userHasNotParticipated)
-                    return ExamStage.User_Details;
-                else {
-                    if (userHasClaimed)
-                        return ExamStage.User_EndStats;
-                    return ExamStage.User_ClaimCertificate;
-                }
-            } else if (exam?.status === 1) {
-                if (!userHasClaimed && !userHasNotParticipated && (exam.price>0))
-                    return ExamStage.User_ClaimRefund;
-                return ExamStage.Both_CancelStats;
-            } else if (needsCorrecting) {
-                if (!correctionTimePassed)
-                    return ExamStage.User_WaitForCorrection;
-                return ExamStage.Both_Cancel;
-            } else if (exam?.status === 0) {
-                if (userHasNotParticipated)
-                    return ExamStage.User_StartedNotSubmitted;
-                else
-                    return ExamStage.User_StartedSubmitted;
             }
         }
     }
