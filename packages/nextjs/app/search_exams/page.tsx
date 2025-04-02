@@ -31,16 +31,10 @@ const SearchExamsPage: React.FC = () => {
                 const query = gql`{
                     submitAnswersPaids(where: {
                         user: "${address}"
-                    }) {
-                        user
-                        examId
-                    }
+                    }) { examId }
                     submitAnswersFrees(where: {
                         user: "${address}"
-                    }) {
-                        user
-                        examId
-                    }
+                    }) { examId }
                 }`;
                 const response: any = await request(graphUrl, query);
                 const data = await response;

@@ -3,8 +3,7 @@ import { gql, request } from 'graphql-request';
 import { ethers } from 'ethers';
 import { ABI } from "../ABI.ts";
 import { Certification } from "../types.ts";
-import { promptExamId, promptRecommendationExplanation, promptUserWantsRecommendation } from "../prompts.ts";
-import { getTweetsStringFromUser, getUserUsernameFromMessage, processTweet, getExamsStringFromGraph } from "../helpers.ts";
+import { getDiscordIdFromMessage } from "../helpers.ts";
 
 const provider = new ethers.AlchemyProvider(parseInt(process.env.CHAIN_ID), process.env.ALCHEMY_API_KEY);
 const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, ABI, provider )
@@ -14,16 +13,39 @@ const examsProvider: Provider = {
         if (_message.agentId == _message.userId) return;
         const message = _message.content.text;
 
+        // get mentioned user's discord id
+        const discordId = getDiscordIdFromMessage(message);
+        console.log("discordId:", discordId);
+        if (!discordId) return "";
 
-        // console.log("client", _state.senderName);
-        // console.log("client", _runtime.clients[0] === Clients.DISCORD);
-        // return;
+        let userUsername = "";
 
-        // get mentioned user's twitter username
-        const userUsername = getUserUsernameFromMessage(message);
+        const url = `https://discord.com/api/v10/users/${discordId}`;
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bot ${process.env.DISCORD_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            
+            // Get username and discriminator (handle)
+            // Note: Discord is phasing out discriminators, so some users might not have one
+            if (data.discriminator && data.discriminator !== '0') {
+                userUsername = `${data.username}#${data.discriminator}`;
+            } else {
+                userUsername = data.username;
+            }
+        } catch (error) {
+            console.error('Error fetching Discord user:', error);
+            throw error;
+        }
         console.log("userUsername:", userUsername);
-        if (!userUsername) return "";
-        
+
         // try 5 times
         for (let i = 0; i < 5; i++) 
             try {
@@ -74,7 +96,7 @@ const examsProvider: Provider = {
                     return `Name: "${name}"\nDescription: "${description}"\nBase Score: ${base}\nScore: ${score}`
                 })
                 const formattedCertificationData = 
-                    "# INSTRUCTION:\nIf the user asks anything related to the skills or abilities or certifications or knowledge of a user then use the following certifications that the user has acquired. You should not tell directly what the certifications are unless the user asks directly but use the certifications to draw conclusions about the user's skills or abilities or knowledge. The certifications are:\n\n"
+                    "\n# INSTRUCTION:\nIf the user asks anything related to the skills or abilities or certifications or knowledge of a user then use the following certifications that the user has acquired. You should not tell directly what the certifications are unless the user asks directly but use the certifications to draw conclusions about the user's skills or abilities or knowledge. The certifications are:\n\n"
                     + formattedCertifications.join("\n\n");
                 console.log("formattedCertificationData: ", formattedCertificationData);
                 return formattedCertificationData;
