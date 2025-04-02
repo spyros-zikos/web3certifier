@@ -39,6 +39,7 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@types/elliptic": "^6",
     "@types/lodash": "^4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -53,6 +54,7 @@
     "@chakra-ui/react": "^3.8.0",
     "@emotion/react": "^11.14.0",
     "discord.js": "^14.18.0",
+    "elliptic": "^6.6.1",
     "graphql": "^16.10.0",
     "graphql-request": "^7.1.2",
     "lodash": "^4.17.21",
