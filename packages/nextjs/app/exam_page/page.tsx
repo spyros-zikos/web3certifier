@@ -190,7 +190,7 @@ const ExamPage = () => {
             case ExamStage.Certifier_Correct:
                 return <>
                     <Box className="mt-12 mb-8">
-                        <div>This exam needs correcting. Please provide the correct answers.</div>
+                        <div>This exam needs correcting. Please provide the correct answers within 5 minutes of the end of the exam.</div>
                     </Box>
                     <Box>
                         <Button className="ml-0" onClick={() => {handleCorrectExam(correctExam, id, answers)}}>Correct Exam</Button>
