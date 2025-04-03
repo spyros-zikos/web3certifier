@@ -1,26 +1,19 @@
-import { composeContext, elizaLogger, generateText, stringToUuid } from "@elizaos/core";
-import { generateMessageResponse, generateTrueOrFalse } from "@elizaos/core";
-import { booleanFooter, messageCompletionFooter } from "@elizaos/core";
 import {
     Action,
     ActionExample,
-    Content,
     HandlerCallback,
     IAgentRuntime,
     Memory,
-    ModelClass,
     State,
 } from "@elizaos/core";
-// import { getExamsStringFromGraph, getTweetsStringFromUser, getUserUsernameFromMessage } from "../helpers.ts";
-import { promptExamId, promptInterestsFromMessage, promptRecommendationExplanation, promptUserWantsRecommendation } from "../prompts.ts";
+import { promptExamId, promptInterestsFromMessage, promptRecommendationExplanation, promptUserProvidesInterests } from "../prompts.ts";
 import { getExamsStringFromGraph } from "../helpers.ts";
-import { Client, GatewayIntentBits, Partials } from 'discord.js';
 
 export const recommendationAction: Action = {
     suppressInitialMessage: true,
     name: "RECOMMEND",
     similes: ["PROPOSE", "SUGGEST"],
-    description: "Recommend to the user a certificate or an exam after they tell you what they are interested in.",
+    description: "Recommend to the user an exam after they tell you what they are interested in or what they like.",
     validate: async (runtime: IAgentRuntime, message: Memory) => {
         return true;
     },
@@ -31,11 +24,17 @@ export const recommendationAction: Action = {
         options: any,
         callback: HandlerCallback
     ) => {
-        // This action is used when the user provides his interest in a subject or topic.
-        // The agent will then recommend a certificate or an exam based on the user's interest.
+        /// This action is used when the user provides his interest in a subject or topic.
+        /// The agent will then recommend a certificate or an exam based on the user's interest.
+
+        // Get does user provides his interest
+        const userProvidesInterests = await promptUserProvidesInterests(runtime, message.content.text);
+        console.log("userProvidesInterests:", userProvidesInterests);
+        if (userProvidesInterests == "no") return;
 
         // Get interests from message
         const interestsString = await promptInterestsFromMessage(runtime, message.content.text);
+        console.log("interestsString:", interestsString);
 
         // Get active exams
         const examsString = await getExamsStringFromGraph();
@@ -52,7 +51,7 @@ export const recommendationAction: Action = {
         const recommendationExplanation = await promptRecommendationExplanation(runtime, interestsString, examName);
         console.log("recommendationExplanation:", recommendationExplanation);
 
-        const url = "\n>> https://web3-certifier-deployment-nextjs-git-main-spyros-zikos-projects.vercel.app/exam_page?id=";
+        const url = `\n\nYou can take this exam here: https://web3certifier-nextjs.vercel.app/exam_page?id=`;
         const responseWithLink = url + examId;
 
         const response = recommendationExplanation + responseWithLink;

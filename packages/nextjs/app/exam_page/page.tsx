@@ -300,7 +300,6 @@ const ExamPage = () => {
             :
                 <ExamPageWithMessage exam={exam} message={getExamStageMessage(getExamStage()!)}/>
             }
-            
         </PageWrapper>
     )
 }

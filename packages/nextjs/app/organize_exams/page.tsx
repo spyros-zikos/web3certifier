@@ -58,13 +58,12 @@ const CreateExam = () => {
             {
             onBlockConfirmation: res => {
                 console.log("block confirm", res);
-                // setData({ ...data, blockNumber: res.blockNumber, transactionHash: res.transactionHash });
                 router.push(`/`);
             },
             },
         );
         } catch (error) {
-          console.log("nft mint error", error);
+          console.log("create exam error", error);
         }
     };
     
@@ -84,7 +83,6 @@ const CreateExam = () => {
 
     return (
         <PageWrapper>
-            {/* <div className="container my-10"> */}
             <Title>Create Exams</Title>
             <div>
                 <label className={`${labelMarginAndPadding}`}>Name *</label>
@@ -173,13 +171,13 @@ const CreateExam = () => {
                         )}
                     </div>
 
-                        <div className="m-auto divider my-4 max-w-[300px]">OR</div>
+                    <div className="m-auto divider my-4 max-w-[300px]">OR</div>
                         <Input
                             placeholder="https://ipfs.io/pathToImage.jpg"
                             value={imageUrl}
                             onChange={(e: any) => setImageUrl(e.target.value)}
                             className='m-auto my-4'
-                        />
+                    />
                 </div>
 
                 {!requiredDetailsAreFilled() && <Text mt="10" color="red" display="block">* Fields are required</Text>}

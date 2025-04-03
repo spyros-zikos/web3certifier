@@ -1,99 +1,8 @@
 import { generateText, IAgentRuntime, ModelClass } from "@elizaos/core";
 
 
-export async function promptUserWantsRecommendation(_runtime: IAgentRuntime, message: string, agentUsername: string) {
-    const contextUserWantsRecommendation = `Your job is to answer 'yes' or 'no'. This answer depends on whether the user wants to get exam or certificate recommendations or proposals or not.
-
-Here are some examples:
-
-message: @${agentUsername}
-your response: no
-
-message: @${agentUsername} hi!
-your response: no
-
-message: exam @${agentUsername}
-your response: no
-
-message: @${agentUsername} This certificate is great.
-your response: no
-
-message: I love certificates  @${agentUsername}
-your response: no
-
-message: How are you? @${agentUsername} I took an exam!!!
-your response: no
-
-message: Very good guy @${agentUsername}!
-your response: no
-
-message: Awesome exam @${agentUsername}
-your response: no
-
-message: Could you recommend some certificates @${agentUsername}
-your response: yes
-
-message: Can you propose some certificates? @${agentUsername}
-your response: yes
-
-message: @${agentUsername} Are there any certificates I could take?
-your response: yes
-
-message: I love certificates @${agentUsername}! Can you recommend one?
-your response: yes
-
-message: Is there any certificate I could take @${agentUsername}?
-your response: yes
-
-message: Are there certificates suitable for me? @${agentUsername}
-your response: yes
-
-message: Hi there! @${agentUsername} Are there any certificates for me?
-your response: yes
-
-message: Could you recommend some exams @${agentUsername}
-your response: yes
-
-message: Can you propose some exams? @${agentUsername}
-your response: yes
-
-message: @${agentUsername} Are there any exams I could take?
-your response: yes
-
-message: I love exams @${agentUsername}! Can you recommend one?
-your response: yes
-
-message: Is there any exam I could take @${agentUsername}?
-your response: yes
-
-message: Are there exams suitable for me? @${agentUsername}
-your response: yes
-
-message: Hi there! @${agentUsername} Are there any examns for me?
-your response: yes
-
-Your job is to answer 'yes' or 'no'. This answer depends on whether the user wants to get exam or certificate recommendations or proposals or not.
-Use the above examples as examples to answer to the following message. Also, definitely use common sense to understand if the user want you to recommend an exam or a certificate or not.
-The message is:
-"""
-${message}
-"""
-
-Only respond with 'yes' or 'no' depending on whether the user wants a recommendation or not, do not include any other text.`;
-
-    const response = await generateText({
-        runtime: _runtime,
-        context: contextUserWantsRecommendation,
-        modelClass: ModelClass.LARGE,
-        stop: ["\n"],
-    });
-
-    return response;
-}
-
-
 export async function promptExamId(_runtime: IAgentRuntime, interestsString: string, examsString: string) {
-    const contextExamId = `HERE ARE THE USER's INTERESTS:\n
+    const contextExamId = `$$$HERE ARE THE USER's INTERESTS:\n
 ${interestsString}
 
 HERE ARE THE EXAM IDs AND NAMES:\n
@@ -118,7 +27,7 @@ YOUR ANSWER MUST BE ONE OF THE EXAM IDs FROM ABOVE. CHOOSE ONLY ONE EXAM ID BASE
 
 
 export async function promptRecommendationExplanation(_runtime: IAgentRuntime, interestsString: string, exam: string) {
-    const contextRecommendationExplanation = `HERE ARE THE USER's INTERESTS:\n
+    const contextRecommendationExplanation = `$$$HERE ARE THE USER's INTERESTS:\n
 ${interestsString}
 
 EXPLAIN TO THE USER BRIEFLY WHY THE EXAM WITH NAME ${exam} WILL BE THE MOST INTERESTING AND USEFUL EXAM FOR THE USER.
@@ -136,9 +45,27 @@ USE 'YOU' TO TALK DIRECTLY TO THE USER.
 }
 
 
+export async function promptUserProvidesInterests(_runtime: IAgentRuntime, message: string) {
+    const contextProvidesInterests = `$$$HERE IS THE USER's MESSAGE:\n
+${message}
+
+DOES THE USER TELL WHAT THEIR INTEREST OR INTERESTS ARE? DO THEY TELL WHAT THEY LIKE?
+IF THEY DO, ANSWER WITH 'yes', ELSE ANSWER WITH 'no'.
+`;
+
+    const response = await generateText({
+        runtime: _runtime,
+        context: contextProvidesInterests,
+        modelClass: ModelClass.LARGE,
+        stop: ["\n"],
+    });
+
+    return response;
+}
+
 
 export async function promptInterestsFromMessage(_runtime: IAgentRuntime, message: string) {
-    const contextInterests = `HERE IS THE USER's MESSAGE:\n
+    const contextInterests = `$$$HERE IS THE USER's MESSAGE:\n
 ${message}
 
 FIND THE SUBJECTS AND TOPICS THAT THE USER IS INTERESTED IN AND LIST THEM SEPARATED BY COMMAS.
