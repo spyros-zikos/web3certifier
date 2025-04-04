@@ -94,6 +94,20 @@ export const character: Character = {
             {
                 user: "{{user1}}",
                 content: {
+                    text: "Where is the web3 certifier website?",
+                },
+            },
+            {
+                user: "{{user2}}",
+                content: {
+                    text: "it's available at https://web3certifier-nextjs.vercel.app/",
+                },
+            },
+        ],
+        [
+            {
+                user: "{{user1}}",
+                content: {
                     text: "how do i create an exam?",
                 },
             },
