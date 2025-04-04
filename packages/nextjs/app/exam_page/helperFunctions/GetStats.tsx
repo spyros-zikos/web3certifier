@@ -34,15 +34,15 @@ const getCertifierStatsAfterCorrection = async (exam: Exam) => {
         } catch (error) { console.log('Error fetching data:', error); }
     }
 
-    // // Get number of correct submissions
-    // try {
-    //     const query = gql`
-    //     { claimNFTs(where: { examId: ${id} }) { user } }`;
-    //     const response: any = await request(graphUrl, query);
-    //     const data = await response;
-    //     const correctSubmissionList = data.claimNFTs;
-    //     numOfCorrectSubmissions = correctSubmissionList.length;
-    // } catch (error) { console.log('Error fetching data:', error); }
+    // Get number of correct submissions
+    try {
+        const query = gql`
+        { claimNFTs(where: { examId: ${id} }) { user } }`;
+        const response: any = await request(graphUrl, query);
+        const data = await response;
+        const correctSubmissionList = data.claimNFTs;
+        numOfCorrectSubmissions = correctSubmissionList.length;
+    } catch (error) { console.log('Error fetching data:', error); }
 
     // Get profit
     if (exam.price !== BigInt(0)) {
