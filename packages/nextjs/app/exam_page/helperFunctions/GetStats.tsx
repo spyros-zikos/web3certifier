@@ -34,19 +34,19 @@ const getCertifierStatsAfterCorrection = async (exam: Exam) => {
         } catch (error) { console.log('Error fetching data:', error); }
     }
 
-    // Get number of correct submissions
-    try {
-        const query = gql`
-        { claimNFTs(where: { examId: ${id} }) { user } }`;
-        const response: any = await request(graphUrl, query);
-        const data = await response;
-        const correctSubmissionList = data.claimNFTs;
-        numOfCorrectSubmissions = correctSubmissionList.length;
-    } catch (error) { console.log('Error fetching data:', error); }
+    // // Get number of correct submissions
+    // try {
+    //     const query = gql`
+    //     { claimNFTs(where: { examId: ${id} }) { user } }`;
+    //     const response: any = await request(graphUrl, query);
+    //     const data = await response;
+    //     const correctSubmissionList = data.claimNFTs;
+    //     numOfCorrectSubmissions = correctSubmissionList.length;
+    // } catch (error) { console.log('Error fetching data:', error); }
 
     // Get profit
     if (exam.price !== BigInt(0)) {
-        profit = Number(BigInt(numOfCorrectSubmissions) * exam.price / BigInt(1e18));
+        profit = Number(BigInt(numOfSubmissions) * exam.price / BigInt(1e18));
     }
 
     const statsText = `--- Statistics ---\nNumber of submissions: ${numOfSubmissions}\nNumber of correct submissions: ${numOfCorrectSubmissions}\nProfit: $${profit}`;
