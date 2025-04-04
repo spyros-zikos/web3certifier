@@ -21,8 +21,9 @@ const Page = () => {
         <PageWrapper>
             <Title>Connect Your Discord Account</Title>
 
+            {storedUsername && `Your Discord Username: ${storedUsername}`}
+
             <Box>
-                {storedUsername && `Your Discord Username: ${storedUsername}`}
                 <div className="mt-6 mb-2">Set new Discord username:</div>
                 <input 
                     type="text"
@@ -31,7 +32,7 @@ const Page = () => {
                     }
                 }/>
             </Box>
-            <Button className="ml-0" onClick={ async () => {
+            <Button onClick={ async () => {
                 await setUsername({
                     functionName: "setUsername",
                     args: [username]
