@@ -26,7 +26,9 @@ Before you begin, you need to install the following tools:
 ## How to run this repository
 ### To run the AI Agent:
 1. Go to the `packages/agent` directory and create a `.env` file based on the `.env.example` file.
-2. Then from the `packages/agent` directory execute the commands:
+2. From the root directory execute the command: 
+   - `yarn install`
+3. Then from the `packages/agent` directory execute the commands:
    - `pnpm i`
    - `pnpm build`
    - `pnpm start`
