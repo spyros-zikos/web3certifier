@@ -21,7 +21,7 @@ const SearchExamsPage: React.FC = () => {
     });
 
     const examIds = [];
-    for (let i = 0; i < (lastExamId || 0); i++) {
+    for (let i = (lastExamId ? lastExamId - BigInt(1) : -1); i > -1; i--) {
         examIds.push(i);
     }
 

@@ -184,6 +184,7 @@ const CreateExam = () => {
                 <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-8">
                     Create Exam
                 </Button>
+                <Text mt="3" ml="2" color="grey" display="block">Exam Creation Fee: $2</Text>
             </div>
         </PageWrapper>
     )
