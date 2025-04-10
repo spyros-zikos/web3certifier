@@ -100,7 +100,6 @@ const examsProvider: Provider = {
                     const certification: Certification = { name, description, base, score };
                     return certification;
                 });
-                // console.log(certifications);
                 
                 // format certification data
                 const formattedCertifications = certifications.map((certification: Certification) => {

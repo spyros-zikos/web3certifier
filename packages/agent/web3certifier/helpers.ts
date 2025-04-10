@@ -1,4 +1,3 @@
-import { Scraper } from 'agent-twitter-client';
 import { gql, request } from 'graphql-request';
 
 // GET USERNAME FROM MESSAGE

@@ -253,9 +253,7 @@ const ExamPage = () => {
                         }}>Claim Certificate</Button>
                     </Box>
                     :
-                    <Box>
-                        <div>Your password is incorrect!</div>
-                    </Box>
+                    <Box><div>Your password is incorrect!</div></Box>
                     }
                 </>;
             default:

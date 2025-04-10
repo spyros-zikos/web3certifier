@@ -27,7 +27,7 @@ export const recommendationAction: Action = {
         /// This action is used when the user provides his interest in a subject or topic.
         /// The agent will then recommend a certificate or an exam based on the user's interest.
 
-        // Get does user provides his interest
+        // Get if user provides his interest
         const userProvidesInterests = await promptUserProvidesInterests(runtime, message.content.text);
         console.log("userProvidesInterests:", userProvidesInterests);
         if (userProvidesInterests == "no") return;
@@ -56,7 +56,6 @@ export const recommendationAction: Action = {
 
         const response = recommendationExplanation + responseWithLink;
         callback({ text: response });
-        
         return;
     },
     examples: [
