@@ -6,23 +6,26 @@ import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaf
 import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components";
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
-import { PhotoIcon } from "@heroicons/react/24/outline";
+import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { defaultImage } from "~~/utils/constants/constants";
+import { Accordion } from "@chakra-ui/react"
 
 
 const CreateExam = () => {
     const router = useRouter();
     const [questions, setQuestions] = useState<string[]>([""]);
-    const [examName, setExamName] = useState<string>("");
-    const [examDescription, setExamDescription] = useState<string>("");
-    const [examEndTime, setExamEndTime] = useState<string>("");
-    const [examPrice, setExamPrice] = useState<number>();
-    const [examBaseScore, setExamBaseScore] = useState<string>("");
+    const [name, setname] = useState<string>("");
+    const [description, setdescription] = useState<string>("");
+    const [endTime, setendTime] = useState<string>("");
+    const [price, setprice] = useState<number>();
+    const [baseScore, setbaseScore] = useState<string>("");
+    const [maxSubmissions, setmaxSubmissions] = useState<string>("");
+    const [userClaimsWithPassword, setUserClaimsWithPassword] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>("");
 
     const requiredDetailsAreFilled = () => {
-        return examName&&examDescription&&examEndTime&&examBaseScore&&questions[0];
+        return name&&description&&endTime&&questions[0];
     }
 
     // Get exam creation fee (in $)
@@ -45,20 +48,22 @@ const CreateExam = () => {
             {
             functionName: "createExam",
             args: [
-                examName,
-                examDescription,
-                BigInt(new Date(examEndTime.toString()).getTime() / 1000),
+                name,
+                description,
+                BigInt(new Date(endTime.toString()).getTime() / 1000),
                 questions,
-                examPrice ? BigInt(examPrice * 1e18) : BigInt(0),
-                BigInt(examBaseScore),
-                imageUrl || defaultImage
+                price ? BigInt(price * 1e18) : BigInt(0),
+                BigInt(baseScore ? baseScore : Math.ceil(questions.length / 2)),
+                imageUrl || defaultImage,
+                maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
+                userClaimsWithPassword,
             ],
             value: examCreationFeeInEth,
             },
             {
             onBlockConfirmation: res => {
                 console.log("block confirm", res);
-                router.push(`/`);
+                // router.push(`/`);
             },
             },
         );
@@ -87,48 +92,28 @@ const CreateExam = () => {
             <div>
                 <label className={`${labelMarginAndPadding}`}>Name *</label>
                 <Input
-                    value={examName}
+                    value={name}
                     type="text"
                     placeholder="Name"
                     onChange={(e: any) => {
-                        setExamName(e.target.value);
+                        setname(e.target.value);
                     }}
                 />
                 <label className={`${labelMarginAndPadding}`}>Description *</label>
                 <Input
-                    value={examDescription}
+                    value={description}
                     type="text"
                     placeholder="Description"
                     onChange={(e: any) => {
-                        setExamDescription(e.target.value);
+                        setdescription(e.target.value);
                     }}
                 />
                 <label className={`${labelMarginAndPadding}`}>End Time *</label>
                 <Input
-                    value={examEndTime}
+                    value={endTime}
                     type="datetime-local"
                     onChange={(e: any) => {
-                        setExamEndTime(e.target.value);
-                    }}
-                />
-                <label className={`${labelMarginAndPadding}`}>Price ($)</label>
-                <Input
-                    value={examPrice}
-                    type="number"
-                    placeholder="Price"
-                    onChange={(e: any) => {
-                        if (e.target.value >= 0)
-                        setExamPrice(e.target.value);
-                    }}
-                />
-                <label className={`${labelMarginAndPadding}`}>Base Score *</label>
-                <Input
-                    value={examBaseScore}
-                    className="mb-4"
-                    type="number"
-                    placeholder="Base Score"
-                    onChange={(e: any) => {
-                        setExamBaseScore(e.target.value);
+                        setendTime(e.target.value);
                     }}
                 />
                 <label className={`${labelMarginAndPadding}`}>Questions *</label>
@@ -150,12 +135,12 @@ const CreateExam = () => {
                     Remove Question
                 </Button>
 
-                <label className={`${labelMarginAndPadding} block`}>Image</label>
+                <label className={`${labelMarginAndPadding} block`}>Image (optional)</label>
                 <div className="ml-2 my-4 w-[350px] border border-gray-300 rounded-lg">
                     <div
                         {...getRootProps()}
                         ref={dropZoneRef}
-                        className="m-auto my-4 w-[300px] min-h-96 bg-neutral flex justify-center items-center rounded-lg"
+                        className="m-auto my-6 w-[300px] h-[300px] bg-neutral flex justify-center items-center rounded-lg"
                     >
                         {imageUrl ?
                         (
@@ -180,11 +165,66 @@ const CreateExam = () => {
                     />
                 </div>
 
+                <Accordion.Root className="mt-9" collapsible>
+                    <Accordion.Item value={"1"}>
+                        <Accordion.ItemTrigger>
+                        <span className={'border rounded-lg p-2 ml-2 mt-2 text-xl'}>
+                            <div className="flex items-center mr-1">
+                            <ArrowDownIcon className="h-4 w-4 mr-2 text-gray-300" aria-hidden="true" />
+                            Advanced Settings
+                            </div>
+                        </span>
+                        <Accordion.ItemIndicator />
+                        </Accordion.ItemTrigger>
+                        <Accordion.ItemContent>
+                        <Accordion.ItemBody>
+                            <label className={`${labelMarginAndPadding}`}>Price ($) | Default: $0</label>
+                            <Input
+                                value={price}
+                                type="number"
+                                placeholder="Price"
+                                onChange={(e: any) => {
+                                    if (e.target.value >= 0)
+                                    setprice(e.target.value);
+                                }}
+                            />
+                            <label className={`${labelMarginAndPadding}`}>Base Score | Default: 50%</label>
+                            <Input
+                                value={baseScore}
+                                className="mb-4"
+                                type="number"
+                                placeholder="Base Score"
+                                onChange={(e: any) => {
+                                    setbaseScore(e.target.value);
+                                }}
+                            />
+                            <label className={`${labelMarginAndPadding}`}>Max Submissions | Default: 0 (unlimited)</label>
+                            <Input
+                                value={maxSubmissions}
+                                className="mb-4"
+                                type="number"
+                                placeholder="Max Submissions"
+                                onChange={(e: any) => {
+                                    setmaxSubmissions(e.target.value);
+                                }}
+                            />
+                            <label className={`${labelMarginAndPadding}`} title="Default: User Claims with Cookies">User Claims with Password | Default: false</label>
+                            <input
+                                className="ml-2 mb-4 w-6 h-6 accent-blue-500 cursor-pointer"
+                                checked={userClaimsWithPassword}
+                                type="checkbox"
+                                onChange={(e: any) => { setUserClaimsWithPassword(e.target.checked); }}
+                            />
+                        </Accordion.ItemBody>
+                        </Accordion.ItemContent>
+                    </Accordion.Item>
+                </Accordion.Root>
+
                 {!requiredDetailsAreFilled() && <Text mt="10" color="red" display="block">* Fields are required</Text>}
-                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-8">
+                <Text mt="3" ml="2" color="grey" display="block">Exam Creation Fee: $2</Text>
+                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3">
                     Create Exam
                 </Button>
-                <Text mt="3" ml="2" color="grey" display="block">Exam Creation Fee: $2</Text>
             </div>
         </PageWrapper>
     )

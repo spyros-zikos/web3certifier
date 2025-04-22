@@ -1,42 +1,12 @@
 /*//////////////////////////////////////////////////////////////
-                         SUBMIT EXAM PAID
+                            SUBMIT EXAM
 //////////////////////////////////////////////////////////////*/
 
-export const handleSubmitAnswersPaid = async (submitAnswersPaid: any, id: bigint, hashedAnswer: string, examPrice: bigint) => {
-    await submitAnswersPaid({
-        functionName: "submitAnswersPaid",
+export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: bigint) => {
+    await submitAnswers({
+        functionName: "submitAnswers",
         args: [id, `0x${hashedAnswer?.substring(2)}`],
         value: examPrice
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
-    });
-};
-
-/*//////////////////////////////////////////////////////////////
-                         SUBMIT EXAM FREE
-//////////////////////////////////////////////////////////////*/
-
-export const handleSubmitAnswersFree = async (submitAnswersFree: any, id: bigint, hashedAnswer: string) => {
-    await submitAnswersFree({
-        functionName: "submitAnswersFree",
-        args: [id, `0x${hashedAnswer?.substring(2)}`]
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
-    });
-};
-
-/*//////////////////////////////////////////////////////////////
-                            CANCEL EXAM
-//////////////////////////////////////////////////////////////*/
-
-export const handleCancelExam = async (cancelExam: any, id: bigint) => {
-    await cancelExam({
-        functionName: "cancelUncorrectedExam",
-        args: [id],
     }, {
         onBlockConfirmation: (res: any) => {
             console.log("block confirm", res);

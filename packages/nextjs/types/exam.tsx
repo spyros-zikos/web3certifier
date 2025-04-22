@@ -3,7 +3,6 @@ interface Exam {
     name: string;
     description: string;
     endTime: bigint;
-    status: number;
     questions: readonly string[];
     answers: readonly bigint[];
     price: bigint;
@@ -12,4 +11,8 @@ interface Exam {
     users: readonly string[];
     etherAccumulated: bigint;
     certifier: string;
+    tokenIds: readonly bigint[];
+    maxSubmissions: bigint;
+    numberOfSubmissions: bigint;
+    userClaimsWithPassword: boolean;
 }

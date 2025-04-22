@@ -9,9 +9,6 @@ export enum ExamStage {
     Certifier_Correct, // submit
     User_WaitForCorrection,
 
-    // --- Exam needs cancelling --- 
-    Both_Cancel, // submit
-
     // --- Exam got cancelled --- 
     User_ClaimRefund, // submit
     Both_CancelStats,

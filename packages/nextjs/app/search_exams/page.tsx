@@ -2,17 +2,14 @@
 
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Title } from "~~/components";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
 import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
-import { gql, request } from 'graphql-request';
-import { graphUrl } from "~~/utils/constants/constants";
 
 const SearchExamsPage: React.FC = () => {
     const { address } = useAccount();
     const [searchTerm, setSearchTerm] = useState("");
-    const [myExamIds, setMyExamIds] = useState<string[]>();
     const [showMyExams, setShowMyExams] = useState(false);
 
     const { data: lastExamId } = useScaffoldReadContract({
@@ -20,37 +17,22 @@ const SearchExamsPage: React.FC = () => {
         functionName: "getLastExamId",
     });
 
+    const { data: userExamIds } = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getUserExams",
+        args: [address],
+    });
+
+    const { data: certifierExamIds } = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getCertifierExams",
+        args: [address],
+    });
+
     const examIds = [];
     for (let i = (lastExamId ? lastExamId - BigInt(1) : -1); i > -1; i--) {
         examIds.push(i);
     }
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const query = gql`{
-                    submitAnswersPaids(where: {
-                        user: "${address}"
-                    }) { examId }
-                    submitAnswersFrees(where: {
-                        user: "${address}"
-                    }) { examId }
-                }`;
-                const response: any = await request(graphUrl, query);
-                const data = await response;
-                const paidTokenIdList = data.submitAnswersPaids;
-                const freeTokenIdList = data.submitAnswersFrees;
-                const paidTokenIds = paidTokenIdList.map((tokenIdObject: any) => tokenIdObject["examId"]);
-                const freeTokenIds = freeTokenIdList.map((tokenIdObject: any) => tokenIdObject["examId"]);
-                const tokenIds = [...paidTokenIds, ...freeTokenIds];
-                console.log("tokenIds:", tokenIds);
-                setMyExamIds(tokenIds);
-            } catch (error) {
-                console.log('Error fetching data:', error);
-            }
-        };
-        if (address) fetchData();
-    }, [address]);
 
     return (
         <PageWrapper>
@@ -65,8 +47,11 @@ const SearchExamsPage: React.FC = () => {
                 />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 space-14">
-                {(showMyExams?myExamIds:examIds)?.map((id, i) => (
-                <ExamCard key={i} id={BigInt(id)} searchTerm={searchTerm} />
+                {(showMyExams
+                    ? Array.from(new Set([...(userExamIds || []), ...(certifierExamIds || [])]))
+                    : examIds
+                )?.map((id, i) => (
+                    <ExamCard key={i} id={BigInt(id)} searchTerm={searchTerm} />
                 ))}
             </div>
         </PageWrapper>

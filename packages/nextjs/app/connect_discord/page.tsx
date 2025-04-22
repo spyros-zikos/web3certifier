@@ -35,7 +35,7 @@ const Page = () => {
             <Button onClick={ async () => {
                 await setUsername({
                     functionName: "setUsername",
-                    args: [username]
+                    args: [username, BigInt(0), "0x"]
                 }, {
                     onBlockConfirmation: (res: any) => {
                         console.log("block confirm", res);
