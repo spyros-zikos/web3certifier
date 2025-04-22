@@ -82,6 +82,7 @@ contract VerifyAll is Script {
     inputs[6] = "--constructor-args";
     inputs[7] = vm.toString(constructorArgs);
     inputs[8] = "--watch";
+    // if (keccak256(abi.encode(inputs[5])) == keccak256(abi.encode("11155111"))) return;
 
     FfiResult memory f = tempVm(address(vm)).tryFfi(inputs);
 

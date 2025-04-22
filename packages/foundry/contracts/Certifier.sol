@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -6,9 +6,12 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
-import {PriceConverter} from "./PriceConverter.sol";
-import {ICertifier} from "./ICertifier.sol";
+import {PriceConverter} from "./lib/PriceConverter.sol";
+import {ICertifier} from "./interfaces/ICertifier.sol";
+import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.sol";
 
 /**
  * @title Certifier
@@ -38,11 +41,15 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     // Fee Collector
     address private s_feeCollector;
 
+    // Signer
+    address private s_signer;
+
     // Certifier
     mapping(address certifier => uint256[] examIds) private s_certifierToExamIds;
 
     // User
     address[] private s_users;
+    mapping(address user => uint256[] examIds) private s_userToExamIds;
     mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
     // user can claim either ether if exam is cancelled or NFT if exam has ended
     mapping(address user => mapping(uint256 examId => bool hasClaimed)) private s_userHasClaimed;
@@ -57,24 +64,49 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     // NFT
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
+    mapping(uint256 tokenId => uint256 examId) s_tokenIdToExamId;
 
     // usernames
     mapping(address user => string username) private s_userToUsername;
     mapping(string username => address user) private s_usernameToUser;
+    mapping(bytes32 => bool) private s_usedSignatures;
+    bool private s_requiresSignature;
+
+    // Pause / Stop
+    bool private s_paused;
+    bool private s_stopped;  // permanent
+
+    // Whitelist
+    address[] private s_whitelist;
+    mapping(address => bool) private s_userIsWhitelisted;
 
     // Chainlink Price Feed address
     address private immutable i_priceFeed;
 
     // Decimals
     uint256 private constant DECIMALS = 1e18;
+    address private constant GOOD_DOLLAR_PROXY = 0xC361A6E67822a0EDc17D899227dd9FC50BD62F42;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(address priceFeed) ERC721("Certificate", "CERT") Ownable(msg.sender) {
+    constructor(address priceFeed) ERC721("Web3 Certifier", "W3C") Ownable(msg.sender) {
         s_feeCollector = msg.sender;
+        s_signer = msg.sender;
         i_priceFeed = priceFeed;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+
+    modifier verifiedOnCelo(address user) {
+        if (block.chainid == 42220) {
+            if (!getIsVerifiedOnCelo(user))
+                revert Certifier__UserIsNotVerified(user);
+        }
+        _;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -88,6 +120,9 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
      * @param endTime The time the exam ends (unix timestamp)
      * @param questions The questions of the exam
      * @param price The cost of the exam for each student
+     * @param baseScore The base score of the exam
+     * @param imageUrl The image url of the exam
+     * @param maxSubmissions The maximum number of submissions
      */
     function createExam(
         string memory name,
@@ -96,20 +131,24 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         string[] memory questions,
         uint256 price,
         uint256 baseScore,
-        string memory imageUrl
-    ) external payable {
+        string memory imageUrl,
+        uint256 maxSubmissions,
+        bool userClaimsWithPassword
+    ) external payable verifiedOnCelo(msg.sender) {
         if (keccak256(abi.encode(name)) == keccak256(abi.encode(""))) revert Certifier__NameCannotBeEmpty();
         uint256 ethAmountRequired = getUsdToEthRate(s_examCreationFee);
+        if (s_userIsWhitelisted[msg.sender]) ethAmountRequired = 0;
         if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
+        if (questions.length == 0) revert Certifier__QuestionsCannotBeEmpty();
         if (baseScore > questions.length) revert Certifier__BaseScoreExceedsNumberOfQuestions();
         if (endTime < block.timestamp) revert Certifier__EndTimeIsInThePast(endTime, block.timestamp);
+        if (s_paused || s_stopped) revert Certifier__ContractIsPausedOrStopped();
 
         Exam memory exam = Exam({
             id: s_lastExamId,
             name: name,
             description: description,
             endTime: endTime,
-            status: Status.Started,
             questions: questions,
             answers: new uint256[](0),
             price: price,
@@ -117,7 +156,11 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
             imageUrl: imageUrl,
             users: new address[](0),
             etherAccumulated: 0,
-            certifier: msg.sender
+            certifier: msg.sender,
+            tokenIds: new uint256[](0),
+            maxSubmissions: maxSubmissions,
+            numberOfSubmissions: 0,
+            userClaimsWithPassword: userClaimsWithPassword
         });
 
         transferEther(s_feeCollector, msg.value);
@@ -127,7 +170,6 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
             exam.name,
             exam.description,
             exam.endTime,
-            exam.status,
             exam.questions,
             exam.answers,
             exam.price,
@@ -135,7 +177,9 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
             exam.imageUrl,
             exam.users,
             exam.etherAccumulated,
-            exam.certifier
+            exam.certifier,
+            exam.maxSubmissions,
+            exam.userClaimsWithPassword
         );
 
         s_examIdToExam[s_lastExamId] = exam;
@@ -145,44 +189,30 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
 
     /**
      * @notice Submits the answers of the user.
-     * @notice The user has to pay the price of the exam.
+     * @notice The user has to pay the price of the exam, if there is one.
      * @notice The user can only submit answers before the exam ends.
      * @notice The user can only submit answers once.
      * @param examId The id of the exam
      * @param hashedAnswer The hash of the answers and the key and msg.sender
      */
-    function submitAnswersPaid(uint256 examId, bytes32 hashedAnswer) external payable {
-        if (block.timestamp > s_examIdToExam[examId].endTime) revert Certifier__ExamEnded(examId);
+    function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable verifiedOnCelo(msg.sender) {
+        if (getStatus(examId) != Status.Started) revert Certifier__ExamEndedOrCancelled(examId, uint256(getStatus(examId)));
         if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
-        if (s_examIdToExam[examId].price == 0) revert Certifier__ThisExamIsNotPaid(examId);
         if (msg.sender == s_examIdToExam[examId].certifier) revert Certifier__CertifierCannotSubmit(examId);
         uint256 ethAmountRequired = getUsdToEthRate(s_examIdToExam[examId].price);
         if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
+        s_examIdToExam[examId].numberOfSubmissions += 1;
+        if ((s_examIdToExam[examId].maxSubmissions != 0) && (s_examIdToExam[examId].maxSubmissions < s_examIdToExam[examId].numberOfSubmissions))
+            revert Certifier__MaxSubmissionsReached(examId, s_examIdToExam[examId].maxSubmissions, s_examIdToExam[examId].numberOfSubmissions);
 
-        uint256 feeAmount = msg.value * s_submissionFee / DECIMALS; 
+        uint256 feeAmount = msg.value * s_submissionFee / DECIMALS;
         s_examIdToExam[examId].etherAccumulated += (msg.value - feeAmount);
         transferEther(s_feeCollector, feeAmount);
+        s_userToExamIds[msg.sender].push(examId);
         s_userToAnswers[msg.sender][examId] = hashedAnswer;
+        s_examIdToExam[examId].users.push(msg.sender);
 
-        emit SubmitAnswersPaid(msg.sender, examId, hashedAnswer);
-    }
-
-    /**
-     * @notice Submits the answers of the user.
-     * @notice The exam is free.
-     * @notice The user can only submit answers before the exam ends.
-     * @notice The user can only submit answers once.
-     * @param examId The id of the exam
-     * @param hashedAnswer The hash of the answers and the key and msg.sender
-     */
-    function submitAnswersFree(uint256 examId, bytes32 hashedAnswer) external {
-        if (block.timestamp > s_examIdToExam[examId].endTime) revert Certifier__ExamEnded(examId);
-        if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
-        if (s_examIdToExam[examId].price > 0) revert Certifier__ThisExamIsNotFree(examId, s_examIdToExam[examId].price);
-        if (msg.sender == s_examIdToExam[examId].certifier) revert Certifier__CertifierCannotSubmit(examId);
-        
-        s_userToAnswers[msg.sender][examId] = hashedAnswer;
-        emit SubmitAnswersFree(msg.sender, examId, hashedAnswer);
+        emit SubmitAnswers(msg.sender, examId, hashedAnswer);
     }
 
     /**
@@ -192,14 +222,10 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     * @param answers The answers of the user in an array
     */
     function correctExam(uint256 examId, uint256[] memory answers) external nonReentrant {
-        if (block.timestamp < s_examIdToExam[examId].endTime ||
-            block.timestamp > s_examIdToExam[examId].endTime + s_timeToCorrectExam
-        ) revert Certifier__NotTheTimeForExamCorrection(examId);
-        if (s_examIdToExam[examId].status == Status.Ended) revert Certifier__ExamAlreadyEnded(examId);
+        if (getStatus(examId) != Status.NeedsCorrection) revert Certifier__NotTheTimeForExamCorrection(examId, uint256(getStatus(examId)));
         if (msg.sender != s_examIdToExam[examId].certifier) revert Certifier__OnlyCertifierCanCorrect(examId);
 
         s_examIdToExam[examId].answers = answers;
-        s_examIdToExam[examId].status = Status.Ended;
 
         uint256 ethToCollect = s_examIdToExam[examId].etherAccumulated;
         if (ethToCollect > 0) {
@@ -211,20 +237,6 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     }
 
     /**
-    * @notice Cancels the exam
-    * @notice Anyone can call this function
-    * @param examId The id of the exam
-    */
-    function cancelUncorrectedExam(uint256 examId) external {
-        if (s_examIdToExam[examId].status == Status.Cancelled) revert Certifier__ExamIsCancelled(examId);
-        if (s_examIdToExam[examId].status == Status.Ended) revert Certifier__ExamEnded(examId);
-        if (block.timestamp <= s_examIdToExam[examId].endTime + s_timeToCorrectExam) revert Certifier__TooSoonToCancelExam(examId);
-        s_examIdToExam[examId].status = Status.Cancelled;
-
-        emit CancelExam(examId);
-    }
-
-    /**
     * @notice Claims the NFT certificate
     * @notice The user can only claim their certificate once
     * @notice answers and secretNumber are used to get the exact answers that the user submitted and 
@@ -232,9 +244,10 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     * @param examId The id of the exam
     * @param answers The answers of the user in an array
     * @param secretNumber The secret number of the user
+    * @return true if the user claimed the NFT
     */
-    function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external {
-        if (s_examIdToExam[examId].status != Status.Ended) revert Certifier__ExamIsCancelled(examId);
+    function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external nonReentrant returns (bool) {
+        if (getStatus(examId) != Status.Ended) revert Certifier__ExamHasNotEnded(examId, uint256(getStatus(examId)));
         if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedNFT(examId);
 
         uint256 userAnswersAsNumber = getAnswerAsNumber(answers);
@@ -242,16 +255,20 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         if (expectedHashedAnswer != s_userToAnswers[msg.sender][examId]) revert Certifier__AnswerHashesDontMatch(expectedHashedAnswer, s_userToAnswers[msg.sender][examId]);
 
         uint256 score = getScore(s_examIdToExam[examId].answers, answers);
-        if (score < s_examIdToExam[examId].baseScore) revert Certifier__UserFailedExam(score, s_examIdToExam[examId].baseScore);
+        if (score < s_examIdToExam[examId].baseScore) return false;
 
         s_userHasClaimed[msg.sender][examId] = true;
 
         string memory tokenUri = makeTokenUri(examId, score);
         s_tokenIdToUri[s_tokenCounter] = tokenUri;
+        s_tokenIdToExamId[s_tokenCounter] = examId;
+        s_examIdToExam[examId].tokenIds.push(s_tokenCounter);
+
         _safeMint(msg.sender, s_tokenCounter);
         emit ClaimNFT(msg.sender, examId, s_tokenCounter);
 
         s_tokenCounter++;
+        return true;
     }
 
     /**
@@ -260,7 +277,7 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     * @param examId The id of the exam
     */
     function refundExam(uint256 examId) external nonReentrant {
-        if (s_examIdToExam[examId].status != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId);
+        if (getStatus(examId) != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId, uint256(getStatus(examId)));
         if (s_userToAnswers[msg.sender][examId] == "") revert Certifier__UserDidNotParticipate(examId);
         if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedCancelledExam(examId);
         if (s_examIdToExam[examId].price == 0) revert Certifier__ThisExamIsNotPaid(examId);
@@ -270,15 +287,16 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         transferEther(msg.sender, ethAmount - feeAmount);
         s_userHasClaimed[msg.sender][examId] = true;
 
-        emit ClaimRefund(msg.sender, examId);
+        emit ClaimRefund(examId, msg.sender);
     }
 
     /*//////////////////////////////////////////////////////////////
                            PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    
+
     // override
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override(ERC721, ICertifier) returns (string memory) {
+        _requireOwned(tokenId);
         return s_tokenIdToUri[tokenId];
     }
 
@@ -288,6 +306,17 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         uint256 usdToEthRate = 1e18 * DECIMALS / ethToUsd;
         uint256 ethAmount = usdAmount * usdToEthRate / DECIMALS;
         return ethAmount;
+    }
+
+    function getStatus(uint256 examId) public view returns (Status) {
+        if (s_examIdToExam[examId].answers.length > 0) return Status.Ended; // terminal
+        if (block.timestamp > s_examIdToExam[examId].endTime + s_timeToCorrectExam) return Status.Cancelled; // terminal
+        if (block.timestamp > s_examIdToExam[examId].endTime) return Status.NeedsCorrection;
+        return Status.Started;
+    }
+
+    function getIsVerifiedOnCelo(address user) public view returns (bool) {
+        return IGoodDollarVerifierProxy(GOOD_DOLLAR_PROXY).isWhitelisted(user);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -341,14 +370,15 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
                 Base64.encode(
                     bytes(
                         abi.encodePacked(
-                            '{"name": "', name(), " #", tokenId,
+                            '{"name": "', examName, " | ", name(), " #", tokenId,
                             '", "description": "An NFT that represents a certificate.", ',
                             '"attributes":[',
                             '{"trait_type": "exam_name", "value": "', examName, '"}, ',
                             '{"trait_type": "exam_description", "value": "', examDescription, '"}, ',
                             '{"trait_type": "my_score", "value": "', scoreStr, "/", numOfQuestions, '"}, ',
                             '{"trait_type": "exam_base_score", "value": ', base, "}, ",
-                            '{"trait_type": "certifier", "value": "', certifier, '"}',
+                            '{"trait_type": "certifier", "value": "', certifier, '"}, ',
+                            '{"trait_type": "exam_id", "value": ', examId.toString(), "} ",
                             '], "image": "', imageUrl, '"}'
                         )
                     )
@@ -357,17 +387,46 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         );
     }
 
+    function _removeFromWhitelist(address user) private {
+        if (s_whitelist.length == 0) return;
+
+        bool shift;
+        uint256 arrayLength = s_whitelist.length;
+        for (uint256 i = 0; i < arrayLength - 1; i++) {
+            if (s_whitelist[i] == user) shift = true;
+            if (shift) s_whitelist[i] = s_whitelist[i + 1];
+        }
+        if (shift || s_whitelist[s_whitelist.length - 1] == user)
+            s_whitelist.pop();
+    }
+
+    /**
+     * @notice Checks if the signature has been used and if it has reverts.
+     * @notice Checks if the signature is valid and reverts if it is not.
+     * @notice Stores the signature so that it cannot be reused.
+     * 
+     * @param username Token name
+     * @param nonce Nonce used for the signature
+     * @param signature The signature from the signer
+     */
+    function _checkSignatureAndStore(
+        string memory username,
+        uint256 nonce,
+        bytes memory signature
+    ) private {
+        if (s_usedSignatures[keccak256(signature)]) revert ReusedSignature();
+
+        bytes32 message = keccak256(abi.encodePacked(username, nonce, address(this), block.chainid, msg.sender));
+
+        if (!SignatureChecker.isValidSignatureNow(s_signer, MessageHashUtils.toEthSignedMessageHash(message), signature))
+            revert InvalidSignature();
+
+        s_usedSignatures[keccak256(signature)] = true;
+    }
+
     /*//////////////////////////////////////////////////////////////
                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-
-    function getStatus(uint256 examId) external view returns (Status) {
-        if (s_examIdToExam[examId].status == Status.Ended) return Status.Ended; // terminal status
-        if (s_examIdToExam[examId].status == Status.Cancelled) return Status.Cancelled; // terminal status
-        if (block.timestamp > s_examIdToExam[examId].endTime + s_timeToCorrectExam) return Status.NeedsCancelling;
-        if (block.timestamp > s_examIdToExam[examId].endTime) return Status.NeedsCorrection;
-        return Status.Started;
-    }
 
     function getFeeCollector() external view returns (address) {
         return s_feeCollector;
@@ -375,6 +434,10 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
 
     function getCertifierExams(address certifier) external view returns (uint256[] memory) {
         return s_certifierToExamIds[certifier];
+    }
+
+    function getUserExams(address user) external view returns (uint256[] memory) {
+        return s_userToExamIds[user];
     }
 
     function getUsers() external view returns (address[] memory) {
@@ -429,33 +492,90 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
         return DECIMALS;
     }
 
+    function getIsPaused() external view returns (bool) {
+        return s_paused;
+    }
+
+    function getIsStopped() external view returns (bool) {
+        return s_stopped;
+    }
+
+    function getWhitelist() external view returns (address[] memory) {
+        return s_whitelist;
+    }
+
+    function getUserIsWhitelisted(address user) external view returns (bool) {
+        return s_userIsWhitelisted[user];
+    }
+
+    function getSigner() external view returns (address) {
+        return s_signer;
+    }
+
+    function getRequiresSignature() external view returns (bool) {
+        return s_requiresSignature;
+    }
+
     /*//////////////////////////////////////////////////////////////
                            SETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function setFeeCollector(address feeCollector) external onlyOwner nonReentrant {
+    function setFeeCollector(address feeCollector) external onlyOwner {
         s_feeCollector = feeCollector;
         emit SetFeeCollector(feeCollector);
     }
 
-    function setTimeToCorrectExam(uint256 time) external onlyOwner nonReentrant {
+    function setTimeToCorrectExam(uint256 time) external onlyOwner {
         s_timeToCorrectExam = time;
         emit SetTimeToCorrectExam(time);
     }
 
-    function setExamCreationFee(uint256 fee) external onlyOwner nonReentrant {
+    function setExamCreationFee(uint256 fee) external onlyOwner {
         s_examCreationFee = fee;
         emit SetExamCreationFee(fee);
     }
 
-    function setSubmissionFee(uint256 fee) external onlyOwner nonReentrant {
+    function setSubmissionFee(uint256 fee) external onlyOwner {
         s_submissionFee = fee;
         emit SetSubmissionFee(fee);
     }
 
-    function setUsername(string memory username) external nonReentrant {
+    function setUsername(string memory username, uint256 nonce, bytes memory signature) external nonReentrant verifiedOnCelo(msg.sender) {
+        if (s_requiresSignature)
+            _checkSignatureAndStore(username, nonce, signature);
         s_userToUsername[msg.sender] = username;
         s_usernameToUser[username] = msg.sender;
         emit SetUsername(msg.sender, username);
+    }
+
+    function setPaused(bool paused) external onlyOwner {
+        s_paused = paused;
+        emit SetPaused(paused);
+    }
+
+    function setStopped() external onlyOwner {
+        s_stopped = true;
+        emit Stopped();
+    }
+
+    function addToWhitelist(address user) external onlyOwner {
+        s_whitelist.push(user);
+        s_userIsWhitelisted[user] = true;
+        emit AddeToWhitelist(user);
+    }
+
+    function removeFromWhitelist(address user) external onlyOwner {
+        _removeFromWhitelist(user);
+        s_userIsWhitelisted[user] = false;
+        emit RemoveFromWhitelist(user);
+    }
+
+    function setSigner(address signer) external onlyOwner {
+        s_signer = signer;
+        emit SetSigner(signer);
+    }
+
+    function setRequiresSignature(bool requiresSignature) external onlyOwner {
+        s_requiresSignature = requiresSignature;
     }
 }

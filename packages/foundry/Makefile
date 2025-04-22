@@ -1,5 +1,4 @@
 .PHONY: build deploy generate-abis verify-keystore account chain compile deploy-verify flatten fork format lint test verify
-# -include .env
 
 # install dependencies
 install:
@@ -18,16 +17,23 @@ chain: setup-anvil-wallet
 fork: setup-anvil-wallet
 	anvil --fork-url ${FORK_URL} --chain-id 31337
 
+# Sepolia fork
+-include .env
+fork-sepolia:
+	forge test --fork-url https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY} -vv --via-ir
+fork-celo:
+	forge test --fork-url https://celo-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY} -vv --via-ir
+
 # Build the project
 build:
-	forge build --build-info --build-info-path out/build-info/ --via-ir
+	forge build --build-info --build-info-path out/build-info/ --optimizer-runs 1 --via-ir
 
 # Deploy the project
 deploy:
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
 		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi --via-ir; \
 	else \
-		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --ffi --via-ir; \
+		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --optimizer-runs 1 --ffi --via-ir; \
 	fi
 
 # Build and deploy target
@@ -66,7 +72,7 @@ deploy-verify:
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
 		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi --verify; \
 	else \
-		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --ffi --verify; \
+		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --optimizer-runs 1 --ffi --verify; \
 	fi
 	node scripts-js/generateTsAbis.js
 
@@ -84,7 +90,7 @@ lint:
 
 # Verify contracts
 verify:
-	forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL) --via-ir
+	forge script script/VerifyAll.s.sol --optimizer-runs 1 --ffi --rpc-url $(RPC_URL) --via-ir
 
 build-and-verify: build verify
 
