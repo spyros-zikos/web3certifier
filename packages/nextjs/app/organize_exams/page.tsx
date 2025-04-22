@@ -221,7 +221,9 @@ const CreateExam = () => {
                 </Accordion.Root>
 
                 {!requiredDetailsAreFilled() && <Text mt="10" color="red" display="block">* Fields are required</Text>}
-                <Text mt="3" ml="2" color="grey" display="block">Exam Creation Fee: $2</Text>
+                <Text mt="3" ml="2" color="grey" display="block">
+                    Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
+                </Text>
                 <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3">
                     Create Exam
                 </Button>

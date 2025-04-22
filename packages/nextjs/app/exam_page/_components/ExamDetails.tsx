@@ -5,6 +5,8 @@ import { defaultImage } from "~~/utils/constants/constants";
 import { getStatusStr } from "~~/utils/StatusStr";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Button } from "~~/components";
+import { Accordion } from "@chakra-ui/react"
+import { ArrowDownIcon } from "@heroicons/react/24/outline";
 
 const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answers, setAnswers}:
     {
@@ -27,12 +29,32 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
             <div className="max-w-[400px]">
                 <div className="text-[40px] font-bold mb-4 ">{exam?.name}</div>
                 <Image src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" w={350} h={350} objectFit={"cover"}/>
+                <Accordion.Root className="mt-9" collapsible>
+                    <Accordion.Item value={"1"}>
+                        <Accordion.ItemTrigger>
+                        <span className={'border rounded-lg p-2 mt-2 text-xl'}>
+                            <div className="flex items-center mr-1">
+                            <ArrowDownIcon className="h-4 w-4 mr-2 text-gray-300" aria-hidden="true" />
+                            More Details
+                            </div>
+                        </span>
+                        <Accordion.ItemIndicator />
+                        </Accordion.ItemTrigger>
+                        <Accordion.ItemContent>
+                        <Accordion.ItemBody>
                 <ExamDetail name="Description" value={exam?.description} />
                 <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
                 <ExamDetail name="Status" value={getStatusStr(status)} />
                 <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
                 <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
                 <ExamDetail name="Certifier" value={exam?.certifier} />
+                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
+                <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
+                <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />
+                            </Accordion.ItemBody>
+                        </Accordion.ItemContent>
+                    </Accordion.Item>
+                </Accordion.Root>
                 {
                     <Box>
                     {exam?.questions.map((question, index) => (
@@ -49,7 +71,8 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
                                     }
                                 }}
                             >
-                                <div className="mt-6 mb-2 border-2 border-gray-400 p-2">
+                                <label className={"mt-6 mb-1 block"}>Question {index+1}</label>
+                                <div className="mb-2 border-2 border-gray-400 p-2">
                                     <div className="whitespace-pre-wrap">{question}</div>
                                     {showAnswers &&
                                     <div className="mt-4">

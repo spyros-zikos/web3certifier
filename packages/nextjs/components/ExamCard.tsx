@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { Button, Card } from "~~/components";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
@@ -28,13 +28,13 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
         args: [exam?.id],
     }).data;
 
-    const endDate = exam && new Date(Number(exam.endTime.toString()) * 1000);
-    
     let dataString = "";
     if (exam)
         for (const [_, value] of Object.entries(exam))
             dataString += `${value}`;
     dataString += getStatusStr(status);
+
+    const endDate = exam && new Date(Number(exam.endTime.toString()) * 1000);
 
     const getFormattedDate = () => {
         const longDate = endDate?.toLocaleString();
@@ -54,8 +54,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
     }
 
     return (
-        exam?.name &&
-        dataString.includes(searchTerm) && (
+        exam?.name && dataString.includes(searchTerm) &&
         <Card
             title={exam?.name}
             className={`${className || ""}`}
@@ -98,7 +97,6 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                 </Box>
             </SimpleGrid>
         </Card>
-        )
     );
 };
 

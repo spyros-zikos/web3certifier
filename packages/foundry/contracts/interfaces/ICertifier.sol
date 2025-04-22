@@ -172,6 +172,8 @@ interface ICertifier {
 
     function getRequiresSignature() external view returns (bool);
 
+    function getIsVerifiedOnCelo(address user) external view returns (bool);
+
     // setters
 
     function setFeeCollector(address feeCollector) external;
