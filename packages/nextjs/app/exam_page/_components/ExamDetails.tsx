@@ -32,10 +32,10 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
                 <Accordion.Root className="mt-9" collapsible>
                     <Accordion.Item value={"1"}>
                         <Accordion.ItemTrigger>
-                        <span className={'border rounded-lg p-2 mt-2 text-xl'}>
+                        <span className={'mb-4 border bg-base-100 border-primary text-primary rounded-lg p-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
                             <div className="flex items-center mr-1">
-                            <ArrowDownIcon className="h-4 w-4 mr-2 text-gray-300" aria-hidden="true" />
-                            More Details
+                            <ArrowDownIcon className="h-4 w-4 mr-2 text-primary hover:text-accent" aria-hidden="true" />
+                            Details
                             </div>
                         </span>
                         <Accordion.ItemIndicator />
@@ -102,7 +102,7 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
                 {<Box className="mt-12 mb-8">
                     <div className="whitespace-pre-wrap">{message}</div>
                 </Box>}
-                {buttonText && <Box><Button className="ml-0" onClick={buttonAction}>{buttonText}</Button></Box>}
+                {buttonText && <Box><Button className="ml-0 bg-base-100" onClick={buttonAction}>{buttonText}</Button></Box>}
             </div>
         </VStack>
     );

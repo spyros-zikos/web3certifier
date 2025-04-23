@@ -20,6 +20,7 @@ const ExamPage = () => {
     const { address } = useAccount();
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
+    const [timeNow, setTimeNow] = useState(Date.now());
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -55,6 +56,11 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
+    const timeToCorrect: bigint | undefined = useScaffoldReadContract({
+        contractName: "Certifier",
+        functionName: "getTimeToCorrectExam",
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -82,6 +88,10 @@ const ExamPage = () => {
         };
         if (exam) fetchData();
     }, [exam]);
+
+    useEffect(() => {
+        setTimeNow(Date.now());
+    }, [Math.floor(Date.now())]);
 
     const getExamStage = () => {
         const status = getStatusStr(statusNum);
@@ -198,6 +208,18 @@ const ExamPage = () => {
             </PageWrapper>
         )
     }
+    
+    function getTimeLeft(now: number, deadline: bigint) {
+        const deadlineDate = new Date(Number(deadline) * 1000);
+        const diffMs = deadlineDate.getTime() - now;
+        const timeLeft = Math.floor(diffMs / 1000);
+
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+
+        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
 
     return (
         <PageWrapper>
@@ -213,6 +235,16 @@ const ExamPage = () => {
                 answers={answers}
                 setAnswers={setAnswers}
             />
+            {getExamStage() === ExamStage.User_StartedNotSubmitted &&
+                <div className="mt-4 fixed bottom-10 right-20">
+                    Time Left: {getTimeLeft(timeNow, exam!.endTime)}
+                </div>
+            }
+            {getExamStage() === ExamStage.Certifier_Correct &&
+                <div className="mt-4 fixed bottom-10 right-20">
+                    Time Left: {getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0))}
+                </div>
+            }
         </PageWrapper>
     )
 }

@@ -77,7 +77,7 @@ export function getHashedAnswerAndMessageWithCookies(
     // message
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
     Cookies.set(`w3c.${examId}.${address}`, userPassword, { expires: 100000 });
-    const message = <div>The system uses cookies to store your password. This means that you can only claim from this device.</div>
+    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.</div>
 
     return [message, hashedAnswer];
 }

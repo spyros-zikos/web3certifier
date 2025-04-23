@@ -128,15 +128,15 @@ const CreateExam = () => {
                 />
                 ))}
 
-                <Button onClick={() => setQuestions([...questions, ""])}>
+                <Button className="bg-base-100" onClick={() => setQuestions([...questions, ""])}>
                     Add Question
                 </Button>
-                <Button onClick={() => { if (questions.length > 1) setQuestions([...questions.slice(0, -1)]) }}>
+                <Button className="bg-base-100" onClick={() => { if (questions.length > 1) setQuestions([...questions.slice(0, -1)]) }}>
                     Remove Question
                 </Button>
 
                 <label className={`${labelMarginAndPadding} block`}>Image (optional)</label>
-                <div className="ml-2 my-4 w-[350px] border border-gray-300 rounded-lg">
+                <div className="ml-2 my-4 w-[350px] border border-accent rounded-lg">
                     <div
                         {...getRootProps()}
                         ref={dropZoneRef}
@@ -168,9 +168,9 @@ const CreateExam = () => {
                 <Accordion.Root className="mt-9" collapsible>
                     <Accordion.Item value={"1"}>
                         <Accordion.ItemTrigger>
-                        <span className={'border rounded-lg p-2 ml-2 mt-2 text-xl'}>
+                        <span className={'border bg-base-100 border-primary text-primary rounded-lg p-2 ml-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
                             <div className="flex items-center mr-1">
-                            <ArrowDownIcon className="h-4 w-4 mr-2 text-gray-300" aria-hidden="true" />
+                            <ArrowDownIcon className="h-4 w-4 mr-2 text-primary hover:text-accent" aria-hidden="true" />
                             Advanced Settings
                             </div>
                         </span>
@@ -210,7 +210,7 @@ const CreateExam = () => {
                             />
                             <label className={`${labelMarginAndPadding}`} title="Default: User Claims with Cookies">User Claims with Password | Default: false</label>
                             <input
-                                className="ml-2 mb-4 w-6 h-6 accent-blue-500 cursor-pointer"
+                                className="ml-2 mb-4 w-6 h-6 accent-base-100 cursor-pointer"
                                 checked={userClaimsWithPassword}
                                 type="checkbox"
                                 onChange={(e: any) => { setUserClaimsWithPassword(e.target.checked); }}
@@ -224,7 +224,7 @@ const CreateExam = () => {
                 <Text mt="3" ml="2" color="grey" display="block">
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
                 </Text>
-                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3">
+                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
                     Create Exam
                 </Button>
             </div>

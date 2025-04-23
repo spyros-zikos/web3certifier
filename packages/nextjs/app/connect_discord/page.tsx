@@ -24,15 +24,18 @@ const Page = () => {
             {storedUsername && `Your Discord Username: ${storedUsername}`}
 
             <Box>
-                <div className="mt-6 mb-2">Set new Discord username:</div>
-                <input 
+                <div className="mt-6 mb-3">Set new Discord username:</div>
+                <input
+                    className="mb-2 border-2 border-accent bg-base-200 placeholder-base-300 p-2 mr-2 rounded-md hover:border-neutral focus:outline-none focus:border-2 focus:border-neutral"
                     type="text"
                     onChange={e => {
                         setTheUsername(e.target.value);
                     }
                 }/>
             </Box>
-            <Button onClick={ async () => {
+            <Button 
+            className="bg-base-100"
+            onClick={ async () => {
                 await setUsername({
                     functionName: "setUsername",
                     args: [username, BigInt(0), "0x"]
