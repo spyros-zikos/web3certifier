@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.24;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+// import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+// import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
@@ -12,6 +13,11 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {PriceConverter} from "./lib/PriceConverter.sol";
 import {ICertifier} from "./interfaces/ICertifier.sol";
 import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.sol";
+
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 
 /**
  * @title Certifier
@@ -29,7 +35,7 @@ import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.so
  * - Stage 3: The users can claim their NFT certificate or their refund depending on whether  
  *     the certifier corrected the exam in time.
  */
-contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
+contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICertifier, ERC721Upgradeable, ReentrancyGuard {
     using Strings for uint256;
     using Strings for address;
     using Strings for string;
@@ -81,7 +87,7 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     mapping(address => bool) private s_userIsWhitelisted;
 
     // Chainlink Price Feed address
-    address private immutable i_priceFeed;
+    address private s_priceFeed;
 
     // Decimals
     uint256 private constant DECIMALS = 1e18;
@@ -91,10 +97,24 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(address priceFeed) ERC721("Web3 Certifier", "W3C") Ownable(msg.sender) {
+    // constructor(address priceFeed) ERC721("Web3 Certifier", "W3C") Ownable(msg.sender) {
+    //     s_feeCollector = msg.sender;
+    //     s_signer = msg.sender;
+    //     s_priceFeed = priceFeed;
+    // }
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address priceFeed) public initializer {
+        __Ownable_init(msg.sender);
+        __ERC721_init("Web3 Certifier", "W3C");
+        __UUPSUpgradeable_init();
         s_feeCollector = msg.sender;
         s_signer = msg.sender;
-        i_priceFeed = priceFeed;
+        s_priceFeed = priceFeed;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -295,14 +315,14 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     // override
-    function tokenURI(uint256 tokenId) public view override(ERC721, ICertifier) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override(ERC721Upgradeable, ICertifier) returns (string memory) {
         _requireOwned(tokenId);
         return s_tokenIdToUri[tokenId];
     }
 
     // chainlink oracle
     function getUsdToEthRate(uint256 usdAmount) public view returns (uint256) {
-        uint256 ethToUsd = PriceConverter.getConversionRate(1e18, i_priceFeed);
+        uint256 ethToUsd = PriceConverter.getConversionRate(1e18, s_priceFeed);
         uint256 usdToEthRate = 1e18 * DECIMALS / ethToUsd;
         uint256 ethAmount = usdAmount * usdToEthRate / DECIMALS;
         return ethAmount;
@@ -316,6 +336,7 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     }
 
     function getIsVerifiedOnCelo(address user) public view returns (bool) {
+        if (block.chainid != 42220) revert Certifier__VerificationAvailableOnlyOnCelo();
         return IGoodDollarVerifierProxy(GOOD_DOLLAR_PROXY).isWhitelisted(user);
     }
 
@@ -326,6 +347,9 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
     function _baseURI() internal pure override returns (string memory) {
         return "data:application/json;base64,";
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    
 
     /*//////////////////////////////////////////////////////////////
                            PRIVATE FUNCTIONS
@@ -577,5 +601,9 @@ contract Certifier is ICertifier, ERC721, ReentrancyGuard, Ownable {
 
     function setRequiresSignature(bool requiresSignature) external onlyOwner {
         s_requiresSignature = requiresSignature;
+    }
+
+    function setPriceFeed(address priceFeed) external onlyOwner {
+        s_priceFeed = priceFeed;
     }
 }

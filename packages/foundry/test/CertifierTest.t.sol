@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {Certifier} from "../contracts/Certifier.sol";
 import {ICertifier} from "../contracts/interfaces/ICertifier.sol";
-import {DeployCertifier} from "../script/DeployCertifier.s.sol";
+import {DeployProxy} from "../script/DeployProxy.s.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract CertifierTest is Test {
     Certifier public certifier;
@@ -37,8 +38,9 @@ contract CertifierTest is Test {
     function setUp() public {
         (deployer, deployerKey) = makeAddrAndKey("deployer");
         vm.startPrank(deployer);
-        DeployCertifier deployCertifier = new DeployCertifier();
-        certifier = new Certifier(deployCertifier.PRICE_FEED());
+        DeployProxy deployProxy = new DeployProxy();
+        (address proxy,) = deployProxy.run();
+        certifier = Certifier(address(proxy));
         vm.stopPrank();
         examQuestions.push("question1");
         examQuestions.push("question2");

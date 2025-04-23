@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.24;
 
 interface ICertifier {
     
@@ -97,7 +97,8 @@ interface ICertifier {
     error Certifier__QuestionsCannotBeEmpty();
     error ReusedSignature();
     error InvalidSignature();
-
+    error Certifier__VerificationAvailableOnlyOnCelo();
+    
     // external
 
     function createExam(
@@ -197,4 +198,6 @@ interface ICertifier {
     function setSigner(address signer) external;
 
     function setRequiresSignature(bool requiresSignature) external;
+
+    function setPriceFeed(address priceFeed) external;
 }

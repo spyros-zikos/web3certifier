@@ -20,6 +20,7 @@
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^5.3.0",
     "dotenv": "~16.3.1",
     "envfile": "~6.18.0",
     "ethers": "~5.7.1",
