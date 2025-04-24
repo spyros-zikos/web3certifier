@@ -238,12 +238,12 @@ const ExamPage = () => {
             />
             {getExamStage() === ExamStage.User_StartedNotSubmitted &&
                 <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left: {getTimeLeft(timeNow, exam!.endTime)}
+                    Time Left To Submit: {getTimeLeft(timeNow, exam!.endTime)}
                 </div>
             }
             {getExamStage() === ExamStage.Certifier_Correct &&
                 <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left: {getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0))}
+                    Time Left To Correct: {getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0))}
                 </div>
             }
         </PageWrapper>

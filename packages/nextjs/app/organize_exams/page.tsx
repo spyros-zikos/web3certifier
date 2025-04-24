@@ -43,7 +43,7 @@ const CreateExam = () => {
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
-    
+
     const { writeContractAsync: createExam } = wagmiWriteToContract();
     function handleCreateExam() {
         createExam({
@@ -61,7 +61,7 @@ const CreateExam = () => {
             ],
             value: examCreationFeeInEth,
         });
-    };
+    }
 
     const onDrop = useCallback(
         async (acceptedFiles: File[]) => {
