@@ -1,55 +1,17 @@
-import { gql, request } from 'graphql-request';
-import { graphUrl } from "~~/utils/constants/constants";
-
 // Certifier stats after exam correction
 // 1. Number of submissions
 // 2. Number of correct submissions
 // 3. Profit
 const getCertifierStatsAfterCorrection = async (exam: Exam) => {
-    const id = exam.id;
-    let numOfSubmissions = 0;
-    let numOfCorrectSubmissions = 0;
-    let profit = 0;
+    let numOfSubmissions = exam.users.length;
+    let numOfCorrectSubmissions = exam.tokenIds.length;
+    let revenue = numOfSubmissions * Math.round(Number(exam.price) / 1e16) / 1e2;
 
-    // Get number of submissions
-    if (exam.price !== BigInt(0)) {
-        // Get number of paid submissions
-        try {
-            const query = gql`
-            { submitAnswersPaids(where: { examId: ${id} }) { user } }`;
-            const response: any = await request(graphUrl, query);
-            const data = await response;
-            const paidSubmissionList = data.submitAnswersPaids;
-            numOfSubmissions = paidSubmissionList.length;
-        } catch (error) { console.log('Error fetching data:', error); }
-    } else {
-        // Get number of free submissions
-        try {
-            const query = gql`
-            { submitAnswersFrees(where: { examId: ${id} }) { user } }`;
-            const response: any = await request(graphUrl, query);
-            const data = await response;
-            const freeSubmissionList = data.submitAnswersFrees;
-            numOfSubmissions = freeSubmissionList.length;
-        } catch (error) { console.log('Error fetching data:', error); }
-    }
-
-    // Get number of correct submissions
-    try {
-        const query = gql`
-        { claimNFTs(where: { examId: ${id} }) { user } }`;
-        const response: any = await request(graphUrl, query);
-        const data = await response;
-        const correctSubmissionList = data.claimNFTs;
-        numOfCorrectSubmissions = correctSubmissionList.length;
-    } catch (error) { console.log('Error fetching data:', error); }
-
-    // Get profit
-    if (exam.price !== BigInt(0)) {
-        profit = Number(BigInt(numOfSubmissions) * exam.price / BigInt(1e18));
-    }
-
-    const statsText = `--- Statistics ---\nNumber of submissions: ${numOfSubmissions}\nNumber of correct submissions: ${numOfCorrectSubmissions}\nProfit: $${profit}`;
+    const statsText = `============== Statistics ==============\n\n`+
+    `Number of submissions: ${numOfSubmissions}\n\n`+
+    `Number of correct submissions: ${numOfCorrectSubmissions}\n\n`+
+    `Revenue (pre fee): $${revenue}\n\n`+
+    `===================================\n`;
     
     return statsText;
 }

@@ -63,7 +63,7 @@ export function getVariablesFromPasswordOrCookies(
 // Cookies
 
 export function getHashedAnswerAndMessageWithCookies(
-    answers: bigint[], randomKey: number, examId: bigint, address?: string
+    answers: bigint[], randomKey: number, examId: bigint, chainId?: number, address?: string
 ): [
     message: any, hashedAnswer: string|undefined
 ] {
@@ -76,7 +76,7 @@ export function getHashedAnswerAndMessageWithCookies(
 
     // message
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
-    Cookies.set(`w3c.${examId}.${address}`, userPassword, { expires: 100000 });
+    Cookies.set(`w3c.${chainId}.${examId}.${address}`, userPassword, { expires: 1000 });
     const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.</div>
 
     return [message, hashedAnswer];

@@ -18,7 +18,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 
 const ExamPage = () => {
-    const { address } = useAccount();
+    const { address, chain } = useAccount();
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
     const [timeNow, setTimeNow] = useState(Date.now());
@@ -119,7 +119,7 @@ const ExamPage = () => {
             case ExamStage.User_StartedNotSubmitted:
                 const [message, hashedAnswer] = exam?.userClaimsWithPassword
                 ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address)
-                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, address);
+                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, chain?.id, address);
                 return {
                     message: message,
                     buttonAction: () => 
@@ -133,7 +133,7 @@ const ExamPage = () => {
                 };
             case ExamStage.Certifier_Correct:
                 return {
-                    message: "This exam needs correcting. Please provide the correct answers within 5 minutes of the end of the exam.",
+                    message: "This exam needs correcting. Please provide the correct answers within " + Number(timeToCorrect) / 60 + " minutes of the end of the exam.",
                     buttonAction: () => {handleCorrectExam(correctExam, id, answers)},
                     buttonText: "Correct Exam"
                 };
@@ -144,7 +144,7 @@ const ExamPage = () => {
                     buttonText: "Claim Refund"
                 };
             case ExamStage.User_ClaimCertificate:
-                const cookiePassword = Cookies.get(`w3c.${id}.${address}`);
+                const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
                 const [key, answersArray, numberOfCorrectAnswers, passwordHashGood] = getVariablesFromPasswordOrCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), exam, address, userAnswer);
                 
                 // if the user clicked on the button and failed the exam
@@ -212,7 +212,7 @@ const ExamPage = () => {
     
     function getTimeLeft(now: number, deadline: bigint) {
         const deadlineDate = new Date(Number(deadline) * 1000);
-        const diffMs = deadlineDate.getTime() - now;
+        const diffMs = deadlineDate.getTime() - now > 0 ? deadlineDate.getTime() - now : 0;
         const timeLeft = Math.floor(diffMs / 1000);
 
         const hours = Math.floor(timeLeft / 3600);
