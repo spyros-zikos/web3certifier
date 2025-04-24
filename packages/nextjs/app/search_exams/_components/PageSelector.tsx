@@ -1,5 +1,3 @@
-//<PageSelector setPage={setPage} page={page} />
-
 import React from "react";
 import { Box, Button } from "@chakra-ui/react";
 

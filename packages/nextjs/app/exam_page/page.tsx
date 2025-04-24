@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { Box } from "@chakra-ui/react";
 import { PageWrapper, Title } from "~~/components";
 import { useAccount } from "wagmi";
-import { handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/WriteToContract";
+import { handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/Handlers";
 import { ExamStage } from "../../types/ExamStage";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
 import { getStatusStr } from "~~/utils/StatusStr";
 import ExamDetails from "./_components/ExamDetails";
-import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPasswordOrCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/HandleKey";
+import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPasswordOrCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
+import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 
 const ExamPage = () => {
@@ -26,38 +27,32 @@ const ExamPage = () => {
                           READ FROM CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const exam: Exam | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
+    const exam: Exam|undefined  = wagmiReadFromContract({
         functionName: "getExam",
         args: [id],
     }).data;
 
-    const userHasClaimed = useScaffoldReadContract({
-        contractName: "Certifier",
+    const userHasClaimed = wagmiReadFromContract({
         functionName: "getUserHasClaimed",
         args: [address, id],
     }).data;
 
-    const userAnswer = useScaffoldReadContract({
-        contractName: "Certifier",
+    const userAnswer = wagmiReadFromContract({
         functionName: "getUserAnswer",
         args: [address, id],
     }).data;
 
-    const examPriceInEth = useScaffoldReadContract({
-        contractName: "Certifier",
+    const examPriceInEth = wagmiReadFromContract({
         functionName: "getUsdToEthRate",
         args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
 
-    const statusNum: number | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
+    const statusNum: number | undefined = wagmiReadFromContract({
         functionName: "getStatus",
         args: [id],
     }).data;
 
-    const timeToCorrect: bigint | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
+    const timeToCorrect: bigint | undefined = wagmiReadFromContract({
         functionName: "getTimeToCorrectExam",
     }).data;
 
@@ -65,10 +60,11 @@ const ExamPage = () => {
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: submitAnswers } = useScaffoldWriteContract("Certifier");
-    const { writeContractAsync: refundExam } = useScaffoldWriteContract("Certifier");
-    const { writeContractAsync: claimCertificate } = useScaffoldWriteContract("Certifier");
-    const { writeContractAsync: correctExam } = useScaffoldWriteContract("Certifier");
+    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    const { writeContractAsync: refundExam } = wagmiWriteToContract();
+    const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
+    const { writeContractAsync: correctExam } = wagmiWriteToContract();
+    
 
     // Get key | For exam stage: User_StartedNotSubmitted
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
@@ -91,7 +87,7 @@ const ExamPage = () => {
 
     useEffect(() => {
         setTimeNow(Date.now());
-    }, [Math.floor(Date.now())]);
+    }, [Date.now()]);
 
     const getExamStage = () => {
         const status = getStatusStr(statusNum);

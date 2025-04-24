@@ -2,18 +2,16 @@
 
 import React from "react";
 import { createRef, useCallback, useState } from "react";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components";
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
 import { defaultImage } from "~~/utils/constants/constants";
 import { Accordion } from "@chakra-ui/react"
-
+import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 const CreateExam = () => {
-    const router = useRouter();
     const [questions, setQuestions] = useState<string[]>([""]);
     const [name, setname] = useState<string>("");
     const [description, setdescription] = useState<string>("");
@@ -28,25 +26,28 @@ const CreateExam = () => {
         return name&&description&&endTime&&questions[0];
     }
 
-    // Get exam creation fee (in $)
-    const { data: examCreationFee } = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getExamCreationFee"
-    });
-    // Get exam creation fee (in ETH)
-    const { data: examCreationFeeInEth } = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getUsdToEthRate",
-        args: [examCreationFee ? examCreationFee : BigInt(0)],
-    });
+    /*//////////////////////////////////////////////////////////////
+                          READ FROM CONTRACT
+    //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: createExam } = useScaffoldWriteContract("Certifier");
-    const handleCreateExam = async () => {
-        console.log("Exam creation begun");
-        try {
-        await createExam(
-            {
-            functionName: "createExam",
+    // Get exam creation fee (in $)
+    const examCreationFee = wagmiReadFromContract({
+        functionName: 'getExamCreationFee',
+    }).data;
+
+    const examCreationFeeInEth = wagmiReadFromContract({
+        functionName: 'getUsdToEthRate',
+        args: [examCreationFee ? examCreationFee : BigInt(0)],
+    }).data;
+
+    /*//////////////////////////////////////////////////////////////
+                           WRITE TO CONTRACT
+    //////////////////////////////////////////////////////////////*/
+    
+    const { writeContractAsync: createExam } = wagmiWriteToContract();
+    function handleCreateExam() {
+        createExam({
+            functionName: 'createExam',
             args: [
                 name,
                 description,
@@ -59,19 +60,9 @@ const CreateExam = () => {
                 userClaimsWithPassword,
             ],
             value: examCreationFeeInEth,
-            },
-            {
-            onBlockConfirmation: res => {
-                console.log("block confirm", res);
-                // router.push(`/`);
-            },
-            },
-        );
-        } catch (error) {
-          console.log("create exam error", error);
-        }
+        });
     };
-    
+
     const onDrop = useCallback(
         async (acceptedFiles: File[]) => {
             const file = acceptedFiles[0];
@@ -220,10 +211,10 @@ const CreateExam = () => {
                     </Accordion.Item>
                 </Accordion.Root>
 
-                {!requiredDetailsAreFilled() && <Text mt="10" color="red" display="block">* Fields are required</Text>}
-                <Text mt="3" ml="2" color="grey" display="block">
+                <Text mt="9" ml="2" color="grey" display="block">
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
                 </Text>
+                {!requiredDetailsAreFilled() && <Text mt="2" ml="2" color="red" display="block">* Fields are required</Text>}
                 <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
                     Create Exam
                 </Button>

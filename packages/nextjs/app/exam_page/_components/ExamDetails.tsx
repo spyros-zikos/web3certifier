@@ -42,15 +42,15 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
                         </Accordion.ItemTrigger>
                         <Accordion.ItemContent>
                         <Accordion.ItemBody>
-                <ExamDetail name="Description" value={exam?.description} />
-                <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
-                <ExamDetail name="Status" value={getStatusStr(status)} />
-                <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
-                <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
-                <ExamDetail name="Certifier" value={exam?.certifier} />
-                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
-                <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
-                <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />
+                                <ExamDetail name="Description" value={exam?.description} />
+                                <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
+                                <ExamDetail name="Status" value={getStatusStr(status)} />
+                                <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
+                                <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
+                                <ExamDetail name="Certifier" value={exam?.certifier} />
+                                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
+                                <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
+                                <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />
                             </Accordion.ItemBody>
                         </Accordion.ItemContent>
                     </Accordion.Item>

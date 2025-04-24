@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { Button, Card } from "~~/components";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useRouter } from "next/navigation";
 import { Address } from "~~/components/scaffold-eth";
 import { defaultImage } from "~~/utils/constants/constants";
 import { getStatusStr } from "~~/utils/StatusStr";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 interface CardProps {
     className?: string;
@@ -16,18 +16,21 @@ interface CardProps {
 const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
     const router = useRouter();
     
-    const exam: Exam | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
+    /*//////////////////////////////////////////////////////////////
+                          READ FROM CONTRACT
+    //////////////////////////////////////////////////////////////*/
+
+    const exam: Exam | undefined = wagmiReadFromContract({
         functionName: "getExam",
         args: [BigInt(id)],
-    }).data;
+    }).data as any;
 
-    const status: number | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
+    const status: number | undefined = wagmiReadFromContract({
         functionName: "getStatus",
         args: [exam?.id],
-    }).data;
+    }).data as any;
 
+    // make a string with the nft meta-data
     let dataString = "";
     if (exam)
         for (const [_, value] of Object.entries(exam))

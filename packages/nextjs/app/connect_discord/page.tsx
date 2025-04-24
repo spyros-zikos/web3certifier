@@ -4,18 +4,27 @@ import { useState } from "react";
 import { Box } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { Button, PageWrapper, Title } from "~~/components";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 
 const Page = () => {
     const { address } = useAccount();
     const [ username, setTheUsername ] = useState<string>('')
-    const { writeContractAsync: setUsername } = useScaffoldWriteContract("Certifier");
 
-    const storedUsername = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getUsername",
+    /*//////////////////////////////////////////////////////////////
+                          READ FROM CONTRACT
+    //////////////////////////////////////////////////////////////*/
+    
+    const storedUsername = wagmiReadFromContract({
+        functionName: 'getUsername',
         args: [address],
-    }).data;
+    }).data as any;
+
+    /*//////////////////////////////////////////////////////////////
+                           WRITE TO CONTRACT
+    //////////////////////////////////////////////////////////////*/
+
+    const { writeContractAsync: setUsername } = wagmiWriteToContract();
 
     return (
         <PageWrapper>
@@ -35,16 +44,11 @@ const Page = () => {
             </Box>
             <Button 
             className="bg-base-100"
-            onClick={ async () => {
-                await setUsername({
+            onClick={() => setUsername({
                     functionName: "setUsername",
                     args: [username, BigInt(0), "0x"]
-                }, {
-                    onBlockConfirmation: (res: any) => {
-                        console.log("block confirm", res);
-                    },
-                });
-            }}>Submit</Button>
+                })
+            }>Submit</Button>
 
             <p className="mt-6">Join the Discord server to communicate with the AI Agent <a href="https://discord.gg/4rXWFNGmDJ" target="_blank"><u>here</u></a>.</p>
         </PageWrapper>

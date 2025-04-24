@@ -11,14 +11,21 @@ const deployedContracts = {
       abi: [
         {
           type: "constructor",
-          inputs: [
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "UPGRADE_INTERFACE_VERSION",
+          inputs: [],
+          outputs: [
             {
-              name: "priceFeed",
-              type: "address",
-              internalType: "address",
+              name: "",
+              type: "string",
+              internalType: "string",
             },
           ],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -376,6 +383,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getIsVerifiedOnCelo",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getLastExamId",
           inputs: [],
           outputs: [
@@ -661,6 +687,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "initialize",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "isApprovedForAll",
           inputs: [
             {
@@ -724,6 +763,19 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "proxiableUUID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -864,6 +916,19 @@ const deployedContracts = {
               name: "paused",
               type: "bool",
               internalType: "bool",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setPriceFeed",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [],
@@ -1055,6 +1120,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "upgradeToAndCall",
+          inputs: [
+            {
+              name: "newImplementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "event",
@@ -1275,6 +1358,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "Initialized",
+          inputs: [
+            {
+              name: "version",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "OwnershipTransferred",
           inputs: [
             {
@@ -1457,6 +1553,30 @@ const deployedContracts = {
             },
           ],
           anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
         {
           type: "error",
@@ -1722,6 +1842,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__VerificationAvailableOnlyOnCelo",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Certifier__WrongAnswers",
           inputs: [
             {
@@ -1735,6 +1860,22 @@ const deployedContracts = {
               internalType: "uint256",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
         },
         {
           type: "error",
@@ -1841,7 +1982,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "InvalidInitialization",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "InvalidSignature",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "NotInitializing",
           inputs: [],
         },
         {
@@ -1892,8 +2048,36 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "UUPSUnauthorizedCallContext",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "UUPSUnsupportedProxiableUUID",
+          inputs: [
+            {
+              name: "slot",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
       ],
       inheritedFunctions: {
+        UPGRADE_INTERFACE_VERSION:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        proxiableUUID:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        upgradeToAndCall:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        owner:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        renounceOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        transferOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
         addToWhitelist: "contracts/interfaces/ICertifier.sol",
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
@@ -1905,6 +2089,7 @@ const deployedContracts = {
         getFeeCollector: "contracts/interfaces/ICertifier.sol",
         getIsPaused: "contracts/interfaces/ICertifier.sol",
         getIsStopped: "contracts/interfaces/ICertifier.sol",
+        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getLastExamId: "contracts/interfaces/ICertifier.sol",
         getRequiresSignature: "contracts/interfaces/ICertifier.sol",
         getSigner: "contracts/interfaces/ICertifier.sol",
@@ -1926,6 +2111,7 @@ const deployedContracts = {
         setExamCreationFee: "contracts/interfaces/ICertifier.sol",
         setFeeCollector: "contracts/interfaces/ICertifier.sol",
         setPaused: "contracts/interfaces/ICertifier.sol",
+        setPriceFeed: "contracts/interfaces/ICertifier.sol",
         setRequiresSignature: "contracts/interfaces/ICertifier.sol",
         setSigner: "contracts/interfaces/ICertifier.sol",
         setStopped: "contracts/interfaces/ICertifier.sol",
@@ -1934,30 +2120,28 @@ const deployedContracts = {
         setUsername: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        approve:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         balanceOf:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         getApproved:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         isApprovedForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        ownerOf:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         safeTransferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         setApprovalForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         supportsInterface:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        symbol:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         transferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
     },
   },
@@ -1967,14 +2151,21 @@ const deployedContracts = {
       abi: [
         {
           type: "constructor",
-          inputs: [
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "UPGRADE_INTERFACE_VERSION",
+          inputs: [],
+          outputs: [
             {
-              name: "priceFeed",
-              type: "address",
-              internalType: "address",
+              name: "",
+              type: "string",
+              internalType: "string",
             },
           ],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -2332,6 +2523,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getIsVerifiedOnCelo",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getLastExamId",
           inputs: [],
           outputs: [
@@ -2617,6 +2827,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "initialize",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "isApprovedForAll",
           inputs: [
             {
@@ -2680,6 +2903,19 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "proxiableUUID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -2820,6 +3056,19 @@ const deployedContracts = {
               name: "paused",
               type: "bool",
               internalType: "bool",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setPriceFeed",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [],
@@ -3011,6 +3260,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "upgradeToAndCall",
+          inputs: [
+            {
+              name: "newImplementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "event",
@@ -3231,6 +3498,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "Initialized",
+          inputs: [
+            {
+              name: "version",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "OwnershipTransferred",
           inputs: [
             {
@@ -3413,6 +3693,30 @@ const deployedContracts = {
             },
           ],
           anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
         {
           type: "error",
@@ -3678,6 +3982,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__VerificationAvailableOnlyOnCelo",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Certifier__WrongAnswers",
           inputs: [
             {
@@ -3691,6 +4000,22 @@ const deployedContracts = {
               internalType: "uint256",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
         },
         {
           type: "error",
@@ -3797,7 +4122,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "InvalidInitialization",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "InvalidSignature",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "NotInitializing",
           inputs: [],
         },
         {
@@ -3848,8 +4188,36 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "UUPSUnauthorizedCallContext",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "UUPSUnsupportedProxiableUUID",
+          inputs: [
+            {
+              name: "slot",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
       ],
       inheritedFunctions: {
+        UPGRADE_INTERFACE_VERSION:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        proxiableUUID:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        upgradeToAndCall:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        owner:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        renounceOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        transferOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
         addToWhitelist: "contracts/interfaces/ICertifier.sol",
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
@@ -3861,6 +4229,7 @@ const deployedContracts = {
         getFeeCollector: "contracts/interfaces/ICertifier.sol",
         getIsPaused: "contracts/interfaces/ICertifier.sol",
         getIsStopped: "contracts/interfaces/ICertifier.sol",
+        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getLastExamId: "contracts/interfaces/ICertifier.sol",
         getRequiresSignature: "contracts/interfaces/ICertifier.sol",
         getSigner: "contracts/interfaces/ICertifier.sol",
@@ -3882,6 +4251,7 @@ const deployedContracts = {
         setExamCreationFee: "contracts/interfaces/ICertifier.sol",
         setFeeCollector: "contracts/interfaces/ICertifier.sol",
         setPaused: "contracts/interfaces/ICertifier.sol",
+        setPriceFeed: "contracts/interfaces/ICertifier.sol",
         setRequiresSignature: "contracts/interfaces/ICertifier.sol",
         setSigner: "contracts/interfaces/ICertifier.sol",
         setStopped: "contracts/interfaces/ICertifier.sol",
@@ -3890,30 +4260,28 @@ const deployedContracts = {
         setUsername: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        approve:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         balanceOf:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         getApproved:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         isApprovedForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        ownerOf:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         safeTransferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         setApprovalForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         supportsInterface:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        symbol:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         transferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
     },
   },
@@ -3923,14 +4291,21 @@ const deployedContracts = {
       abi: [
         {
           type: "constructor",
-          inputs: [
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "UPGRADE_INTERFACE_VERSION",
+          inputs: [],
+          outputs: [
             {
-              name: "priceFeed",
-              type: "address",
-              internalType: "address",
+              name: "",
+              type: "string",
+              internalType: "string",
             },
           ],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -4288,6 +4663,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getIsVerifiedOnCelo",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getLastExamId",
           inputs: [],
           outputs: [
@@ -4573,6 +4967,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "initialize",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "isApprovedForAll",
           inputs: [
             {
@@ -4636,6 +5043,19 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "proxiableUUID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -4776,6 +5196,19 @@ const deployedContracts = {
               name: "paused",
               type: "bool",
               internalType: "bool",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setPriceFeed",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [],
@@ -4967,6 +5400,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "upgradeToAndCall",
+          inputs: [
+            {
+              name: "newImplementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "event",
@@ -5187,6 +5638,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "Initialized",
+          inputs: [
+            {
+              name: "version",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "OwnershipTransferred",
           inputs: [
             {
@@ -5369,6 +5833,30 @@ const deployedContracts = {
             },
           ],
           anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
         {
           type: "error",
@@ -5634,6 +6122,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__VerificationAvailableOnlyOnCelo",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Certifier__WrongAnswers",
           inputs: [
             {
@@ -5647,6 +6140,22 @@ const deployedContracts = {
               internalType: "uint256",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
         },
         {
           type: "error",
@@ -5753,7 +6262,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "InvalidInitialization",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "InvalidSignature",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "NotInitializing",
           inputs: [],
         },
         {
@@ -5804,8 +6328,36 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "UUPSUnauthorizedCallContext",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "UUPSUnsupportedProxiableUUID",
+          inputs: [
+            {
+              name: "slot",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
       ],
       inheritedFunctions: {
+        UPGRADE_INTERFACE_VERSION:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        proxiableUUID:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        upgradeToAndCall:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        owner:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        renounceOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        transferOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
         addToWhitelist: "contracts/interfaces/ICertifier.sol",
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
@@ -5817,6 +6369,7 @@ const deployedContracts = {
         getFeeCollector: "contracts/interfaces/ICertifier.sol",
         getIsPaused: "contracts/interfaces/ICertifier.sol",
         getIsStopped: "contracts/interfaces/ICertifier.sol",
+        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getLastExamId: "contracts/interfaces/ICertifier.sol",
         getRequiresSignature: "contracts/interfaces/ICertifier.sol",
         getSigner: "contracts/interfaces/ICertifier.sol",
@@ -5838,6 +6391,7 @@ const deployedContracts = {
         setExamCreationFee: "contracts/interfaces/ICertifier.sol",
         setFeeCollector: "contracts/interfaces/ICertifier.sol",
         setPaused: "contracts/interfaces/ICertifier.sol",
+        setPriceFeed: "contracts/interfaces/ICertifier.sol",
         setRequiresSignature: "contracts/interfaces/ICertifier.sol",
         setSigner: "contracts/interfaces/ICertifier.sol",
         setStopped: "contracts/interfaces/ICertifier.sol",
@@ -5846,47 +6400,52 @@ const deployedContracts = {
         setUsername: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        approve:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         balanceOf:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         getApproved:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         isApprovedForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        ownerOf:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         safeTransferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         setApprovalForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         supportsInterface:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        symbol:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         transferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
     },
   },
   11155111: {
     Certifier: {
-      address: "0xdf2fb2c13609450bb4e49dac9ee04fe6254451f9",
+      address: "0xae0ee2cd8f6d793f5afab319f6c12c2a925858aa",
       abi: [
         {
           type: "constructor",
-          inputs: [
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "UPGRADE_INTERFACE_VERSION",
+          inputs: [],
+          outputs: [
             {
-              name: "priceFeed",
-              type: "address",
-              internalType: "address",
+              name: "",
+              type: "string",
+              internalType: "string",
             },
           ],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -6244,6 +6803,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getIsVerifiedOnCelo",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "getLastExamId",
           inputs: [],
           outputs: [
@@ -6529,6 +7107,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "initialize",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "isApprovedForAll",
           inputs: [
             {
@@ -6592,6 +7183,19 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "proxiableUUID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -6732,6 +7336,19 @@ const deployedContracts = {
               name: "paused",
               type: "bool",
               internalType: "bool",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setPriceFeed",
+          inputs: [
+            {
+              name: "priceFeed",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [],
@@ -6923,6 +7540,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "upgradeToAndCall",
+          inputs: [
+            {
+              name: "newImplementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "event",
@@ -7143,6 +7778,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "Initialized",
+          inputs: [
+            {
+              name: "version",
+              type: "uint64",
+              indexed: false,
+              internalType: "uint64",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "OwnershipTransferred",
           inputs: [
             {
@@ -7325,6 +7973,30 @@ const deployedContracts = {
             },
           ],
           anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
         {
           type: "error",
@@ -7590,6 +8262,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "Certifier__VerificationAvailableOnlyOnCelo",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "Certifier__WrongAnswers",
           inputs: [
             {
@@ -7603,6 +8280,22 @@ const deployedContracts = {
               internalType: "uint256",
             },
           ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
         },
         {
           type: "error",
@@ -7709,7 +8402,22 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "InvalidInitialization",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "InvalidSignature",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "NotInitializing",
           inputs: [],
         },
         {
@@ -7760,8 +8468,36 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "UUPSUnauthorizedCallContext",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "UUPSUnsupportedProxiableUUID",
+          inputs: [
+            {
+              name: "slot",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
       ],
       inheritedFunctions: {
+        UPGRADE_INTERFACE_VERSION:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        proxiableUUID:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        upgradeToAndCall:
+          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
+        owner:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        renounceOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        transferOwnership:
+          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
         addToWhitelist: "contracts/interfaces/ICertifier.sol",
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
@@ -7773,6 +8509,7 @@ const deployedContracts = {
         getFeeCollector: "contracts/interfaces/ICertifier.sol",
         getIsPaused: "contracts/interfaces/ICertifier.sol",
         getIsStopped: "contracts/interfaces/ICertifier.sol",
+        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getLastExamId: "contracts/interfaces/ICertifier.sol",
         getRequiresSignature: "contracts/interfaces/ICertifier.sol",
         getSigner: "contracts/interfaces/ICertifier.sol",
@@ -7794,6 +8531,7 @@ const deployedContracts = {
         setExamCreationFee: "contracts/interfaces/ICertifier.sol",
         setFeeCollector: "contracts/interfaces/ICertifier.sol",
         setPaused: "contracts/interfaces/ICertifier.sol",
+        setPriceFeed: "contracts/interfaces/ICertifier.sol",
         setRequiresSignature: "contracts/interfaces/ICertifier.sol",
         setSigner: "contracts/interfaces/ICertifier.sol",
         setStopped: "contracts/interfaces/ICertifier.sol",
@@ -7802,30 +8540,28 @@ const deployedContracts = {
         setUsername: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        approve: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        approve:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         balanceOf:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         getApproved:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         isApprovedForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        name: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        ownerOf: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        ownerOf:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         safeTransferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         setApprovalForAll:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         supportsInterface:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        symbol: "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
+        symbol:
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
         transferFrom:
-          "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
     },
   },

@@ -3,14 +3,10 @@
 //////////////////////////////////////////////////////////////*/
 
 export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: bigint) => {
-    await submitAnswers({
-        functionName: "submitAnswers",
+    submitAnswers({
+        functionName: 'submitAnswers',
         args: [id, `0x${hashedAnswer?.substring(2)}`],
         value: examPrice
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
     });
 };
 
@@ -19,13 +15,9 @@ export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashed
 //////////////////////////////////////////////////////////////*/
 
 export const handleCorrectExam = async (correctExam: any, id: bigint, answers: bigint[]) => {
-    await correctExam({
-        functionName: "correctExam",
+    correctExam({
+        functionName: 'correctExam',
         args: [id, answers],
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
     });
 };
 
@@ -34,28 +26,19 @@ export const handleCorrectExam = async (correctExam: any, id: bigint, answers: b
 //////////////////////////////////////////////////////////////*/
 
 export const handleRefundExam = async (refundExam: any, id: bigint) => {
-    await refundExam({
-        functionName: "refundExam",
+    refundExam({
+        functionName: 'refundExam',
         args: [id],
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
     });
 };
-
 
 /*//////////////////////////////////////////////////////////////
                         CLAIM CERTIFICATE
 //////////////////////////////////////////////////////////////*/
 
 export const handleClaimCertificate = async (claimCertificate: any, id: bigint, answersArray: bigint[], key: bigint) => {
-    await claimCertificate({
-        functionName: "claimCertificate",
+    claimCertificate({
+        functionName: 'claimCertificate',
         args: [id, answersArray, key],
-    }, {
-        onBlockConfirmation: (res: any) => {
-            console.log("block confirm", res);
-        },
     });
 };

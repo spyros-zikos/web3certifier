@@ -49,3 +49,6 @@ Before you begin, you need to install the following tools:
 Delete the `packages/the-graph` directory and go to <a href="https://thegraph.com/studio/">https://thegraph.com/studio/</a>. There you can follow the instructions to create a new subgraph.
 
 
+NOTES  
+forge install openzeppelin/openzeppelin-contracts-upgradeable --no-commit
+forge install openzeppelin/openzeppelin-contracts@v5.3.0 --no-commit

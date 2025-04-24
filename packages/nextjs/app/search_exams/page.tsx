@@ -2,38 +2,44 @@
 
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Title } from "~~/components";
-import React, { use, useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
 import { PageSelector } from "./_components/PageSelector";
 import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
-import { getStatusStr } from "~~/utils/StatusStr";
-import { rootCertificates } from "node:tls";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+
 
 const SearchExamsPage: React.FC = () => {
     const { address } = useAccount();
     const [searchTerm, setSearchTerm] = useState("");
     const [showMyExams, setShowMyExams] = useState(false);
     const [page, setPage] = useState<number>(1);
+    // parameter
     const examsPerPage = 9;
 
-    const { data: lastExamId } = useScaffoldReadContract({
-        contractName: "Certifier",
+    /*//////////////////////////////////////////////////////////////
+                          READ FROM CONTRACT
+    //////////////////////////////////////////////////////////////*/
+    
+    const lastExamId = wagmiReadFromContract({
         functionName: "getLastExamId",
-    });
+    }).data as any;
 
-    const { data: userExamIds } = useScaffoldReadContract({
-        contractName: "Certifier",
+    const userExamIds = wagmiReadFromContract({
         functionName: "getUserExams",
         args: [address],
-    });
+    }).data as any;
 
-    const { data: certifierExamIds } = useScaffoldReadContract({
-        contractName: "Certifier",
+    const certifierExamIds = wagmiReadFromContract({
         functionName: "getCertifierExams",
         args: [address],
-    });
+    }).data as any;
 
+    /*//////////////////////////////////////////////////////////////
+                           EXAM IDS OF PAGE
+    //////////////////////////////////////////////////////////////*/
+    
     // union of userExamIds and certifierExamIds
     const userAndCertifierExamIds: bigint[] = Array.from(new Set([...(userExamIds || []), ...(certifierExamIds || [])])).reverse();
 
