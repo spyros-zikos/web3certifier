@@ -86,9 +86,14 @@ const ExamPage = () => {
     }, [exam]);
 
     useEffect(() => {
-        setTimeNow(Date.now());
-    }, [Date.now()]);
+        const interval = setInterval(() => {
+            setTimeNow(Date.now());
+        }, 1000); // update every second
+    
+        return () => clearInterval(interval); // cleanup
+    }, []);
 
+    
     const getExamStage = () => {
         const status = getStatusStr(statusNum);
         const userHasNotParticipated = userAnswer==="0x0000000000000000000000000000000000000000000000000000000000000000";
