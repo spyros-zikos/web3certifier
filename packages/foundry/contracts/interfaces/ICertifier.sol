@@ -101,6 +101,17 @@ interface ICertifier {
     
     // external
 
+    /**
+     * @notice Creates a new exam
+     * @param name The name of the exam
+     * @param description The description of the exam
+     * @param endTime The time the exam ends (unix timestamp)
+     * @param questions The questions of the exam
+     * @param price The cost of the exam for each student
+     * @param baseScore The base score of the exam
+     * @param imageUrl The image url of the exam
+     * @param maxSubmissions The maximum number of submissions
+     */
     function createExam(
         string memory name,
         string memory description,
@@ -113,12 +124,41 @@ interface ICertifier {
         bool userClaimsWithPassword
     ) external payable;
 
+    /**
+     * @notice Submits the answers of the user.
+     * @notice The user has to pay the price of the exam, if there is one.
+     * @notice The user can only submit answers before the exam ends.
+     * @notice The user can only submit answers once.
+     * @param examId The id of the exam
+     * @param hashedAnswer The hash of the answers and the key and msg.sender
+     */
     function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable;
 
+    /**
+    * @notice Corrects the exam
+    * @notice Only the certifier can call this function
+    * @param examId The id of the exam
+    * @param answers The answers of the user in an array
+    */
     function correctExam(uint256 examId, uint256[] memory answers) external;
 
+    /**
+    * @notice Claims the NFT certificate
+    * @notice The user can only claim their certificate once
+    * @notice answers and secretNumber are used to get the exact answers that the user submitted and 
+    * to ensure that he was the one who submitted them
+    * @param examId The id of the exam
+    * @param answers The answers of the user in an array
+    * @param secretNumber The secret number of the user
+    * @return true if the user claimed the NFT
+    */
     function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external returns (bool);
 
+    /**
+    * Refund the price of the cancelled exam to the user (minus submission fee)
+    * Only if the exam is paid (price > 0)
+    * @param examId The id of the exam
+    */
     function refundExam(uint256 examId) external;
 
     // public

@@ -1,27 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-// import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-// import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-
-import {PriceConverter} from "./lib/PriceConverter.sol";
-import {ICertifier} from "./interfaces/ICertifier.sol";
-import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.sol";
-
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+import {ICertifier} from "./interfaces/ICertifier.sol";
+import {PriceConverter} from "./lib/PriceConverter.sol";
+import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.sol";
 
 /**
  * @title Certifier
- * @author Spyros Zikos
+ * @author Spyros
  * 
  * @notice This is a smart contract that allows certifiers to create exams and
  * users to get certified with NFT certificates.
@@ -62,7 +58,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
     // Exam
     mapping(uint256 id => Exam exam) private s_examIdToExam;
-    uint256 private s_timeToCorrectExam = 5*60; // 5 minutes;
+    uint256 private s_timeToCorrectExam = 2*24*60*60; // 2 days;
     uint256 private s_lastExamId; // starts from 0
     uint256 private s_examCreationFee = 2 ether; // 2 dollars
     uint256 private s_submissionFee = 0.05 ether; // 5%;
@@ -97,12 +93,6 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    // constructor(address priceFeed) ERC721("Web3 Certifier", "W3C") Ownable(msg.sender) {
-    //     s_feeCollector = msg.sender;
-    //     s_signer = msg.sender;
-    //     s_priceFeed = priceFeed;
-    // }
-
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -133,17 +123,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
                           EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Creates a new exam
-     * @param name The name of the exam
-     * @param description The description of the exam
-     * @param endTime The time the exam ends (unix timestamp)
-     * @param questions The questions of the exam
-     * @param price The cost of the exam for each student
-     * @param baseScore The base score of the exam
-     * @param imageUrl The image url of the exam
-     * @param maxSubmissions The maximum number of submissions
-     */
+    /// @inheritdoc ICertifier
     function createExam(
         string memory name,
         string memory description,
@@ -207,14 +187,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         s_lastExamId++;
     }
 
-    /**
-     * @notice Submits the answers of the user.
-     * @notice The user has to pay the price of the exam, if there is one.
-     * @notice The user can only submit answers before the exam ends.
-     * @notice The user can only submit answers once.
-     * @param examId The id of the exam
-     * @param hashedAnswer The hash of the answers and the key and msg.sender
-     */
+    /// @inheritdoc ICertifier
     function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable verifiedOnCelo(msg.sender) {
         if (getStatus(examId) != Status.Started) revert Certifier__ExamEndedOrCancelled(examId, uint256(getStatus(examId)));
         if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
@@ -235,12 +208,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         emit SubmitAnswers(msg.sender, examId, hashedAnswer);
     }
 
-    /**
-    * @notice Corrects the exam
-    * @notice Only the certifier can call this function
-    * @param examId The id of the exam
-    * @param answers The answers of the user in an array
-    */
+    /// @inheritdoc ICertifier
     function correctExam(uint256 examId, uint256[] memory answers) external nonReentrant {
         if (getStatus(examId) != Status.NeedsCorrection) revert Certifier__NotTheTimeForExamCorrection(examId, uint256(getStatus(examId)));
         if (msg.sender != s_examIdToExam[examId].certifier) revert Certifier__OnlyCertifierCanCorrect(examId);
@@ -256,16 +224,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         emit CorrectExam(examId, answers);
     }
 
-    /**
-    * @notice Claims the NFT certificate
-    * @notice The user can only claim their certificate once
-    * @notice answers and secretNumber are used to get the exact answers that the user submitted and 
-    * to ensure that he was the one who submitted them
-    * @param examId The id of the exam
-    * @param answers The answers of the user in an array
-    * @param secretNumber The secret number of the user
-    * @return true if the user claimed the NFT
-    */
+    /// @inheritdoc ICertifier
     function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external nonReentrant returns (bool) {
         if (getStatus(examId) != Status.Ended) revert Certifier__ExamHasNotEnded(examId, uint256(getStatus(examId)));
         if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedNFT(examId);
@@ -291,11 +250,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return true;
     }
 
-    /**
-    * Refund the price of the cancelled exam to the user (minus submission fee)
-    * Only if the exam is paid (price > 0)
-    * @param examId The id of the exam
-    */
+    /// @inheritdoc ICertifier
     function refundExam(uint256 examId) external nonReentrant {
         if (getStatus(examId) != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId, uint256(getStatus(examId)));
         if (s_userToAnswers[msg.sender][examId] == "") revert Certifier__UserDidNotParticipate(examId);
