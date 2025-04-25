@@ -96,7 +96,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                     { getFormattedDate() }
                 </Box>
                 <Box fontWeight="bold">
-                    <Address address={exam.certifier.toString()} />
+                    <Address address={exam.certifier.toString()} className={"text-bold"} disableAddressLink={true} />
                 </Box>
             </SimpleGrid>
         </Card>
