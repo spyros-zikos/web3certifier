@@ -6,7 +6,7 @@ export const keyLength = 10;
 // Password
 
 export function getHashedAnswerAndMessageWithPassword(
-    answers: bigint[], randomKey: number, address?: string
+    answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
 ): [
     message: any, hashedAnswer: string|undefined
 ] {
@@ -19,7 +19,7 @@ export function getHashedAnswerAndMessageWithPassword(
 
     // message
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
-    const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.</div>
+    const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.{needsVerification ? <div>{"\n\n"}You need to verify your account. You can do this <a href='https://gooddapp.org/#/claim'>here</a>.</div> : ""}</div>
 
     return [message, hashedAnswer];
 }
@@ -63,7 +63,7 @@ export function getVariablesFromPasswordOrCookies(
 // Cookies
 
 export function getHashedAnswerAndMessageWithCookies(
-    answers: bigint[], randomKey: number, examId: bigint, updateCookie: boolean, chainId?: number, address?: string
+    answers: bigint[], randomKey: number, examId: bigint, updateCookie: boolean, chainId?: number, address?: string, needsVerification?: boolean
 ): [
     message: any, hashedAnswer: string|undefined
 ] {
@@ -78,7 +78,7 @@ export function getHashedAnswerAndMessageWithCookies(
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
     if (updateCookie)
         Cookies.set(`w3c.${chainId}.${examId}.${address}`, userPassword, { expires: 1000 });
-    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.</div>
+    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <div>{"\n\n"}You need to verify your account. You can do this <a href='https://gooddapp.org/#/claim'>here</a>.</div> : ""}</div>
 
     return [message, hashedAnswer];
 }

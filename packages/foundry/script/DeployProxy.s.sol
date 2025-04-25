@@ -14,6 +14,10 @@ contract DeployProxy is Script, ScaffoldETHDeploy {
             ? 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612 // arbitrum
             : 0x0568fD19986748cEfF3301e55c0eb1E729E0Ab7e)  // celo
     );
+    uint256 public constant TIME_TO_CORRECT = 2*24*60*60;  // 2 days
+    uint256 public constant EXAM_CREATION_FEE = 2 ether;  // $2
+    uint256 public constant SUBMISSION_FEE = 0.05 ether; // 5%;
+
     
     // use `deployer` from `ScaffoldETHDeploy`
 
@@ -21,7 +25,7 @@ contract DeployProxy is Script, ScaffoldETHDeploy {
         address certifier = address(new Certifier());
 
         ERC1967Proxy proxy = new ERC1967Proxy(certifier, ""); // empty initializer
-        Certifier(address(proxy)).initialize(priceFeed);
+        Certifier(address(proxy)).initialize(priceFeed, TIME_TO_CORRECT, EXAM_CREATION_FEE, SUBMISSION_FEE);
         console.log("Proxy Contract deployed at: ", address(proxy));
         console.log("Certifier Contract deployed at: ", certifier);
         return (address(proxy), certifier);

@@ -120,8 +120,8 @@ const ExamPage = () => {
                 const updateCookie = !isSubmitting && !isSubmitted;
                 console.log("updateCookie:", updateCookie);
                 const [message, hashedAnswer] = exam?.userClaimsWithPassword
-                ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address)
-                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address);
+                ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, true)
+                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address, true);
                 return {
                     message: message,
                     buttonAction: () => 

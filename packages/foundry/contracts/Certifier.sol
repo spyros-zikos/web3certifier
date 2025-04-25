@@ -98,13 +98,16 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         _disableInitializers();
     }
 
-    function initialize(address priceFeed) public initializer {
+    function initialize(address priceFeed, uint256 timeToCorrectExam, uint256 examCreationFee, uint256 submissionFee) public initializer {
         __Ownable_init(msg.sender);
         __ERC721_init("Web3 Certifier", "W3C");
         __UUPSUpgradeable_init();
         s_feeCollector = msg.sender;
         s_signer = msg.sender;
         s_priceFeed = priceFeed;
+        s_timeToCorrectExam = timeToCorrectExam;
+        s_examCreationFee = examCreationFee;
+        s_submissionFee = submissionFee;
     }
 
     /*//////////////////////////////////////////////////////////////
