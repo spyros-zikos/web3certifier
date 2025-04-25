@@ -2147,7 +2147,7 @@ const deployedContracts = {
   },
   42161: {
     Certifier: {
-      address: "0x23cf9a96397709c2f70b960ed89db4487c4e71f9",
+      address: "0xaed706195f79fb7a49956048a87933b56e92e20a",
       abi: [
         {
           type: "constructor",
@@ -4283,11 +4283,82 @@ const deployedContracts = {
         transferFrom:
           "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
+    },
+    ERC1967Proxy: {
+      address: "0x45c1c4b16c36f9b8090047de81a79f82dee1fcb5",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          stateMutability: "payable",
+        },
+        {
+          type: "fallback",
+          stateMutability: "payable",
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
     },
   },
   42220: {
     Certifier: {
-      address: "0x8bbbe3d619721573429085a12783bc6d3fa5bb8c",
+      address: "0x34c8e8bd4d7318e4ddf57a08319b3c2e8d7a1aff",
       abi: [
         {
           type: "constructor",
@@ -6424,10 +6495,81 @@ const deployedContracts = {
           "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
     },
+    ERC1967Proxy: {
+      address: "0xf5c678d1cf6391aa0fd15008a3c83f36f1b0f43d",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          stateMutability: "payable",
+        },
+        {
+          type: "fallback",
+          stateMutability: "payable",
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+    },
   },
   11155111: {
     Certifier: {
-      address: "0xae0ee2cd8f6d793f5afab319f6c12c2a925858aa",
+      address: "0x67cebb684e89c6a6a4bda44ee141274b2d6a004a",
       abi: [
         {
           type: "constructor",
@@ -8563,6 +8705,77 @@ const deployedContracts = {
         transferFrom:
           "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
+    },
+    ERC1967Proxy: {
+      address: "0x0e3b43dd1e3ccdd933837e5d24fe24eb643947bf",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_data",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          stateMutability: "payable",
+        },
+        {
+          type: "fallback",
+          stateMutability: "payable",
+        },
+        {
+          type: "event",
+          name: "Upgraded",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "AddressEmptyCode",
+          inputs: [
+            {
+              name: "target",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967InvalidImplementation",
+          inputs: [
+            {
+              name: "implementation",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC1967NonPayable",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "FailedCall",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
     },
   },
 } as const;

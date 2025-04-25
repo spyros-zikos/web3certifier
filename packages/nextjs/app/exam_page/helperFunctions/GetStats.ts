@@ -1,7 +1,7 @@
 // Certifier stats after exam correction
 // 1. Number of submissions
 // 2. Number of correct submissions
-// 3. Profit
+// 3. Revenue (pre fee)
 const getCertifierStatsAfterCorrection = async (exam: Exam) => {
     let numOfSubmissions = exam.users.length;
     let numOfCorrectSubmissions = exam.tokenIds.length;

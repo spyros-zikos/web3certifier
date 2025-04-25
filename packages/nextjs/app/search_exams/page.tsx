@@ -1,6 +1,5 @@
 "use client";
 
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Title } from "~~/components";
 import React, { useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
@@ -21,7 +20,7 @@ const SearchExamsPage: React.FC = () => {
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
     //////////////////////////////////////////////////////////////*/
-    
+
     const lastExamId = wagmiReadFromContract({
         functionName: "getLastExamId",
     }).data as any;
@@ -63,7 +62,7 @@ const SearchExamsPage: React.FC = () => {
     return (
         <PageWrapper>
             <Title>Explore Exams</Title>
-            <SearchBar setSearchTerm={setSearchTerm} /> {/*To fix border colors*/}
+            <SearchBar setSearchTerm={setSearchTerm} />
             <div className="mb-16 mt-2 w-full flex items-center justify-start">
                 <label className="pb-[3px] mr-2">My Exams</label>
                 <input
@@ -80,7 +79,7 @@ const SearchExamsPage: React.FC = () => {
                     />
                 ))}
             </div>
-            <PageSelector setPage={setPage} page={page} lastPage={lastPage} />
+            {lastPage > 1 && <PageSelector setPage={setPage} page={page} lastPage={lastPage} />}
         </PageWrapper>
     );
 };

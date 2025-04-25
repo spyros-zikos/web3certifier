@@ -60,7 +60,7 @@ const ExamPage = () => {
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    const { writeContractAsync: submitAnswers, isMining: isSubmitting, success: isSubmitted } = wagmiWriteToContract();
     const { writeContractAsync: refundExam } = wagmiWriteToContract();
     const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const { writeContractAsync: correctExam } = wagmiWriteToContract();
@@ -117,9 +117,11 @@ const ExamPage = () => {
             case ExamStage.Both_CancelStats:
                 return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_StartedNotSubmitted:
+                const updateCookie = !isSubmitting && !isSubmitted;
+                console.log("updateCookie:", updateCookie);
                 const [message, hashedAnswer] = exam?.userClaimsWithPassword
                 ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address)
-                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, chain?.id, address);
+                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address);
                 return {
                     message: message,
                     buttonAction: () => 
