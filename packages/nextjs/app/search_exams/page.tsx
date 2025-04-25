@@ -10,7 +10,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 
 const SearchExamsPage: React.FC = () => {
-    const { address } = useAccount();
+    const { address, chain } = useAccount();
     const [searchTerm, setSearchTerm] = useState("");
     const [showMyExams, setShowMyExams] = useState(false);
     const [page, setPage] = useState<number>(1);
@@ -71,6 +71,7 @@ const SearchExamsPage: React.FC = () => {
                     onChange={(e: any) => { setShowMyExams(e.target.checked); }}
                 />
             </div>
+            {!chain?.id && <p className="text-center">Please connect your wallet on Arbitrum or Celo.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 space-14">
                 {(examsIdsOfPage)?.map((id, i) => (
                     <ExamCard key={i}
