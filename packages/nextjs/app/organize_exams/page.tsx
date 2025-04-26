@@ -126,7 +126,7 @@ const CreateExam = () => {
                     Remove Question
                 </Button>
 
-                <label className={`${labelMarginAndPadding} block`}>Image (optional)</label>
+                <label className={`${labelMarginAndPadding} block`}>Image (square) | optional</label>
                 <div className="ml-2 my-4 w-[350px] border border-accent rounded-lg">
                     <div
                         {...getRootProps()}
