@@ -29,11 +29,11 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/search_exams",
     icon: <MagnifyingGlassIcon className="h-4 w-4" />,
   },
-  {
-    label: "Connect Discord",
-    href: "/connect_discord",
-    icon: <ShareIcon className="h-4 w-4" />,
-  },
+  // {
+  //   label: "Connect Discord",
+  //   href: "/connect_discord",
+  //   icon: <ShareIcon className="h-4 w-4" />,
+  // },
 ];
 
 export const HeaderMenuLinks = () => {
@@ -112,6 +112,11 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        <div className="mr-5">
+          <a href="https://discord.gg/4rXWFNGmDJ" target="_blank">
+            <u>Discord</u>
+          </a>
+        </div>
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>
