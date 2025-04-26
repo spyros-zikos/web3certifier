@@ -56,6 +56,11 @@ const ExamPage = () => {
         functionName: "getTimeToCorrectExam",
     }).data;
 
+    const isVerifiedOnCelo: boolean = wagmiReadFromContract({
+        functionName: "getIsVerifiedOnCelo",
+        args: [address],
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -118,10 +123,10 @@ const ExamPage = () => {
                 return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_StartedNotSubmitted:
                 const updateCookie = !isSubmitting && !isSubmitted;
-                console.log("updateCookie:", updateCookie);
+                const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
                 const [message, hashedAnswer] = exam?.userClaimsWithPassword
-                ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, true)
-                : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address, true);
+                    ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, needsVerification)
+                    : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address, needsVerification);
                 return {
                     message: message,
                     buttonAction: () => 
@@ -240,12 +245,12 @@ const ExamPage = () => {
             />
             {getExamStage() === ExamStage.User_StartedNotSubmitted &&
                 <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left To Submit: {getTimeLeft(timeNow, exam!.endTime)}
+                    Time Left To Submit: {exam && getTimeLeft(timeNow, exam.endTime)}
                 </div>
             }
             {getExamStage() === ExamStage.Certifier_Correct &&
                 <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left To Correct: {getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0))}
+                    Time Left To Correct: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
                 </div>
             }
         </PageWrapper>

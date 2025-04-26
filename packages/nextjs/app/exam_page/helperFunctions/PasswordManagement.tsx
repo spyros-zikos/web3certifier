@@ -3,6 +3,10 @@ import Cookies from 'js-cookie';
 
 export const keyLength = 10;
 
+const VerifyAccountMessage = () => {
+    return <div>{"\n"}You need to verify your account.{"\n"}You can do this <a className="text-base-100" href='https://gooddapp.org/#/claim'>here</a>.</div>
+}
+
 // Password
 
 export function getHashedAnswerAndMessageWithPassword(
@@ -19,7 +23,7 @@ export function getHashedAnswerAndMessageWithPassword(
 
     // message
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
-    const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.{needsVerification ? <div>{"\n\n"}You need to verify your account. You can do this <a href='https://gooddapp.org/#/claim'>here</a>.</div> : ""}</div>
+    const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
 
     return [message, hashedAnswer];
 }
@@ -78,7 +82,7 @@ export function getHashedAnswerAndMessageWithCookies(
     const userPassword = String(answersAsNumber) + String(randomKey).padStart(keyLength, '0');
     if (updateCookie)
         Cookies.set(`w3c.${chainId}.${examId}.${address}`, userPassword, { expires: 1000 });
-    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <div>{"\n\n"}You need to verify your account. You can do this <a href='https://gooddapp.org/#/claim'>here</a>.</div> : ""}</div>
+    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
 
     return [message, hashedAnswer];
 }
