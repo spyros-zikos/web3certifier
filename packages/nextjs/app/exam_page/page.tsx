@@ -140,7 +140,7 @@ const ExamPage = () => {
                 };
             case ExamStage.Certifier_Correct:
                 return {
-                    message: "This exam needs correcting. Please provide the correct answers within " + Number(timeToCorrect) / 60 + " minutes of the end of the exam.",
+                    message: "This exam needs correcting. Please provide the correct answers within the correction period of the exam.",
                     buttonAction: () => {handleCorrectExam(correctExam, id, answers)},
                     buttonText: "Correct Exam"
                 };
@@ -222,11 +222,12 @@ const ExamPage = () => {
         const diffMs = deadlineDate.getTime() - now > 0 ? deadlineDate.getTime() - now : 0;
         const timeLeft = Math.floor(diffMs / 1000);
 
-        const hours = Math.floor(timeLeft / 3600);
+        const days = Math.floor(timeLeft / (3600 * 24));
+        const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
         const minutes = Math.floor((timeLeft % 3600) / 60);
         const seconds = timeLeft % 60;
 
-        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        return `${days > 0 && days + "d "}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
 
     return (
@@ -251,6 +252,11 @@ const ExamPage = () => {
             {getExamStage() === ExamStage.Certifier_Correct &&
                 <div className="mt-4 fixed bottom-10 right-20">
                     Time Left To Correct: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
+                </div>
+            }
+            {getExamStage() === ExamStage.User_WaitForCorrection &&
+                <div className="mt-4 fixed bottom-10 right-20">
+                    Correction duration: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
                 </div>
             }
         </PageWrapper>
