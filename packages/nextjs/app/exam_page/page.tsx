@@ -15,6 +15,7 @@ import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPassw
 import Cookies from 'js-cookie';
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import Reward from "./_components/Reward";
 
 
 const ExamPage = () => {
@@ -116,7 +117,7 @@ const ExamPage = () => {
             case ExamStage.Certifier_EndStats:
                 return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_EndStats:
-                return { message: "This exam has ended! You completed it successfully!", buttonAction: undefined, buttonText: undefined }; // Can add stats
+                return { message: <div>This exam has ended! You completed it successfully! <Reward certifier={exam?.certifier||""}/></div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.User_Details:
                 return { message: "This exam has ended. You did not participate!", buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.Both_CancelStats:

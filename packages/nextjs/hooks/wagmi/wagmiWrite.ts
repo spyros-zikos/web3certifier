@@ -3,11 +3,14 @@ import { wagmiContractConfig } from '~~/hooks/wagmi/wagmiContractConfig'
 import { useAccount, useWriteContract } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { useState } from "react";
+import { Address } from "abitype";
 
 interface Params {
     functionName: string;
     args: any[];
     value?: any;
+    contractAddress?: Address;
+    abi?: any;
 }
 
 export function wagmiWriteToContract() {
@@ -31,9 +34,14 @@ export function wagmiWriteToContract() {
         try {
             setIsMining(true);
             function writeWithParams() {
+                const config = params.contractAddress
+                ? {address: params.contractAddress, abi: params.abi}
+                : wagmiContractConfig(chain?.id);
                 return wagmiContractWrite.writeContractAsync({
-                    ...wagmiContractConfig(chain?.id),
-                    ...params
+                    functionName: params.functionName,
+                    args: params.args,
+                    value: params.value,
+                    ...config,
                 });
             }
 

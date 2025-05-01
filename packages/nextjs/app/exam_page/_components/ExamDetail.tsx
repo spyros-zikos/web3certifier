@@ -5,7 +5,7 @@ const ExamDetail = ({name, value}: {name: any, value: any}) => {
     return (
         <Box>
             <label className="fontsize-12 mt-4 text-accent">{name}</label>
-            <Text fontSize="12" p="0" m="0" mb="4" maxWidth={"359px"}>{value}</Text>
+            <Text fontSize="12" p="0" m="0" mb="4" maxWidth={"360px"}>{value}</Text>
         </Box>
     );
 }
