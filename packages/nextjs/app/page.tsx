@@ -101,6 +101,24 @@ const Home: NextPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Tutorial */}
+        <div className="w-full px-8 py-16 bg-ligthGray text-white">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-base-200">Tutorial</h2>
+          </div>
+          <div className="flex justify-center w-full">
+            <div className="w-full max-w-3xl aspect-video">
+              <iframe 
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/8lyoX_Z1x2w" 
+                title="Tutorial" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen>
+              </iframe>
+            </div>
+          </div>
+        </div>
         
         {/* Featured Exams */}
         {false && <div className="flex-grow bg-base-100 w-full px-8 py-16">
