@@ -212,7 +212,7 @@ const ExamPage = () => {
             <PageWrapper>
                 <Title>Exam Page</Title>
                 <Box>
-                    <div className="text-2xl">Either you need to connect your wallet to the correct network or this exam does not exist.</div>
+                    <div className="text-2xl mt-32">Either you need to connect your wallet to the correct network or this exam does not exist.</div>
                 </Box>
             </PageWrapper>
         )
