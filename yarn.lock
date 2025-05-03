@@ -4276,6 +4276,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vercel/analytics@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@vercel/analytics@npm:1.5.0"
+  peerDependencies:
+    "@remix-run/react": ^2
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@remix-run/react":
+      optional: true
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: 60991e558ce459ef0fdd3f3b4ccb657453507083ff879570c43cfe613e5a37f6fdae5146926f3cdeba48db9943a4cfd203be6c5d55de44294cf892526b603877
+  languageName: node
+  linkType: hard
+
 "@vercel/build-utils@npm:7.3.0":
   version: 7.3.0
   resolution: "@vercel/build-utils@npm:7.3.0"
@@ -13722,6 +13752,7 @@ __metadata:
     "@types/lodash": ^4
     "@types/react": ^19
     "@types/react-dom": ^19
+    "@vercel/analytics": ^1.5.0
     discord.js: ^14.18.0
     elliptic: ^6.6.1
     eslint-config-next: next-14
