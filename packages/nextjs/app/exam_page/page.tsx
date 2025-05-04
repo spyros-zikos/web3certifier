@@ -23,6 +23,8 @@ const ExamPage = () => {
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
     const [timeNow, setTimeNow] = useState(Date.now());
+    const SUPPORTED_NETWORKS = [11155111, 42161, 42220];
+    const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -206,16 +208,28 @@ const ExamPage = () => {
         }
     }
 
-    // Check for invalid page
-    if (exam?.certifier === "0x0000000000000000000000000000000000000000") {
+    // Check that user is connected to supported network
+    if (!chain?.id || !SUPPORTED_NETWORKS.includes(chain.id)) {
         return (
             <PageWrapper>
                 <Title>Exam Page</Title>
                 <Box>
-                    <div className="text-2xl mt-32">Either you need to connect your wallet to the correct network or this exam does not exist.</div>
+                    <div className="text-2xl mt-32">Connect your wallet to a supported network (Arbitrum or Celo)</div>
                 </Box>
             </PageWrapper>
-        )
+        );
+    }
+
+    // Check for invalid page
+    if (exam?.certifier === ZERO_ADDRESS) {
+        return (
+            <PageWrapper>
+                <Title>Exam Page</Title>
+                <Box>
+                    <div className="text-2xl mt-32">This exam does not exist on this network.</div>
+                </Box>
+            </PageWrapper>
+        );
     }
     
     function getTimeLeft(now: number, deadline: bigint) {
