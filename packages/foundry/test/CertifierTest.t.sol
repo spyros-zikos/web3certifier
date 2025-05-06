@@ -12,8 +12,8 @@ contract CertifierTest is Test {
     Certifier public certifier;
     uint256 constant TIME_DURATION = 100;
     uint256 constant EXAM_PRICE = 3 ether;  // $3
-    uint256 constant USER_INITIAL_BALANCE = 10 ether;
-    uint256 constant ORG_INITIAL_BALANCE = 10 ether;
+    uint256 constant USER_INITIAL_BALANCE = 1000 ether;
+    uint256 constant ORG_INITIAL_BALANCE = 1000 ether;
     string[] public examQuestions;
 
     address user = makeAddr("user");
@@ -39,8 +39,12 @@ contract CertifierTest is Test {
         (deployer, deployerKey) = makeAddrAndKey("deployer");
         vm.startPrank(deployer);
         DeployProxy deployProxy = new DeployProxy();
-        (address proxy,) = deployProxy.run();
-        certifier = Certifier(address(proxy));
+        ERC1967Proxy proxyContract = new ERC1967Proxy(address(new Certifier()), ""); // empty initializer
+        Certifier(address(proxyContract)).initialize(
+            deployProxy.priceFeed(), deployProxy.TIME_TO_CORRECT(), deployProxy.EXAM_CREATION_FEE(), deployProxy.SUBMISSION_FEE()
+        );
+        address proxy = address(proxyContract);
+        certifier = Certifier(proxy);
         vm.stopPrank();
         examQuestions.push("question1");
         examQuestions.push("question2");
@@ -61,36 +65,35 @@ contract CertifierTest is Test {
         // vm.startPrank(deployer);
         // certifier.setExamCreationFee(0);
         // vm.stopPrank();
+        console2.log("1");
         orgCreatesExam(certifierOrg, false);
+        console2.log("2");
 
         uint256 examId = 0;
-        uint256 userAnswersAsNumber = 111;
+        string memory userAnswers = "112";
         uint256 secretNumber = 123;
-        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
-        assert(certifier.getStatus(examId) == ICertifier.Status.Started);
+        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswers, secretNumber, user));
+        assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.Open);
         // User submits
         uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
         vm.prank(user);
         certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
 
+        console2.log("3");
         vm.warp(block.timestamp + TIME_DURATION + 1);
-        uint256[] memory answers = new uint256[](3);
-        answers[0] = 1;
-        answers[1] = 1;
-        answers[2] = 1;
+        string memory correctAnswers = "112";
 
-        assert(certifier.getStatus(examId) == ICertifier.Status.NeedsCorrection);
+        assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.UnderCorrection);
         // Org corrects
         vm.prank(certifierOrg);
-        certifier.correctExam(examId, answers);
+        certifier.correctExam(examId, correctAnswers);
 
-        assert(certifier.getStatus(examId) == ICertifier.Status.Ended);
+        assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.Corrected);
         // User claims
         vm.prank(user);
-        certifier.claimCertificate(examId, answers, secretNumber);
+        certifier.claimCertificate(examId, userAnswers, secretNumber);
 
         console2.log(certifier.tokenURI(0));
-        console2.log("\n--> insert the above thing in the browser url");
     }
 
     function testCreateExamSubmitAnswersGetRefund() public notCelo {
@@ -100,7 +103,7 @@ contract CertifierTest is Test {
         uint256 userAnswersAsNumber = 111;
         uint256 secretNumber = 123;
         bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
-        assert(certifier.getStatus(examId) == ICertifier.Status.Started);
+        assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.Open);
         // User submits
         uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
         vm.prank(user);
@@ -111,18 +114,85 @@ contract CertifierTest is Test {
         certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
 
         vm.warp(block.timestamp + TIME_DURATION + certifier.getTimeToCorrectExam() + 1);
-        assert(certifier.getStatus(examId) == ICertifier.Status.Cancelled);
+        assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.Cancelled);
         // User claims
         vm.expectEmit(false, false, false, true);
-        emit ICertifier.ClaimRefund(examId, user);
+        emit ICertifier.ClaimRefund(examId, user, certifier.getExam(examId).etherAccumulated/2);
         vm.prank(user);
         certifier.refundExam(examId);
 
         // User2 claims
         vm.expectEmit(false, false, false, true);
-        emit ICertifier.ClaimRefund(examId, user2);
+        emit ICertifier.ClaimRefund(examId, user2, certifier.getExam(examId).etherAccumulated/2);
         vm.prank(user2);
         certifier.refundExam(examId);
+    }
+
+    function testWhiteListedUserCreateExam() public notCelo {
+        vm.startPrank(deployer);
+        certifier.addToWhitelist(certifierOrg);
+        vm.stopPrank();
+
+        vm.startPrank(certifierOrg);
+        certifier.createExam{value: 0}(
+            "Test Name",
+            "Test Description",
+            block.timestamp + TIME_DURATION,
+            examQuestions,
+            EXAM_PRICE,
+            2,  // base score
+            "THEIMAGE",
+            2,  // max submissions
+            false
+        );
+        vm.stopPrank();
+        
+        uint256 examId = 0;
+        uint256 userAnswersAsNumber = 111;
+        uint256 secretNumber = 123;
+        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
+        // User submits
+        uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
+        vm.prank(user);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+    }
+
+    function testUsername() public notCelo {
+        vm.prank(user);
+        certifier.setUsername("username", 0, "0x");
+        assert(keccak256(abi.encode("username")) == keccak256(abi.encode(certifier.getUsername(user))));
+
+        vm.prank(deployer);
+        certifier.setRequiresSignature(true);
+
+        vm.expectRevert();
+        vm.prank(user);
+        certifier.setUsername("username2", 0, "0x");
+
+        vm.prank(user);
+        certifier.setUsername("username2", 0, signTokenNum("username2", 0, user));
+    }
+
+    function testVerifiedExamCreationAndSubmission() public onlyCelo {
+        // Unverified creates exam
+        orgCreatesExam(certifierOrg, true);
+        // Verified creates exam
+        orgCreatesExam(verifiedOrg, false);
+
+        uint256 examId = 0;
+        uint256 userAnswersAsNumber = 111;
+        uint256 secretNumber = 123;
+        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
+
+        uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
+        // Unverified submits
+        vm.expectRevert();
+        vm.prank(user);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+
+        // Verified submits
+        vm.prank(verifiedUser);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
     }
 
     function testWhitelist() public {
@@ -155,77 +225,10 @@ contract CertifierTest is Test {
         vm.stopPrank();
     }
 
-    function testWhiteListedUserCreateExam() public notCelo {
-        vm.startPrank(deployer);
-        certifier.addToWhitelist(certifierOrg);
-        vm.stopPrank();
-
-        vm.startPrank(certifierOrg);
-        certifier.createExam{value: 0}(
-            "Test Name",
-            "Test Description",
-            block.timestamp + TIME_DURATION,
-            examQuestions,
-            EXAM_PRICE,
-            2,  // base score
-            "THEIMAGE",
-            2,  // max submissions
-            false
-        );
-        vm.stopPrank();
-        
-        uint256 examId = 0;
-        uint256 userAnswersAsNumber = 111;
-        uint256 secretNumber = 123;
-        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
-        // User submits
-        uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
-        vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
-    }
-
-    function testVerifiedExamCreationAndSubmission() public onlyCelo {
-        // Unverified creates exam
-        orgCreatesExam(certifierOrg, true);
-
-        // Verified creates exam
-        orgCreatesExam(verifiedOrg, false);
-
-        uint256 examId = 0;
-        uint256 userAnswersAsNumber = 111;
-        uint256 secretNumber = 123;
-        bytes32 hashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, user));
-
-        uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
-        // Unverified submits
-        vm.expectRevert();
-        vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
-
-        // Verified submits
-        vm.prank(verifiedUser);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
-    }
-
-    function testUsername() public {
-        vm.prank(user);
-        certifier.setUsername("username", 0, "0x");
-        assert(keccak256(abi.encode("username")) == keccak256(abi.encode(certifier.getUsername(user))));
-
-        vm.prank(deployer);
-        certifier.setRequiresSignature(true);
-
-        vm.expectRevert();
-        vm.prank(user);
-        certifier.setUsername("username2", 0, "0x");
-
-        vm.prank(user);
-        certifier.setUsername("username2", 0, signTokenNum("username2", 0, user));
-    }
-
     // helpers
     function orgCreatesExam(address org, bool reverts) public {
         uint256 creationFeeInEth = certifier.getUsdToEthRate(certifier.getExamCreationFee());
+        console2.log("creationFeeInEth: ", creationFeeInEth);
         if (reverts) vm.expectRevert();
         vm.startPrank(org);
         certifier.createExam{value: creationFeeInEth}(

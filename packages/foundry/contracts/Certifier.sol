@@ -52,9 +52,14 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     // User
     address[] private s_users;
     mapping(address user => uint256[] examIds) private s_userToExamIds;
-    mapping(address user => mapping(uint256 examId => bytes32 hashedAnswer)) private s_userToAnswers;
-    // user can claim either ether if exam is cancelled or NFT if exam has ended
-    mapping(address user => mapping(uint256 examId => bool hasClaimed)) private s_userHasClaimed;
+    // User string answers
+    mapping(address user => mapping(uint256 examId => string stringAnswers)) private s_userToStringAnswers;
+    // User hashed answers
+    mapping(address user => mapping(uint256 examId => bytes32 hashedAnswers)) private s_userToHashedAnswers;
+    // User status
+    mapping(address user => mapping(uint256 examId => UserStatus status)) private s_userStatus;
+    // User to tokenId of exam
+    mapping(address user => mapping(uint256 examId => uint256 tokenId)) private s_userToTokenId;
 
     // Exam
     mapping(uint256 id => Exam exam) private s_examIdToExam;
@@ -153,7 +158,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             description: description,
             endTime: endTime,
             questions: questions,
-            answers: new uint256[](0),
+            answers: "",
             price: price,
             baseScore: baseScore,
             imageUrl: imageUrl,
@@ -192,8 +197,10 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
     /// @inheritdoc ICertifier
     function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable verifiedOnCelo(msg.sender) {
-        if (getStatus(examId) != Status.Started) revert Certifier__ExamEndedOrCancelled(examId, uint256(getStatus(examId)));
-        if (s_userToAnswers[msg.sender][examId] != "") revert Certifier__UserAlreadySubmittedAnswers(examId);
+        ExamStatus status = getExamStatus(examId);
+        if (status != ExamStatus.Open) revert Certifier__ExamEndedOrCancelled(examId, uint256(status));
+        UserStatus userStatus = s_userStatus[msg.sender][examId];
+        if (userStatus != UserStatus.NotSubmitted) revert Certifier__UserCannotSubmit(examId, uint256(userStatus));
         if (msg.sender == s_examIdToExam[examId].certifier) revert Certifier__CertifierCannotSubmit(examId);
         uint256 ethAmountRequired = getUsdToEthRate(s_examIdToExam[examId].price);
         if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
@@ -201,19 +208,20 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         if ((s_examIdToExam[examId].maxSubmissions != 0) && (s_examIdToExam[examId].maxSubmissions < s_examIdToExam[examId].numberOfSubmissions))
             revert Certifier__MaxSubmissionsReached(examId, s_examIdToExam[examId].maxSubmissions, s_examIdToExam[examId].numberOfSubmissions);
 
+        s_userStatus[msg.sender][examId] = UserStatus.Submitted;
         uint256 feeAmount = msg.value * s_submissionFee / DECIMALS;
         s_examIdToExam[examId].etherAccumulated += (msg.value - feeAmount);
         transferEther(s_feeCollector, feeAmount);
         s_userToExamIds[msg.sender].push(examId);
-        s_userToAnswers[msg.sender][examId] = hashedAnswer;
+        s_userToHashedAnswers[msg.sender][examId] = hashedAnswer;
         s_examIdToExam[examId].users.push(msg.sender);
 
         emit SubmitAnswers(msg.sender, examId, hashedAnswer);
     }
 
     /// @inheritdoc ICertifier
-    function correctExam(uint256 examId, uint256[] memory answers) external nonReentrant {
-        if (getStatus(examId) != Status.NeedsCorrection) revert Certifier__NotTheTimeForExamCorrection(examId, uint256(getStatus(examId)));
+    function correctExam(uint256 examId, string memory answers) external nonReentrant {
+        if (getExamStatus(examId) != ExamStatus.UnderCorrection) revert Certifier__NotTheTimeForExamCorrection(examId, uint256(getExamStatus(examId)));
         if (msg.sender != s_examIdToExam[examId].certifier) revert Certifier__OnlyCertifierCanCorrect(examId);
 
         s_examIdToExam[examId].answers = answers;
@@ -224,48 +232,59 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             s_examIdToExam[examId].etherAccumulated = 0;
         }
 
-        emit CorrectExam(examId, answers);
+        emit CorrectExam(examId, answers, ethToCollect);
     }
 
+    // s_userStatus;
+    // s_userToTokenId;
     /// @inheritdoc ICertifier
-    function claimCertificate(uint256 examId, uint256[] memory answers, uint256 secretNumber) external nonReentrant returns (bool) {
-        if (getStatus(examId) != Status.Ended) revert Certifier__ExamHasNotEnded(examId, uint256(getStatus(examId)));
-        if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedNFT(examId);
+    function claimCertificate(uint256 examId, string memory answers, uint256 secretNumber) external nonReentrant {
+        ExamStatus examStatus = getExamStatus(examId);
+        if (examStatus != ExamStatus.Corrected) revert Certifier__ExamHasNotEnded(examId, uint256(examStatus));
+        UserStatus userStatus = s_userStatus[msg.sender][examId];
+        if (userStatus != UserStatus.Submitted) revert Certifier__UserCannotClaimNFT(examId, uint256(userStatus));
 
-        uint256 userAnswersAsNumber = getAnswerAsNumber(answers);
-        bytes32 expectedHashedAnswer = keccak256(abi.encodePacked(userAnswersAsNumber, secretNumber, msg.sender));
-        if (expectedHashedAnswer != s_userToAnswers[msg.sender][examId]) revert Certifier__AnswerHashesDontMatch(expectedHashedAnswer, s_userToAnswers[msg.sender][examId]);
+        // Check if answer hashes match
+        (bool hashesMatch, bytes32 submittedHashedAnswer, bytes32 expectedHashedAnswer) =
+            getHashesMatch(examId, answers, secretNumber);
+        if (!hashesMatch) revert Certifier__AnswerHashesDontMatch(submittedHashedAnswer, expectedHashedAnswer);
 
         uint256 score = getScore(s_examIdToExam[examId].answers, answers);
-        if (score < s_examIdToExam[examId].baseScore) return false;
+        s_userToStringAnswers[msg.sender][examId] = answers;
 
-        s_userHasClaimed[msg.sender][examId] = true;
+        if (score < s_examIdToExam[examId].baseScore) {
+            s_userStatus[msg.sender][examId] = UserStatus.Failed;
+            emit UserFailed(msg.sender, examId, answers);
+            return;
+        }
+        s_userStatus[msg.sender][examId] = UserStatus.Succeeded;
 
         string memory tokenUri = makeTokenUri(examId, score);
         s_tokenIdToUri[s_tokenCounter] = tokenUri;
         s_tokenIdToExamId[s_tokenCounter] = examId;
         s_examIdToExam[examId].tokenIds.push(s_tokenCounter);
+        s_userToTokenId[msg.sender][examId] = s_tokenCounter;
 
         _safeMint(msg.sender, s_tokenCounter);
-        emit ClaimNFT(msg.sender, examId, s_tokenCounter);
+        emit ClaimNFT(msg.sender, examId, answers, s_tokenCounter);
 
         s_tokenCounter++;
-        return true;
     }
 
     /// @inheritdoc ICertifier
     function refundExam(uint256 examId) external nonReentrant {
-        if (getStatus(examId) != Status.Cancelled) revert Certifier__ExamIsNotCancelled(examId, uint256(getStatus(examId)));
-        if (s_userToAnswers[msg.sender][examId] == "") revert Certifier__UserDidNotParticipate(examId);
-        if (s_userHasClaimed[msg.sender][examId]) revert Certifier__UserAlreadyClaimedCancelledExam(examId);
+        ExamStatus examStatus = getExamStatus(examId);
+        if (examStatus != ExamStatus.Cancelled) revert Certifier__ExamIsNotCancelled(examId, uint256(examStatus));
+        UserStatus userStatus = s_userStatus[msg.sender][examId];
+        if (userStatus != UserStatus.Submitted) revert Certifier__UserCannotClaimRefund(examId, uint256(userStatus));
         if (s_examIdToExam[examId].price == 0) revert Certifier__ThisExamIsNotPaid(examId);
 
         uint256 ethAmount = getUsdToEthRate(s_examIdToExam[examId].price);
         uint256 feeAmount = ethAmount * s_submissionFee / DECIMALS;
         transferEther(msg.sender, ethAmount - feeAmount);
-        s_userHasClaimed[msg.sender][examId] = true;
+        s_userStatus[msg.sender][examId] = UserStatus.Refunded;
 
-        emit ClaimRefund(examId, msg.sender);
+        emit ClaimRefund(examId, msg.sender, ethAmount - feeAmount);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -286,11 +305,11 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return ethAmount;
     }
 
-    function getStatus(uint256 examId) public view returns (Status) {
-        if (s_examIdToExam[examId].answers.length > 0) return Status.Ended; // terminal
-        if (block.timestamp > s_examIdToExam[examId].endTime + s_timeToCorrectExam) return Status.Cancelled; // terminal
-        if (block.timestamp > s_examIdToExam[examId].endTime) return Status.NeedsCorrection;
-        return Status.Started;
+    function getExamStatus(uint256 examId) public view returns (ExamStatus) {
+        if (bytes(s_examIdToExam[examId].answers).length > 0) return ExamStatus.Corrected; // terminal
+        if (block.timestamp > s_examIdToExam[examId].endTime + s_timeToCorrectExam) return ExamStatus.Cancelled; // terminal
+        if (block.timestamp > s_examIdToExam[examId].endTime) return ExamStatus.UnderCorrection;
+        return ExamStatus.Open;
     }
 
     function getIsVerifiedOnCelo(address user) public view returns (bool) {
@@ -298,16 +317,22 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return IGoodDollarVerifierProxy(GOOD_DOLLAR_PROXY).isWhitelisted(user);
     }
 
+    function getHashesMatch(
+        uint256 examId, string memory answers, uint256 secretNumber
+    ) public view returns (
+        bool, bytes32, bytes32
+    ) {
+        bytes32 expectedHashedAnswer = keccak256(abi.encodePacked(answers, secretNumber, msg.sender));
+        bytes32 submittedHashedAnswer = s_userToHashedAnswers[msg.sender][examId];
+        bool hashesMatch = expectedHashedAnswer == submittedHashedAnswer;
+        return (hashesMatch, submittedHashedAnswer, expectedHashedAnswer);
+    }
+
     /*//////////////////////////////////////////////////////////////
                           INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function _baseURI() internal pure override returns (string memory) {
-        return "data:application/json;base64,";
-    }
-
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-    
 
     /*//////////////////////////////////////////////////////////////
                            PRIVATE FUNCTIONS
@@ -318,55 +343,44 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         if (!success) revert Certifier__EtherTransferFailed();
     }
 
-    function getAnswerAsNumber(uint256[] memory answers) private pure returns (uint256) {
-        uint256 result = 0;
-        for (uint256 i = 0; i < answers.length; i++) {
-            result += answers[i] * (10 ** i);
-        }
-        return result;
-    }
+    function getScore(string memory correctAnswers, string memory userAnswers) private pure returns (uint256) {
+        uint256 correctAnswersLength = bytes(userAnswers).length;
+        uint256 userAnswersLength = bytes(userAnswers).length;
+        if (correctAnswersLength != userAnswersLength) revert Certifier__AnswersLengthDontMatch(correctAnswersLength, userAnswersLength);
 
-    function getScore(uint256[] memory correctAnswers, uint256[] memory userAnswers) private pure returns (uint256) {
-        if (correctAnswers.length != userAnswers.length) revert Certifier__AnswersLengthDontMatch(correctAnswers.length, userAnswers.length);
-
+        bytes memory byteForCorrectAnswer = new bytes(1);
+        bytes memory byteForUserAnswer = new bytes(1);
+        
         uint256 score = 0;
-        for (uint256 i = 0; i < correctAnswers.length; i++)
-            if (correctAnswers[i] == userAnswers[i])
+        for (uint256 i = 0; i < correctAnswersLength; i++) {
+            byteForCorrectAnswer[0] = bytes(correctAnswers)[i];
+            byteForUserAnswer[0] = bytes(userAnswers)[i];
+
+            if (keccak256(abi.encode(string(byteForCorrectAnswer))) == keccak256(abi.encode(string(byteForUserAnswer))))
                 score++;
+        }
         return score;
     }
 
     function makeTokenUri(uint256 examId, uint256 score) private view returns (string memory) {
-        string memory tokenId = s_tokenCounter.toString();
-        string memory examName = s_examIdToExam[examId].name;
-        string memory examDescription = s_examIdToExam[examId].description;
-        string memory scoreStr = score.toString();
-        string memory numOfQuestions = s_examIdToExam[examId].questions.length.toString();
-        string memory base = s_examIdToExam[examId].baseScore.toString();
-        string memory certifier = s_examIdToExam[examId].certifier.toHexString();
-        string memory imageUrl = s_examIdToExam[examId].imageUrl;
-
-        return string(
-            abi.encodePacked(
-                _baseURI(),
-                Base64.encode(
-                    bytes(
-                        abi.encodePacked(
-                            '{"name": "', examName, " | ", name(), " #", tokenId,
-                            '", "description": "An NFT that represents a certificate.", ',
-                            '"attributes":[',
-                            '{"trait_type": "exam_name", "value": "', examName, '"}, ',
-                            '{"trait_type": "exam_description", "value": "', examDescription, '"}, ',
-                            '{"trait_type": "my_score", "value": "', scoreStr, "/", numOfQuestions, '"}, ',
-                            '{"trait_type": "exam_base_score", "value": ', base, "}, ",
-                            '{"trait_type": "certifier", "value": "', certifier, '"}, ',
-                            '{"trait_type": "exam_id", "value": ', examId.toString(), "} ",
-                            '], "image": "', imageUrl, '"}'
-                        )
-                    )
-                )
-            )
+        string memory nameLine = string.concat(
+            '{"name": "', s_examIdToExam[examId].name, " | ", name(), " #", s_tokenCounter.toString()
         );
+        string memory descriptionLine = string.concat(
+            '", "description": "An NFT that represents a certificate.", '
+        );
+        string memory attributesLine = string.concat(
+            '"attributes":[',
+            '{"trait_type": "exam_name", "value": "', s_examIdToExam[examId].name, '"}, ',
+            '{"trait_type": "exam_description", "value": "', s_examIdToExam[examId].description, '"}, ',
+            '{"trait_type": "my_score", "value": ', score.toString(),'}, ',
+            '{"trait_type": "number_of_questions", "value": ', s_examIdToExam[examId].questions.length.toString(), '}, ',
+            '{"trait_type": "exam_base_score", "value": ', s_examIdToExam[examId].baseScore.toString(), "}, ",
+            '{"trait_type": "initial_owner", "value": "', msg.sender.toHexString(), '"}, ',
+            '{"trait_type": "exam_id", "value": ', examId.toString(), "}",
+            '], "image": "', s_examIdToExam[examId].imageUrl, '"}'
+        );
+        return string.concat(nameLine, descriptionLine, attributesLine);
     }
 
     function _removeFromWhitelist(address user) private {
@@ -410,6 +424,10 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
+    function getUserScore(uint256 examId) public view returns (uint256) {
+        return getScore(s_examIdToExam[examId].answers, s_userToStringAnswers[msg.sender][examId]);
+    }
+
     function getFeeCollector() external view returns (address) {
         return s_feeCollector;
     }
@@ -430,12 +448,12 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return s_users[index];
     }
 
-    function getUserAnswer(address user, uint256 examId) external view returns (bytes32) {
-        return s_userToAnswers[user][examId];
+    function getUserHashedAnswer(address user, uint256 examId) external view returns (bytes32) {
+        return s_userToHashedAnswers[user][examId];
     }
 
-    function getUserHasClaimed(address user, uint256 examId) external view returns (bool) {
-        return s_userHasClaimed[user][examId];
+    function getUserStringAnswer(address user, uint256 examId) external view returns (string memory) {
+        return s_userToStringAnswers[user][examId];
     }
 
     function getExam(uint256 id) external view returns (Exam memory) {
@@ -496,6 +514,14 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
     function getRequiresSignature() external view returns (bool) {
         return s_requiresSignature;
+    }
+
+    function getUserStatus(address user, uint256 examId) external view returns (UserStatus) {
+        return s_userStatus[user][examId];
+    }
+
+    function getUserTokenId(address user, uint256 examId) external view returns (uint256) {
+        return s_userToTokenId[user][examId];
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -559,9 +585,11 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
     function setRequiresSignature(bool requiresSignature) external onlyOwner {
         s_requiresSignature = requiresSignature;
+        emit SetRequiresSignature(requiresSignature);
     }
 
     function setPriceFeed(address priceFeed) external onlyOwner {
         s_priceFeed = priceFeed;
+        emit SetPriceFeed(priceFeed);
     }
 }
