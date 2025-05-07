@@ -49,7 +49,7 @@ export function wagmiWriteToContract() {
                 onBlockConfirmation: (res: any) => {
                     console.log("block confirm", res);
                 },
-                blockConfirmations: 3
+                blockConfirmations: 1
             }
             const writeTxResult = await writeTx(writeWithParams, { blockConfirmations, onBlockConfirmation });
             window.location.reload();

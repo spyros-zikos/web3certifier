@@ -4,7 +4,7 @@ interface Exam {
     description: string;
     endTime: bigint;
     questions: readonly string[];
-    answers: readonly bigint[];
+    answers: string;
     price: bigint;
     baseScore: bigint;
     imageUrl: string;

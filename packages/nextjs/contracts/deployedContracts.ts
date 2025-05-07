@@ -658,6 +658,11 @@ const deployedContracts = {
               type: "uint256",
               internalType: "uint256",
             },
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
           ],
           outputs: [
             {
@@ -2303,7 +2308,7 @@ const deployedContracts = {
   },
   42161: {
     Certifier: {
-      address: "0xaed706195f79fb7a49956048a87933b56e92e20a",
+      address: "0x2d3599937b95030d066ddffe4aa08c9bf7a78113",
       abi: [
         {
           type: "constructor",
@@ -2953,6 +2958,11 @@ const deployedContracts = {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
+            },
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [
@@ -4597,7 +4607,7 @@ const deployedContracts = {
       },
     },
     ERC1967Proxy: {
-      address: "0x45c1c4b16c36f9b8090047de81a79f82dee1fcb5",
+      address: "0x6711893cd7b41552d74cebbec8e93773a5e9ac66",
       abi: [
         {
           type: "constructor",
@@ -4670,7 +4680,7 @@ const deployedContracts = {
   },
   42220: {
     Certifier: {
-      address: "0x34c8e8bd4d7318e4ddf57a08319b3c2e8d7a1aff",
+      address: "0x62533d6d4b2801a1a80080fcab6e0d06604e3fea",
       abi: [
         {
           type: "constructor",
@@ -5320,6 +5330,11 @@ const deployedContracts = {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
+            },
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [
@@ -6964,7 +6979,7 @@ const deployedContracts = {
       },
     },
     ERC1967Proxy: {
-      address: "0xf5c678d1cf6391aa0fd15008a3c83f36f1b0f43d",
+      address: "0xeda52212b4be0eb74aef879e714e4f722ea263a0",
       abi: [
         {
           type: "constructor",
@@ -7037,7 +7052,7 @@ const deployedContracts = {
   },
   11155111: {
     Certifier: {
-      address: "0xc9a44bad414bbc37adda0b7e65128eb43d841a5c",
+      address: "0x6711893cd7b41552d74cebbec8e93773a5e9ac66",
       abi: [
         {
           type: "constructor",
@@ -7687,6 +7702,11 @@ const deployedContracts = {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
+            },
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
             },
           ],
           outputs: [
@@ -9331,7 +9351,7 @@ const deployedContracts = {
       },
     },
     ERC1967Proxy: {
-      address: "0x4e57477049ebc1749c28f3feda750653e51d0e3f",
+      address: "0x9d6563b1188a482bf8d391a001f343169d3d6ccc",
       abi: [
         {
           type: "constructor",

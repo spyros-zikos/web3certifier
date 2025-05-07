@@ -9,7 +9,7 @@ import { handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubm
 import { ExamStage } from "../../types/ExamStage";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
-import { getStatusStr } from "~~/utils/StatusStr";
+import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
 import ExamDetails from "./_components/ExamDetails";
 import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPasswordOrCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
@@ -35,13 +35,13 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
-    const userHasClaimed = wagmiReadFromContract({
-        functionName: "getUserHasClaimed",
+    const userStatusNum = wagmiReadFromContract({
+        functionName: "getUserStatus",
         args: [address, id],
     }).data;
 
-    const userAnswer = wagmiReadFromContract({
-        functionName: "getUserAnswer",
+    const userHashedAnswer = wagmiReadFromContract({
+        functionName: "getUserHashedAnswer",
         args: [address, id],
     }).data;
 
@@ -50,8 +50,8 @@ const ExamPage = () => {
         args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
 
-    const statusNum: number | undefined = wagmiReadFromContract({
-        functionName: "getStatus",
+    const examStatusNum: number | undefined = wagmiReadFromContract({
+        functionName: "getExamStatus",
         args: [id],
     }).data;
 
@@ -64,6 +64,11 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
+    const userScore: bigint | undefined = wagmiReadFromContract({
+        functionName: "getUserScore",
+        args: [id, address],
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -74,13 +79,12 @@ const ExamPage = () => {
     const { writeContractAsync: correctExam } = wagmiWriteToContract();
     
 
-    // Get key | For exam stage: User_StartedNotSubmitted
+    // Get key | For exam stage: User_OpenNotSubmitted
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
-    // For exam stage: User_StartedNotSubmitted, Certifier_Correct, User_ClaimCertificate
+    // For exam stage: User_OpenNotSubmitted, Certifier_Correct, User_ClaimCertificate
     const [answers, setAnswers] = useState<bigint[]>([BigInt(0)]);
     // For exam stage: User_ClaimCertificate
     const [userPasswordInput, setUserPasswordInput] = useState<string>("");
-    const [failScore, setFailScore] = useState<number>(-1);
     // For exam stage: Certifier_EndStats
     const [certifierStatsAfterCorrection, setCertifierStatsAfterCorrection] = useState<string>("");
 
@@ -101,30 +105,40 @@ const ExamPage = () => {
         return () => clearInterval(interval); // cleanup
     }, []);
 
-    
     const getExamStage = () => {
-        const status = getStatusStr(statusNum);
-        const userHasNotParticipated = userAnswer==="0x0000000000000000000000000000000000000000000000000000000000000000";
-        return examStage(status, userHasNotParticipated, address, exam, userHasClaimed);
+        const examStatus = getExamStatusStr(examStatusNum);
+        const userStatus = getUserStatusStr(userStatusNum);
+        return examStage(examStatus, userStatus, address, exam);
     }
 
-    const getExamStageMessageAndButton = (stage: any): ExamPageDynamicElements => {
-        switch (stage) {
-            case ExamStage.Certifier_Started:
+    const getExamStageMessageAndButton = (examStage: any): ExamPageDynamicElements => {
+        switch (examStage) {
+            case ExamStage.Certifier_Open:
                 return { message: "This exam is ongoing! The certifier cannot submit.", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.User_StartedSubmitted:
+            case ExamStage.User_OpenSubmitted:
                 return { message: "Your answers are submitted!", buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_WaitForCorrection:
                 return { message: "This exam is being corrected by the certifier!", buttonAction: undefined, buttonText: undefined };
             case ExamStage.Certifier_EndStats:
                 return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
-            case ExamStage.User_EndStats:
+            case ExamStage.User_EndSuccessStats:
                 return { message: <div>This exam has ended! You completed it successfully! <Reward certifier={exam?.certifier||""}/></div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
+            case ExamStage.User_EndFailStats:
+                return {
+                    message: exam
+                    ? <div>
+                        You failed this exam! Your score was {userScore?.toString()}/{exam.questions.length} {""}
+                        but you need at least {exam!.baseScore.toString()}/{exam.questions.length} to pass.
+                    </div>
+                    : <div>Loading...</div>,
+                    buttonAction: undefined,
+                    buttonText: undefined
+                }; // Can add stats
             case ExamStage.User_Details:
                 return { message: "This exam has ended. You did not participate!", buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.Both_CancelStats:
                 return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.User_StartedNotSubmitted:
+            case ExamStage.User_OpenNotSubmitted:
                 const updateCookie = !isSubmitting && !isSubmitted;
                 const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
                 const [message, hashedAnswer] = exam?.userClaimsWithPassword
@@ -144,7 +158,7 @@ const ExamPage = () => {
             case ExamStage.Certifier_Correct:
                 return {
                     message: "This exam needs correcting. Please provide the correct answers within the correction period of the exam.",
-                    buttonAction: () => {handleCorrectExam(correctExam, id, answers)},
+                    buttonAction: () => {handleCorrectExam(correctExam, id, answers.map(answer => answer.toString()).reduce((a, b) => a + b, ""))},
                     buttonText: "Correct Exam"
                 };
             case ExamStage.User_ClaimRefund:
@@ -155,19 +169,7 @@ const ExamPage = () => {
                 };
             case ExamStage.User_ClaimCertificate:
                 const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-                const [key, answersArray, numberOfCorrectAnswers, passwordHashGood] = getVariablesFromPasswordOrCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), exam, address, userAnswer);
-                
-                // if the user clicked on the button and failed the exam
-                if (failScore > -1)
-                    return {
-                        message: exam ? 
-                        <div>You failed this exam! Your score was {failScore}/{exam.questions.length} {""}
-                            but you need at least {exam!.baseScore.toString()}/{exam.questions.length} to pass.</div>
-                        : <div>Loading...</div>,
-                        buttonAction: undefined,
-                        buttonText: undefined
-                    };
-
+                const [key, userAnswers, passwordHashGood] = getVariablesFromPasswordOrCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), address, userHashedAnswer);
                 return {
                     // Tell the user to input their password
                     message:
@@ -187,17 +189,14 @@ const ExamPage = () => {
                                 : <div className="mt-4">Your password is incorrect!</div>
                             }
                         </div>
-                        : <div>Try to claim your certificate!</div>,
+                        : <div>{passwordHashGood? "Claim your certificate!" : "Cookie not found!"}</div>,
                     // Button exists only if password is good
                     buttonAction:
                         (passwordHashGood) ?
                         () => {
-                            if (numberOfCorrectAnswers < exam!.baseScore)
-                                setFailScore(numberOfCorrectAnswers);
-                            else
-                                userPasswordInput || cookiePassword ? handleClaimCertificate(claimCertificate, id, answersArray, BigInt(key)) : 0
+                                userPasswordInput || cookiePassword ? handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key)) : 0
                         }
-                        : exam?.userClaimsWithPassword ? undefined : () => setFailScore(numberOfCorrectAnswers),
+                        : undefined,
                     // Button exists only if password is good
                     buttonText:
                         (passwordHashGood) ? "Claim Certificate" : undefined
@@ -253,13 +252,13 @@ const ExamPage = () => {
                 buttonAction={getExamStageMessageAndButton(getExamStage()!).buttonAction}
                 buttonText={getExamStageMessageAndButton(getExamStage()!).buttonText}
                 showAnswers={
-                    (getExamStage() === ExamStage.User_StartedNotSubmitted) ||
+                    (getExamStage() === ExamStage.User_OpenNotSubmitted) ||
                     (getExamStage() === ExamStage.Certifier_Correct)
                 }
                 answers={answers}
                 setAnswers={setAnswers}
             />
-            {getExamStage() === ExamStage.User_StartedNotSubmitted &&
+            {getExamStage() === ExamStage.User_OpenNotSubmitted &&
                 <div className="mt-4 fixed bottom-10 right-20">
                     Time Left To Submit: {exam && getTimeLeft(timeNow, exam.endTime)}
                 </div>

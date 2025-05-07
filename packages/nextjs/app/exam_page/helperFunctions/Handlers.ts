@@ -14,7 +14,7 @@ export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashed
                             CORRECT EXAM
 //////////////////////////////////////////////////////////////*/
 
-export const handleCorrectExam = async (correctExam: any, id: bigint, answers: bigint[]) => {
+export const handleCorrectExam = async (correctExam: any, id: bigint, answers: string) => {
     correctExam({
         functionName: 'correctExam',
         args: [id, answers],
@@ -36,9 +36,9 @@ export const handleRefundExam = async (refundExam: any, id: bigint) => {
                         CLAIM CERTIFICATE
 //////////////////////////////////////////////////////////////*/
 
-export const handleClaimCertificate = async (claimCertificate: any, id: bigint, answersArray: bigint[], key: bigint) => {
+export const handleClaimCertificate = async (claimCertificate: any, id: bigint, answers: string, key: bigint) => {
     claimCertificate({
         functionName: 'claimCertificate',
-        args: [id, answersArray, key],
+        args: [id, answers, key],
     });
 };

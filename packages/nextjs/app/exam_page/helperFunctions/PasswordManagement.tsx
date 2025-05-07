@@ -29,39 +29,23 @@ export function getHashedAnswerAndMessageWithPassword(
 }
 
 export function getVariablesFromPasswordOrCookies(
-    password: string, exam?: Exam, address?: string, userHashedSubmittedAnswer?: string
+    password: string, address?: string, userHashedSubmittedAnswer?: string
 ): [
-    key: number, answersArray: bigint[], numberOfCorrectAnswers: number, passwordHashGood: boolean
+    key: number, answers: string, passwordHashGood: boolean
 ] {
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
-
-    // Get answers as string from password
-    const answersString = password.substring(0, password.length - keyLength);
-
-    /// key
+    // Get answers from password
+    const answers: string = password.substring(0, password.length - keyLength);
     // Get key from password
     const key = parseInt(password.substring(password.length - keyLength));
-    
-    /// answersArray
-    // Get list with answers
-    const answersArray: bigint[] = [];
-    for (let i = 0; i < password.length - keyLength; i++) {
-        answersArray.push(BigInt(password[i]));
-    }
-
-    /// numberOfCorrectAnswers
-    // Get number of correct answers from the password
-    const numberOfCorrectAnswers = answersArray.filter((answer: any, i: any) => answer === exam?.answers[i]).length;
 
     /// passwordHashGood
     // Get hash
-    const hashFromInputedPassword = (answersString && key && address) ?  web3.utils.soliditySha3(answersString, key, address) : '0x0';
+    const hashFromInputedPassword = (answers && key && address) ?  web3.utils.soliditySha3(answers, key, address) : '0x0';
     // Check hash
     const passwordHashGood = hashFromInputedPassword === userHashedSubmittedAnswer;
-    // console.log("hashFromInputedPassword", hashFromInputedPassword);
-    // console.log("userHashedSubmittedAnswer", userHashedSubmittedAnswer);
 
-    return [key, answersArray, numberOfCorrectAnswers, passwordHashGood]
+    return [key, answers, passwordHashGood]
 }
 
 // Cookies

@@ -4,7 +4,7 @@ import { Button, Card } from "~~/components";
 import { useRouter } from "next/navigation";
 import { Address } from "~~/components/scaffold-eth";
 import { defaultImage } from "~~/utils/constants/constants";
-import { getStatusStr } from "~~/utils/StatusStr";
+import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 
 interface CardProps {
@@ -26,7 +26,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
     }).data as any;
 
     const status: number | undefined = wagmiReadFromContract({
-        functionName: "getStatus",
+        functionName: "getExamStatus",
         args: [exam?.id],
     }).data as any;
 
@@ -35,7 +35,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
     if (exam)
         for (const [_, value] of Object.entries(exam))
             dataString += `${value}`;
-    dataString += getStatusStr(status);
+    dataString += getExamStatusStr(status);
 
     const endDate = exam && new Date(Number(exam.endTime.toString()) * 1000);
 
@@ -82,7 +82,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                     ${parseFloat(exam.price.toString())/1e18}
                 </Box>
                 <Box fontWeight="bold" w="120px">
-                    {getStatusStr(status)}
+                    {getExamStatusStr(status)}
                 </Box>
 
                 <Box>

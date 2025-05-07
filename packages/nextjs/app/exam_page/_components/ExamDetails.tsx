@@ -2,8 +2,8 @@ import React from "react"
 import { VStack, Image, Box } from "@chakra-ui/react";
 import ExamDetail from "./ExamDetail";
 import { defaultImage } from "~~/utils/constants/constants";
-import { getStatusStr } from "~~/utils/StatusStr";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { getExamStatusStr } from "~~/utils/StatusStr";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Button } from "~~/components";
 import { Accordion } from "@chakra-ui/react"
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
@@ -19,11 +19,10 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
         setAnswers: any
     }
 ) => {
-    const status: number | undefined = useScaffoldReadContract({
-        contractName: "Certifier",
-        functionName: "getStatus",
+    const status: number | undefined = wagmiReadFromContract({
+        functionName: "getExamStatus",
         args: [exam?.id],
-    }).data;
+    }).data as any;
     return (
         <VStack>
             <div className="max-w-[400px]">
@@ -44,7 +43,7 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
                         <Accordion.ItemBody>
                                 <ExamDetail name="Description" value={exam?.description} />
                                 <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
-                                <ExamDetail name="Status" value={getStatusStr(status)} />
+                                <ExamDetail name="Status" value={getExamStatusStr(status)} />
                                 <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
                                 <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
                                 <ExamDetail name="Certifier" value={exam?.certifier} />
