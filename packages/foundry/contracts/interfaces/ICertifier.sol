@@ -180,5 +180,5 @@ interface ICertifier {
 
     function getHashesMatch(uint256, string memory, uint256) external view returns (bool, bytes32, bytes32);
 
-    function getUserScore(uint256 examId) external view returns (uint256);
+    function getUserScore(uint256 examId, address user) external view returns (uint256);
 }

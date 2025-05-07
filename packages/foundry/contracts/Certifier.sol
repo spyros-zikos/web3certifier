@@ -146,7 +146,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         if (keccak256(abi.encode(name)) == keccak256(abi.encode(""))) revert Certifier__NameCannotBeEmpty();
         uint256 ethAmountRequired = getUsdToEthRate(s_examCreationFee);
         if (s_userIsWhitelisted[msg.sender]) ethAmountRequired = 0;
-        if (msg.value < ethAmountRequired) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
+        else if (msg.value < ethAmountRequired - (ethAmountRequired / 100)) revert Certifier__NotEnoughEther(msg.value, ethAmountRequired);
         if (questions.length == 0) revert Certifier__QuestionsCannotBeEmpty();
         if (baseScore > questions.length) revert Certifier__BaseScoreExceedsNumberOfQuestions();
         if (endTime < block.timestamp) revert Certifier__EndTimeIsInThePast(endTime, block.timestamp);
@@ -296,6 +296,13 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         _requireOwned(tokenId);
         return s_tokenIdToUri[tokenId];
     }
+    
+    // override
+    function transferFrom(address from, address to, uint256 tokenId) public override {
+        ERC721Upgradeable.transferFrom(from, to, tokenId);
+        delete s_userToTokenId[from][s_tokenIdToExamId[tokenId]];
+        s_userToTokenId[to][s_tokenIdToExamId[tokenId]] = tokenId;
+    }
 
     // chainlink oracle
     function getUsdToEthRate(uint256 usdAmount) public view returns (uint256) {
@@ -331,6 +338,10 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     /*//////////////////////////////////////////////////////////////
                           INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "data:application/json;base64,";
+    }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
@@ -373,14 +384,21 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             '"attributes":[',
             '{"trait_type": "exam_name", "value": "', s_examIdToExam[examId].name, '"}, ',
             '{"trait_type": "exam_description", "value": "', s_examIdToExam[examId].description, '"}, ',
-            '{"trait_type": "my_score", "value": ', score.toString(),'}, ',
+            '{"trait_type": "my_score", "value": ', score.toString(), '}, ',
             '{"trait_type": "number_of_questions", "value": ', s_examIdToExam[examId].questions.length.toString(), '}, ',
             '{"trait_type": "exam_base_score", "value": ', s_examIdToExam[examId].baseScore.toString(), "}, ",
             '{"trait_type": "initial_owner", "value": "', msg.sender.toHexString(), '"}, ',
             '{"trait_type": "exam_id", "value": ', examId.toString(), "}",
             '], "image": "', s_examIdToExam[examId].imageUrl, '"}'
         );
-        return string.concat(nameLine, descriptionLine, attributesLine);
+        return string(
+            abi.encodePacked(
+                _baseURI(),
+                Base64.encode(
+                    bytes(string.concat(nameLine, descriptionLine, attributesLine))
+                )
+            )
+        );
     }
 
     function _removeFromWhitelist(address user) private {
@@ -424,8 +442,8 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
                            GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function getUserScore(uint256 examId) public view returns (uint256) {
-        return getScore(s_examIdToExam[examId].answers, s_userToStringAnswers[msg.sender][examId]);
+    function getUserScore(uint256 examId, address user) public view returns (uint256) {
+        return getScore(s_examIdToExam[examId].answers, s_userToStringAnswers[user][examId]);
     }
 
     function getFeeCollector() external view returns (address) {
