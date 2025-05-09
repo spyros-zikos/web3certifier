@@ -17,12 +17,11 @@ chain: setup-anvil-wallet
 fork: setup-anvil-wallet
 	anvil --fork-url ${FORK_URL} --chain-id 31337
 
-# Sepolia fork
--include .env
+# Test with a fork
 fork-sepolia:
-	forge test --fork-url https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY} -vv --via-ir
+	forge test --fork-url sepolia -vv --via-ir
 fork-celo:
-	forge test --fork-url https://celo-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY} -vv --via-ir
+	forge test --fork-url celo -vv --via-ir
 
 # Build the project
 build:
@@ -94,3 +93,6 @@ verify:
 
 build-and-verify: build verify
 
+-include .env
+deploy-reward-sepolia:
+	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --optimizer-runs 1 --via-ir -vvvv

@@ -1,12 +1,12 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
-import {Certifier} from "../contracts/Certifier.sol";
-import "./DeployHelpers.s.sol";
+import {Certifier} from "../../contracts/Certifier.sol";
+import "../DeployHelpers.s.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Script} from "forge-std/Script.sol";
 
-contract DeployProxy is Script, ScaffoldETHDeploy {
+contract DeployCertifierProxy is Script, ScaffoldETHDeploy {
     address public priceFeed = address(
         block.chainid == 11155111
         ? 0x694AA1769357215DE4FAC081bf1f309aDC325306  // sepolia
@@ -26,8 +26,8 @@ contract DeployProxy is Script, ScaffoldETHDeploy {
 
         ERC1967Proxy proxy = new ERC1967Proxy(certifier, ""); // empty initializer
         Certifier(address(proxy)).initialize(priceFeed, TIME_TO_CORRECT, EXAM_CREATION_FEE, SUBMISSION_FEE);
-        console.log("Proxy Contract deployed at: ", address(proxy));
-        console.log("Certifier Contract deployed at: ", certifier);
+        console.log("Certifier Proxy Contract deployed at: ", address(proxy));
+        console.log("Certifier Implementation Contract deployed at: ", certifier);
         return (address(proxy), certifier);
     }
 }

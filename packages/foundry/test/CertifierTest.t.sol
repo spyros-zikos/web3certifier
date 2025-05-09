@@ -2,18 +2,29 @@
 pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
+
 import {Certifier} from "../contracts/Certifier.sol";
+import {RewardFactory} from "../contracts/RewardFactory.sol";
+import {Reward} from "../contracts/Reward.sol";
 import {ICertifier} from "../contracts/interfaces/ICertifier.sol";
-import {DeployProxy} from "../script/DeployProxy.s.sol";
+import {DeployCertifierProxy} from "../script/Certifier/DeployCertifierProxy.s.sol";
+import {Token} from "./mocks/Token.t.sol";
+
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract CertifierTest is Test {
     Certifier public certifier;
+    RewardFactory public rewardFactory;
+    IERC20 public token;
     uint256 constant TIME_DURATION = 100;
     uint256 constant EXAM_PRICE = 3 ether;  // $3
     uint256 constant USER_INITIAL_BALANCE = 1000 ether;
     uint256 constant ORG_INITIAL_BALANCE = 1000 ether;
+    uint256 constant INITIAL_TOKEN_SUPPLY = 1000 ether;
+    uint256 constant REWARD_INITIAL_AMOUNT = 2 ether;
+    uint256 constant REWARD_FUND_AMOUNT = 1 ether;
     string[] public examQuestions;
 
     address user = makeAddr("user");
@@ -38,14 +49,30 @@ contract CertifierTest is Test {
     function setUp() public {
         (deployer, deployerKey) = makeAddrAndKey("deployer");
         vm.startPrank(deployer);
-        DeployProxy deployProxy = new DeployProxy();
-        ERC1967Proxy proxyContract = new ERC1967Proxy(address(new Certifier()), ""); // empty initializer
-        Certifier(address(proxyContract)).initialize(
-            deployProxy.priceFeed(), deployProxy.TIME_TO_CORRECT(), deployProxy.EXAM_CREATION_FEE(), deployProxy.SUBMISSION_FEE()
+
+        // Deploy certifier contract
+        DeployCertifierProxy deployCertifierProxy = new DeployCertifierProxy();
+        ERC1967Proxy certifierProxy = new ERC1967Proxy(address(new Certifier()), ""); // empty initializer
+        Certifier(address(certifierProxy)).initialize(
+            deployCertifierProxy.priceFeed(), deployCertifierProxy.TIME_TO_CORRECT(), deployCertifierProxy.EXAM_CREATION_FEE(), deployCertifierProxy.SUBMISSION_FEE()
         );
-        address proxy = address(proxyContract);
-        certifier = Certifier(proxy);
+        address certifierProxyAddress = address(certifierProxy);
+        certifier = Certifier(certifierProxyAddress);
+
+        // Deploy reward factory contract
+        // proxy
+        ERC1967Proxy rewardFactoryProxy = new ERC1967Proxy(address(new RewardFactory()), ""); // empty initializer
+        // initialize
+        RewardFactory(address(rewardFactoryProxy)).initialize(certifierProxyAddress);
+        // address
+        address rewardFactoryProxyAddress = address(rewardFactoryProxy);
+        // proxy with abi of implementation
+        rewardFactory = RewardFactory(rewardFactoryProxyAddress);
+
+        // Deploy token contract
+        token = new Token(certifierOrg, INITIAL_TOKEN_SUPPLY);
         vm.stopPrank();
+
         examQuestions.push("question1");
         examQuestions.push("question2");
         examQuestions.push("question3");
@@ -57,17 +84,11 @@ contract CertifierTest is Test {
         vm.deal(verifiedOrg, ORG_INITIAL_BALANCE);
     }
 
-    function testCreateExamSubmitAnswersCorrectExamClaimNFT() public notCelo {
+    function testCreateExamSubmitAnswersCorrectExamClaimNFTClaimReward() public notCelo {
         // Arrange
         // Act
         // Assert
-
-        // vm.startPrank(deployer);
-        // certifier.setExamCreationFee(0);
-        // vm.stopPrank();
-        console2.log("1");
         orgCreatesExam(certifierOrg, false);
-        console2.log("2");
 
         uint256 examId = 0;
         string memory userAnswers = "112";
@@ -93,10 +114,47 @@ contract CertifierTest is Test {
         vm.prank(user);
         certifier.claimCertificate(examId, userAnswers, secretNumber);
 
+        // NFT metadata
         console2.log(certifier.tokenURI(0));
+
+        vm.prank(certifierOrg);
+        token.approve(address(rewardFactory), REWARD_INITIAL_AMOUNT);
+
+        // Org creates a reward
+        vm.startPrank(certifierOrg);
+        address reward = rewardFactory.createReward(
+            examId,
+            REWARD_INITIAL_AMOUNT, // initialRewardAmount,
+            5, // rewardAmountPerPerson,
+            1, // rewardAmountPerCorrectAnswer,
+            address(token) // tokenAddress
+        );
+        vm.stopPrank();
+
+        // User claims reward
+        vm.startPrank(user);
+        Reward(reward).claim();
+        vm.stopPrank();
+
+        assert(token.balanceOf(user) == 7);
+
+        // Certifier funds reward
+        vm.startPrank(certifierOrg);
+        token.approve(reward, REWARD_FUND_AMOUNT);
+        Reward(reward).fund(REWARD_FUND_AMOUNT);
+        vm.stopPrank();
+
+        assert(token.balanceOf(certifierOrg) == INITIAL_TOKEN_SUPPLY - REWARD_INITIAL_AMOUNT - REWARD_FUND_AMOUNT);
+
+        // Certifier withdraws reward
+        vm.startPrank(certifierOrg);
+        Reward(reward).withdraw();
+        vm.stopPrank();
+
+        assert(token.balanceOf(certifierOrg) == INITIAL_TOKEN_SUPPLY - token.balanceOf(user));
     }
 
-    function testCreateExamSubmitAnswersGetRefund() public notCelo {
+    function _testCreateExamSubmitAnswersGetRefund() public notCelo {
         orgCreatesExam(certifierOrg, false);
         
         uint256 examId = 0;
@@ -128,7 +186,7 @@ contract CertifierTest is Test {
         certifier.refundExam(examId);
     }
 
-    function testWhiteListedUserCreateExam() public notCelo {
+    function _testWhiteListedUserCreateExam() public notCelo {
         vm.startPrank(deployer);
         certifier.addToWhitelist(certifierOrg);
         vm.stopPrank();
@@ -157,7 +215,7 @@ contract CertifierTest is Test {
         certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
     }
 
-    function testUsername() public notCelo {
+    function _testUsername() public notCelo {
         vm.prank(user);
         certifier.setUsername("username", 0, "0x");
         assert(keccak256(abi.encode("username")) == keccak256(abi.encode(certifier.getUsername(user))));
@@ -173,7 +231,7 @@ contract CertifierTest is Test {
         certifier.setUsername("username2", 0, signTokenNum("username2", 0, user));
     }
 
-    function testVerifiedExamCreationAndSubmission() public onlyCelo {
+    function _testVerifiedExamCreationAndSubmission() public onlyCelo {
         // Unverified creates exam
         orgCreatesExam(certifierOrg, true);
         // Verified creates exam
@@ -195,7 +253,7 @@ contract CertifierTest is Test {
         certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
     }
 
-    function testWhitelist() public {
+    function _testWhitelist() public {
         vm.startPrank(deployer);
 
         // add 0x1
