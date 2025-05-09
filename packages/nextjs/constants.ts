@@ -241,21 +241,21 @@ export const erc20Abi = [
 ]
 
 export const chainsToContracts: ContractsConfig = {
-    11155111: {
+    11155111: { // sepolia
         Certifier: {address:"0x9d6563b1188a482bF8d391a001f343169D3D6cCC", abi: certifierAbi},
         RewardFactory: {address:"0x8f5ed4371E339D75053d5E0ac6e7b629c4626619", abi: rewardFactoryAbi},
         Reward: {address:"", abi: rewardAbi},
         ERC20: {address:"", abi: erc20Abi},
     },
-    42161: {
+    42161: { // arbitrum
         Certifier: {address:"0x6711893cd7b41552D74CeBbEc8e93773a5E9Ac66", abi: certifierAbi},
         RewardFactory: {address:"0x8f5ed4371E339D75053d5E0ac6e7b629c4626619", abi: rewardFactoryAbi},
         Reward: {address:"", abi: rewardAbi},
         ERC20: {address:"", abi: erc20Abi},
     },
-    42220: {
+    42220: { // celo
         Certifier: {address:"0xEdA52212b4BE0EB74aef879e714E4f722EA263A0", abi: certifierAbi},
-        RewardFactory: {address:"0x8f5ed4371E339D75053d5E0ac6e7b629c4626619", abi: rewardFactoryAbi},
+        RewardFactory: {address:"0x6Bc0db897D678bf5C49e8CD6639D4bD7e4E93763", abi: rewardFactoryAbi},
         Reward: {address:"", abi: rewardAbi},
         ERC20: {address:"", abi: erc20Abi},
     },
