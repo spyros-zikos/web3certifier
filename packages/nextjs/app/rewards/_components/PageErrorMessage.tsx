@@ -1,10 +1,15 @@
 import React from 'react'
+import { PageWrapper } from '~~/components'
+import TitleWithLinkToExamPage from './TitleWithLinkToExamPage'
 
-const PageErrorMessage = ({ children }: { children: React.ReactNode }) => {
+const PageErrorMessage = ({ children, id }: { children: React.ReactNode, id: bigint }) => {
   return (
-    <div className="text-3xl font-bold mt-52 mx-auto">
-        {children}
-    </div>
+    <PageWrapper>
+        <TitleWithLinkToExamPage id={id}>Claim Reward</TitleWithLinkToExamPage>
+        <div className="text-3xl font-bold mt-28 mx-auto">
+            {children}
+        </div>
+    </PageWrapper>
   )
 }
 

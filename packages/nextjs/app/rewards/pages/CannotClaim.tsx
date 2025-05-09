@@ -1,11 +1,9 @@
 import React from 'react'
 import PageErrorMessage from '../_components/PageErrorMessage';
-import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 
 const CannotClaim = ({id}: {id: bigint}) => {
     return (
-        <PageErrorMessage>
-            <TitleWithLinkToExamPage id={id}>Claim Reward</TitleWithLinkToExamPage>
+        <PageErrorMessage id={id}>
             You cannot claim this reward!
         </PageErrorMessage>
     );
