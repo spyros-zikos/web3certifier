@@ -6,7 +6,7 @@ const PageErrorMessage = ({ children, id }: { children: React.ReactNode, id: big
   return (
     <PageWrapper>
         <TitleWithLinkToExamPage id={id}>Claim Reward</TitleWithLinkToExamPage>
-        <div className="text-3xl font-bold mt-28 mx-auto">
+        <div className="text-3xl font-bold mt-24 mx-auto">
             {children}
         </div>
     </PageWrapper>
