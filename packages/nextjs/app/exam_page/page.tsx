@@ -66,6 +66,12 @@ const ExamPage = () => {
         args: [id, address],
     }).data;
 
+    const rewardAddress = wagmiReadFromContract({
+        contractName: "RewardFactory",
+        functionName: "getRewardByExamId",
+        args: [id],
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -253,7 +259,7 @@ const ExamPage = () => {
                     (getExamStage() === ExamStage.Certifier_Correct)
                 }
                 showRewards={
-                    getExamStage() === ExamStage.User_EndSuccessStats ||
+                    (rewardAddress !== ZERO_ADDRESS && getExamStage() === ExamStage.User_EndSuccessStats) ||
                     getExamStage() === ExamStage.Certifier_Open ||
                     getExamStage() === ExamStage.Certifier_Correct ||
                     getExamStage() === ExamStage.Certifier_EndStats
