@@ -93,6 +93,11 @@ verify:
 
 build-and-verify: build verify
 
+# Verify the Reward contract
 -include .env
 deploy-reward-sepolia:
 	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --optimizer-runs 1 --via-ir -vvvv
+deploy-reward-arbitrum:
+	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url arbitrum --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ARBITRUM_API_KEY) --optimizer-runs 1 --via-ir -vvvv
+deploy-reward-celo:
+	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url celo --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(CELO_API_KEY) --optimizer-runs 1 --via-ir -vvvv
