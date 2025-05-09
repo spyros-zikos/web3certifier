@@ -1,25 +1,26 @@
-import { wagmiContractConfig } from '~~/hooks/wagmi/wagmiContractConfig'
 import { useAccount, useReadContract } from "wagmi";
-import { Address } from 'abitype';
+import { chainsToContracts } from '~~/constants';
 
 interface Params {
+    contractName?: string;
+    contractAddress?: string;
     functionName: string;
     args?: any[];
-    contractAddress?: Address;
-    abi?: any;
 }
 
 export function wagmiReadFromContract(params: Params): any {
     const { chain } = useAccount();
 
-    const config = params.contractAddress
-                ? {address: params.contractAddress, abi: params.abi}
-                : wagmiContractConfig(chain?.id);
+    const chainId: number = chain ? chain.id : 11155111;
+    const contractName: string = params.contractName ? params.contractName : "Certifier";
+    const addressAndAbi = chainsToContracts[chainId][contractName];
+    
     const readContractHookRes = useReadContract({
         chainId: chain?.id,
         functionName: params.functionName,
         args: params.args,
-        ...config,
+        address: params.contractAddress ? params.contractAddress: addressAndAbi.address,
+        abi: addressAndAbi.abi,
         query: {
           enabled: !Array.isArray(params.args) || !params.args.some(arg => arg === undefined),
         },

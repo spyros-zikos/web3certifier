@@ -6,7 +6,7 @@ export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashed
     submitAnswers({
         functionName: 'submitAnswers',
         args: [id, `0x${hashedAnswer?.substring(2)}`],
-        value: examPrice
+        value: examPrice,
     });
 };
 

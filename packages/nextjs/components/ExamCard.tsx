@@ -3,7 +3,7 @@ import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { Button, Card } from "~~/components";
 import { useRouter } from "next/navigation";
 import { Address } from "~~/components/scaffold-eth";
-import { defaultImage } from "~~/utils/constants/constants";
+import { defaultImage } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 

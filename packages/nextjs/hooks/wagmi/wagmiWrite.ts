@@ -1,16 +1,17 @@
 import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-eth";
-import { wagmiContractConfig } from '~~/hooks/wagmi/wagmiContractConfig'
+// import { wagmiContractConfig } from '~~/hooks/wagmi/wagmiContractConfig'
 import { useAccount, useWriteContract } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { useState } from "react";
-import { Address } from "abitype";
+import { chainsToContracts } from '~~/constants';
 
 interface Params {
+    contractName?: string;
+    contractAddress?: string;
     functionName: string;
     args: any[];
     value?: any;
-    contractAddress?: Address;
-    abi?: any;
+    onSuccess?: () => void;
 }
 
 export function wagmiWriteToContract() {
@@ -31,17 +32,19 @@ export function wagmiWriteToContract() {
             return;
         }
 
+        const chainId: number = chain ? chain.id : 11155111;
+        const contractName: string = params.contractName ? params.contractName : "Certifier";
+        const addressAndAbi = chainsToContracts[chainId][contractName];
+
         try {
             setIsMining(true);
             function writeWithParams() {
-                const config = params.contractAddress
-                ? {address: params.contractAddress, abi: params.abi}
-                : wagmiContractConfig(chain?.id);
                 return wagmiContractWrite.writeContractAsync({
                     functionName: params.functionName,
                     args: params.args,
                     value: params.value,
-                    ...config,
+                    address: params.contractAddress ? params.contractAddress: addressAndAbi.address,
+                    abi: addressAndAbi.abi,
                 });
             }
 
@@ -52,7 +55,8 @@ export function wagmiWriteToContract() {
                 blockConfirmations: 1
             }
             const writeTxResult = await writeTx(writeWithParams, { blockConfirmations, onBlockConfirmation });
-            window.location.reload();
+            
+            params.onSuccess ? params.onSuccess() : window.location.reload();
             setSuccess(true);
             return writeTxResult;
         } catch (error) {

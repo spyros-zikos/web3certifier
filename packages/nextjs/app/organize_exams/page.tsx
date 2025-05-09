@@ -6,7 +6,7 @@ import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
-import { defaultImage } from "~~/utils/constants/constants";
+import { defaultImage } from "~~/constants";
 import { Accordion } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";

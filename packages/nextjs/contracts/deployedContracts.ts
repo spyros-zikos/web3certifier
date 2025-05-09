@@ -2274,10 +2274,13 @@ const deployedContracts = {
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
         createExam: "contracts/interfaces/ICertifier.sol",
+        getExam: "contracts/interfaces/ICertifier.sol",
         getHashesMatch: "contracts/interfaces/ICertifier.sol",
         getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
         getUserScore: "contracts/interfaces/ICertifier.sol",
+        getUserStatus: "contracts/interfaces/ICertifier.sol",
+        getUserTokenId: "contracts/interfaces/ICertifier.sol",
         refundExam: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
@@ -4575,10 +4578,13 @@ const deployedContracts = {
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
         createExam: "contracts/interfaces/ICertifier.sol",
+        getExam: "contracts/interfaces/ICertifier.sol",
         getHashesMatch: "contracts/interfaces/ICertifier.sol",
         getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
         getUserScore: "contracts/interfaces/ICertifier.sol",
+        getUserStatus: "contracts/interfaces/ICertifier.sol",
+        getUserTokenId: "contracts/interfaces/ICertifier.sol",
         refundExam: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
@@ -6947,10 +6953,13 @@ const deployedContracts = {
         claimCertificate: "contracts/interfaces/ICertifier.sol",
         correctExam: "contracts/interfaces/ICertifier.sol",
         createExam: "contracts/interfaces/ICertifier.sol",
+        getExam: "contracts/interfaces/ICertifier.sol",
         getHashesMatch: "contracts/interfaces/ICertifier.sol",
         getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
         getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
         getUserScore: "contracts/interfaces/ICertifier.sol",
+        getUserStatus: "contracts/interfaces/ICertifier.sol",
+        getUserTokenId: "contracts/interfaces/ICertifier.sol",
         refundExam: "contracts/interfaces/ICertifier.sol",
         submitAnswers: "contracts/interfaces/ICertifier.sol",
         tokenURI:
@@ -7051,8 +7060,8 @@ const deployedContracts = {
     },
   },
   11155111: {
-    Certifier: {
-      address: "0x6711893cd7b41552d74cebbec8e93773a5e9ac66",
+    RewardFactory: {
+      address: "0xe1a53d4e16f633c2ec742c4de8172a70c7d25fd5",
       abi: [
         {
           type: "constructor",
@@ -7074,57 +7083,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "addToWhitelist",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "approve",
-          inputs: [
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "balanceOf",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "claimCertificate",
+          name: "createReward",
           inputs: [
             {
               name: "examId",
@@ -7132,277 +7091,38 @@ const deployedContracts = {
               internalType: "uint256",
             },
             {
-              name: "answers",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "secretNumber",
+              name: "initialRewardAmount",
               type: "uint256",
               internalType: "uint256",
             },
+            {
+              name: "rewardAmountPerPerson",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "rewardAmountPerCorrectAnswer",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "tokenAddress",
+              type: "address",
+              internalType: "address",
+            },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
           stateMutability: "nonpayable",
         },
         {
           type: "function",
-          name: "correctExam",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "answers",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "createExam",
-          inputs: [
-            {
-              name: "name",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "description",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "endTime",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "questions",
-              type: "string[]",
-              internalType: "string[]",
-            },
-            {
-              name: "price",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "baseScore",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "imageUrl",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "maxSubmissions",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "userClaimsWithPassword",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "getApproved",
-          inputs: [
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getCertifierExams",
-          inputs: [
-            {
-              name: "certifier",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256[]",
-              internalType: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getDecimals",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "pure",
-        },
-        {
-          type: "function",
-          name: "getExam",
-          inputs: [
-            {
-              name: "id",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "tuple",
-              internalType: "struct ICertifier.Exam",
-              components: [
-                {
-                  name: "id",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "name",
-                  type: "string",
-                  internalType: "string",
-                },
-                {
-                  name: "description",
-                  type: "string",
-                  internalType: "string",
-                },
-                {
-                  name: "endTime",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "questions",
-                  type: "string[]",
-                  internalType: "string[]",
-                },
-                {
-                  name: "answers",
-                  type: "string",
-                  internalType: "string",
-                },
-                {
-                  name: "price",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "baseScore",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "imageUrl",
-                  type: "string",
-                  internalType: "string",
-                },
-                {
-                  name: "users",
-                  type: "address[]",
-                  internalType: "address[]",
-                },
-                {
-                  name: "etherAccumulated",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "certifier",
-                  type: "address",
-                  internalType: "address",
-                },
-                {
-                  name: "tokenIds",
-                  type: "uint256[]",
-                  internalType: "uint256[]",
-                },
-                {
-                  name: "maxSubmissions",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "numberOfSubmissions",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "userClaimsWithPassword",
-                  type: "bool",
-                  internalType: "bool",
-                },
-              ],
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getExamCreationFee",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getExamStatus",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint8",
-              internalType: "enum ICertifier.ExamStatus",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getFeeCollector",
+          name: "getCertifierContractAddress",
           inputs: [],
           outputs: [
             {
@@ -7415,188 +7135,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getHashesMatch",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "answers",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "secretNumber",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getIsPaused",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getIsStopped",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getIsVerifiedOnCelo",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getLastExamId",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getRequiresSignature",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getSigner",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getSubmissionFee",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getTimeToCorrectExam",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getTokenCounter",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUsdToEthRate",
-          inputs: [
-            {
-              name: "usdAmount",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUser",
+          name: "getReward",
           inputs: [
             {
               name: "index",
@@ -7615,216 +7154,26 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getUserExams",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256[]",
-              internalType: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserFromUsername",
-          inputs: [
-            {
-              name: "username",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserHashedAnswer",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserIsWhitelisted",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserScore",
+          name: "getRewardByExamId",
           inputs: [
             {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
             },
+          ],
+          outputs: [
             {
-              name: "user",
+              name: "",
               type: "address",
               internalType: "address",
             },
           ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
           stateMutability: "view",
         },
         {
           type: "function",
-          name: "getUserStatus",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint8",
-              internalType: "enum ICertifier.UserStatus",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserStringAnswer",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUserTokenId",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUsername",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getUsers",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address[]",
-              internalType: "address[]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getWhitelist",
+          name: "getRewards",
           inputs: [],
           outputs: [
             {
@@ -7840,24 +7189,9 @@ const deployedContracts = {
           name: "initialize",
           inputs: [
             {
-              name: "priceFeed",
+              name: "certifierContractAddress",
               type: "address",
               internalType: "address",
-            },
-            {
-              name: "timeToCorrectExam",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examCreationFee",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "submissionFee",
-              type: "uint256",
-              internalType: "uint256",
             },
           ],
           outputs: [],
@@ -7865,64 +7199,8 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "isApprovedForAll",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "operator",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "name",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "owner",
           inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "ownerOf",
-          inputs: [
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
           outputs: [
             {
               name: "",
@@ -7947,25 +7225,12 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "refundExam",
+          name: "removeReward",
           inputs: [
             {
               name: "examId",
               type: "uint256",
               internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "removeFromWhitelist",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
             },
           ],
           outputs: [],
@@ -7975,301 +7240,6 @@ const deployedContracts = {
           type: "function",
           name: "renounceOwnership",
           inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "safeTransferFrom",
-          inputs: [
-            {
-              name: "from",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "safeTransferFrom",
-          inputs: [
-            {
-              name: "from",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "data",
-              type: "bytes",
-              internalType: "bytes",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setApprovalForAll",
-          inputs: [
-            {
-              name: "operator",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "approved",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setExamCreationFee",
-          inputs: [
-            {
-              name: "fee",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setFeeCollector",
-          inputs: [
-            {
-              name: "feeCollector",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setPaused",
-          inputs: [
-            {
-              name: "paused",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setPriceFeed",
-          inputs: [
-            {
-              name: "priceFeed",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setRequiresSignature",
-          inputs: [
-            {
-              name: "requiresSignature",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setSigner",
-          inputs: [
-            {
-              name: "signer",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setStopped",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setSubmissionFee",
-          inputs: [
-            {
-              name: "fee",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setTimeToCorrectExam",
-          inputs: [
-            {
-              name: "time",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setUsername",
-          inputs: [
-            {
-              name: "username",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "nonce",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "signature",
-              type: "bytes",
-              internalType: "bytes",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "submitAnswers",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "hashedAnswer",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "supportsInterface",
-          inputs: [
-            {
-              name: "interfaceId",
-              type: "bytes4",
-              internalType: "bytes4",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "symbol",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "tokenURI",
-          inputs: [
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "transferFrom",
-          inputs: [
-            {
-              name: "from",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
           outputs: [],
           stateMutability: "nonpayable",
         },
@@ -8306,101 +7276,7 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "AddeToWhitelist",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "Approval",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "approved",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              indexed: true,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "ApprovalForAll",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "operator",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "approved",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "ClaimNFT",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "answers",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "ClaimRefund",
+          name: "CreateReward",
           inputs: [
             {
               name: "examId",
@@ -8409,132 +7285,34 @@ const deployedContracts = {
               internalType: "uint256",
             },
             {
-              name: "user",
+              name: "reward",
               type: "address",
               indexed: false,
               internalType: "address",
             },
             {
-              name: "amount",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "CorrectExam",
-          inputs: [
-            {
-              name: "examId",
+              name: "initialRewardAmount",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
             },
             {
-              name: "answers",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "etherAccumulated",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "CreateExam",
-          inputs: [
-            {
-              name: "id",
-              type: "uint256",
-              indexed: true,
-              internalType: "uint256",
-            },
-            {
-              name: "name",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "description",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "endTime",
+              name: "rewardAmountPerPerson",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
             },
             {
-              name: "questions",
-              type: "string[]",
-              indexed: false,
-              internalType: "string[]",
-            },
-            {
-              name: "answers",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "price",
+              name: "rewardAmountPerCorrectAnswer",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
             },
             {
-              name: "baseScore",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "imageUrl",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "users",
-              type: "address[]",
-              indexed: false,
-              internalType: "address[]",
-            },
-            {
-              name: "etherAccumulated",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "certifier",
+              name: "tokenAddress",
               type: "address",
               indexed: false,
               internalType: "address",
-            },
-            {
-              name: "maxSubmissions",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "userClaimsWithPassword",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
             },
           ],
           anonymous: false,
@@ -8573,191 +7351,12 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "RemoveFromWhitelist",
+          name: "RemoveReward",
           inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetExamCreationFee",
-          inputs: [
-            {
-              name: "fee",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetFeeCollector",
-          inputs: [
-            {
-              name: "feeCollector",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetPaused",
-          inputs: [
-            {
-              name: "paused",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetPriceFeed",
-          inputs: [
-            {
-              name: "priceFeed",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetRequiresSignature",
-          inputs: [
-            {
-              name: "requiresSignature",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetSigner",
-          inputs: [
-            {
-              name: "signer",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetSubmissionFee",
-          inputs: [
-            {
-              name: "fee",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetTimeToCorrectExam",
-          inputs: [
-            {
-              name: "time",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SetUsername",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-            {
-              name: "username",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "Stopped",
-          inputs: [],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "SubmitAnswers",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
             {
               name: "examId",
               type: "uint256",
               indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "hashedAnswer",
-              type: "bytes32",
-              indexed: false,
-              internalType: "bytes32",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "Transfer",
-          inputs: [
-            {
-              name: "from",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              indexed: true,
               internalType: "uint256",
             },
           ],
@@ -8777,31 +7376,6 @@ const deployedContracts = {
           anonymous: false,
         },
         {
-          type: "event",
-          name: "UserFailed",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              indexed: false,
-              internalType: "address",
-            },
-            {
-              name: "examId",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-            {
-              name: "answers",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-          ],
-          anonymous: false,
-        },
-        {
           type: "error",
           name: "AddressEmptyCode",
           inputs: [
@@ -8809,293 +7383,6 @@ const deployedContracts = {
               name: "target",
               type: "address",
               internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__AnswerHashesDontMatch",
-          inputs: [
-            {
-              name: "submittedHashedAnswer",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "expectedHashedAnswer",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__AnswersLengthDontMatch",
-          inputs: [
-            {
-              name: "correctAnswersLength",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "userAnswersLength",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__BaseScoreExceedsNumberOfQuestions",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__CertifierCannotSubmit",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__ContractIsPausedOrStopped",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__EndTimeIsInThePast",
-          inputs: [
-            {
-              name: "endTime",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "nowTime",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__EtherTransferFailed",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__ExamEndedOrCancelled",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__ExamHasNotEnded",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__ExamIsNotCancelled",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__MaxSubmissionsReached",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "maxSubmissions",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "numberOfsubmissions",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__NameCannotBeEmpty",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__NotEnoughEther",
-          inputs: [
-            {
-              name: "amountSent",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examPrice",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__NotTheTimeForExamCorrection",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "examStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__OnlyCertifierCanCorrect",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__QuestionsCannotBeEmpty",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__ThisExamIsNotPaid",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__UserCannotClaimNFT",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "userStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__UserCannotClaimRefund",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "userStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__UserCannotSubmit",
-          inputs: [
-            {
-              name: "examId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "userStatus",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__UserIsNotVerified",
-          inputs: [
-            {
-              name: "user",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "Certifier__VerificationAvailableOnlyOnCelo",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "Certifier__WrongAnswers",
-          inputs: [
-            {
-              name: "expected",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "actual",
-              type: "uint256",
-              internalType: "uint256",
             },
           ],
         },
@@ -9117,120 +7404,12 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "ERC721IncorrectOwner",
-          inputs: [
-            {
-              name: "sender",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "owner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InsufficientApproval",
-          inputs: [
-            {
-              name: "operator",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InvalidApprover",
-          inputs: [
-            {
-              name: "approver",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InvalidOperator",
-          inputs: [
-            {
-              name: "operator",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InvalidOwner",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InvalidReceiver",
-          inputs: [
-            {
-              name: "receiver",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721InvalidSender",
-          inputs: [
-            {
-              name: "sender",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC721NonexistentToken",
-          inputs: [
-            {
-              name: "tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
           name: "FailedCall",
           inputs: [],
         },
         {
           type: "error",
           name: "InvalidInitialization",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "InvalidSignature",
           inputs: [],
         },
         {
@@ -9267,22 +7446,28 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "ReusedSignature",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "StringsInsufficientHexLength",
+          name: "RewardFactory__RewardAlreadyExists",
           inputs: [
             {
-              name: "value",
+              name: "examId",
               type: "uint256",
               internalType: "uint256",
             },
+          ],
+        },
+        {
+          type: "error",
+          name: "RewardFactory__UserIsNotCertifier",
+          inputs: [
             {
-              name: "length",
-              type: "uint256",
-              internalType: "uint256",
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "certifier",
+              type: "address",
+              internalType: "address",
             },
           ],
         },
@@ -9316,110 +7501,7 @@ const deployedContracts = {
           "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
         transferOwnership:
           "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        claimCertificate: "contracts/interfaces/ICertifier.sol",
-        correctExam: "contracts/interfaces/ICertifier.sol",
-        createExam: "contracts/interfaces/ICertifier.sol",
-        getHashesMatch: "contracts/interfaces/ICertifier.sol",
-        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
-        getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
-        getUserScore: "contracts/interfaces/ICertifier.sol",
-        refundExam: "contracts/interfaces/ICertifier.sol",
-        submitAnswers: "contracts/interfaces/ICertifier.sol",
-        tokenURI:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        approve:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        balanceOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        getApproved:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        isApprovedForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        ownerOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        safeTransferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        setApprovalForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        supportsInterface:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        symbol:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        transferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
       },
-    },
-    ERC1967Proxy: {
-      address: "0x9d6563b1188a482bf8d391a001f343169d3d6ccc",
-      abi: [
-        {
-          type: "constructor",
-          inputs: [
-            {
-              name: "implementation",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "_data",
-              type: "bytes",
-              internalType: "bytes",
-            },
-          ],
-          stateMutability: "payable",
-        },
-        {
-          type: "fallback",
-          stateMutability: "payable",
-        },
-        {
-          type: "event",
-          name: "Upgraded",
-          inputs: [
-            {
-              name: "implementation",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "error",
-          name: "AddressEmptyCode",
-          inputs: [
-            {
-              name: "target",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC1967InvalidImplementation",
-          inputs: [
-            {
-              name: "implementation",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC1967NonPayable",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "FailedCall",
-          inputs: [],
-        },
-      ],
-      inheritedFunctions: {},
     },
   },
 } as const;

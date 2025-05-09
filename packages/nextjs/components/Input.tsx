@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 
 interface Props {
   className?: string;
+  title?: string;
   value?: any;
   type?: any;
   placeholder?: any;

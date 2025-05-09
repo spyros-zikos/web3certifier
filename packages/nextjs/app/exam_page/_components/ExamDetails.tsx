@@ -1,20 +1,21 @@
 import React from "react"
 import { VStack, Image, Box } from "@chakra-ui/react";
 import ExamDetail from "./ExamDetail";
-import { defaultImage } from "~~/utils/constants/constants";
+import { defaultImage } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Button } from "~~/components";
 import { Accordion } from "@chakra-ui/react"
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
 
-const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answers, setAnswers}:
+const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, showRewards, answers, setAnswers}:
     {
         exam: Exam|undefined,
         message: any,
         buttonAction?: any,
         buttonText?: string,
         showAnswers: boolean,
+        showRewards: boolean,
         answers: bigint[],
         setAnswers: any
     }
@@ -26,6 +27,11 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, answ
     return (
         <VStack>
             <div className="max-w-[400px]">
+                {showRewards && 
+                <div className="mb-2 text-[12px] font-semibold">
+                    <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>
+                </div>
+                }
                 <div className="text-[40px] font-bold mb-4 ">{exam?.name}</div>
                 <Image src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" w={350} h={350} objectFit={"cover"}/>
                 <Accordion.Root className="mt-9" collapsible>

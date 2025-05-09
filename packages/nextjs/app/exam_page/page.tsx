@@ -15,22 +15,19 @@ import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPassw
 import Cookies from 'js-cookie';
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
-import Reward from "./_components/Reward";
-
+import {SUPPORTED_NETWORKS, ZERO_ADDRESS} from "~~/constants";
 
 const ExamPage = () => {
     const { address, chain } = useAccount();
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
     const [timeNow, setTimeNow] = useState(Date.now());
-    const SUPPORTED_NETWORKS = [11155111, 42161, 42220];
-    const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const exam: Exam|undefined  = wagmiReadFromContract({
+    const exam: Exam | undefined  = wagmiReadFromContract({
         functionName: "getExam",
         args: [id],
     }).data;
@@ -122,7 +119,7 @@ const ExamPage = () => {
             case ExamStage.Certifier_EndStats:
                 return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_EndSuccessStats:
-                return { message: <div>This exam has ended! You completed it successfully! <Reward certifier={exam?.certifier||""}/></div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
+                return { message: <div>This exam has ended! You completed it successfully!</div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.User_EndFailStats:
                 return {
                     message: exam
@@ -254,6 +251,12 @@ const ExamPage = () => {
                 showAnswers={
                     (getExamStage() === ExamStage.User_OpenNotSubmitted) ||
                     (getExamStage() === ExamStage.Certifier_Correct)
+                }
+                showRewards={
+                    getExamStage() === ExamStage.User_EndSuccessStats ||
+                    getExamStage() === ExamStage.Certifier_Open ||
+                    getExamStage() === ExamStage.Certifier_Correct ||
+                    getExamStage() === ExamStage.Certifier_EndStats
                 }
                 answers={answers}
                 setAnswers={setAnswers}
