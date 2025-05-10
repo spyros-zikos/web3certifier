@@ -27,8 +27,21 @@ const CreateReward = ({id}: {id: bigint}) => {
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
+    const { writeContractAsync: approve } = wagmiWriteToContract();
     const { writeContractAsync: createReward } = wagmiWriteToContract();
-    function handleCreateReward() {
+    async function handleCreateReward() {
+        if (allowance < initialRewardAmount)
+            await approve({
+                contractName: 'ERC20',
+                contractAddress: tokenAddress,
+                functionName: 'approve',
+                args: [
+                    rewardFactoryAddress,
+                    initialRewardAmount,
+                ],
+                onSuccess: () => {}
+            });
+
         createReward({
             contractName: 'RewardFactory',
             functionName: 'createReward',
@@ -38,19 +51,6 @@ const CreateReward = ({id}: {id: bigint}) => {
                 rewardAmountPerPerson,
                 rewardAmountPerCorrectAnswer,
                 tokenAddress
-            ],
-        });
-    }
-
-    const { writeContractAsync: approve } = wagmiWriteToContract();
-    function handleApprove() {
-        approve({
-            contractName: 'ERC20',
-            contractAddress: tokenAddress,
-            functionName: 'approve',
-            args: [
-                rewardFactoryAddress,
-                initialRewardAmount,
             ],
         });
     }
@@ -104,14 +104,10 @@ const CreateReward = ({id}: {id: bigint}) => {
                 />
                 <div className="mt-8 block">{""}</div>
                 {!requiredDetailsAreFilled() && <Text mt="2" ml="2" color="red" display="block">* Fields are required</Text>}
-                {allowance >= initialRewardAmount
-                ? <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="block mt-3 bg-base-100" >
+                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="block mt-3 bg-base-100" >
                     Create Reward
                 </Button>
-                : <Button disabled={!requiredDetailsAreFilled()} onClick={handleApprove} className="block mt-3 bg-base-100" >
-                    Approve
-                </Button>
-                }
+
             </div>
         </PageWrapper>
     );

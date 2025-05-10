@@ -60,22 +60,22 @@ const ManageReward = ({id}: {id: bigint}) => {
     //////////////////////////////////////////////////////////////*/
 
     // Approve
-    const { writeContractAsync: approve } = wagmiWriteToContract();
-    function handleApprove() {
-        approve({
-            contractName: 'ERC20',
-            contractAddress: tokenAddress,
-            functionName: 'approve',
-            args: [
-                rewardAddress,
-                fundAmount,
-            ],
-        });
-    }
-
+    const { writeContractAsync: approve, success } = wagmiWriteToContract();
     // Fund
     const { writeContractAsync: fundExam } = wagmiWriteToContract();
-    function handleFundExam() {
+    async function handleFundExam() {
+        if (allowance < fundAmount)
+            await approve({
+                contractName: 'ERC20',
+                contractAddress: tokenAddress,
+                functionName: 'approve',
+                args: [
+                    rewardAddress,
+                    fundAmount,
+                ],
+                onSuccess: () => {}
+            });
+        
         fundExam({
             contractName: 'Reward',
             contractAddress: rewardAddress,
@@ -174,14 +174,10 @@ const ManageReward = ({id}: {id: bigint}) => {
                     placeholder="Fund Amount"
                     onChange={(e: any) => setFundAmount(e.target.value)}
                 />
-                {allowance >= fundAmount
-                ? <Button disabled={!fundAmount} onClick={handleFundExam} className="block mt-5 bg-base-100" >
+                <Button disabled={!fundAmount} onClick={handleFundExam} className="block mt-5 bg-base-100" >
                     Fund Reward
                 </Button>
-                : <Button disabled={!fundAmount} onClick={handleApprove} className="block mt-5 bg-base-100" >
-                    Approve
-                </Button>
-                }
+
 
                 {/* SET REWARD AMOUNT PER PERSON */}
                 <SubHeading><><div>Set Reward Amount</div><div>{"\n"}Per Person</div></></SubHeading>
