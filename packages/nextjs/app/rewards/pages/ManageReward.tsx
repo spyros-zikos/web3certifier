@@ -58,7 +58,9 @@ const ManageReward = ({id}: {id: bigint}) => {
                     rewardAddress,
                     fundAmount,
                 ],
-                onSuccess: () => {}
+                onSuccess: () => {
+                    // do nothing
+                }
             });
         
         fundExam({

@@ -39,7 +39,9 @@ const CreateReward = ({id}: {id: bigint}) => {
                     rewardFactoryAddress,
                     initialRewardAmount,
                 ],
-                onSuccess: () => {}
+                onSuccess: () => {
+                    // do nothing
+                }
             });
 
         createReward({
