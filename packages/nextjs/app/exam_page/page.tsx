@@ -267,8 +267,10 @@ const ExamPage = () => {
                 answers={answers}
                 setAnswers={setAnswers}
             />
-            {getExamStage() === ExamStage.User_OpenNotSubmitted &&
-                <div className="mt-4 fixed bottom-10 right-20">
+            {(getExamStage() === ExamStage.User_OpenNotSubmitted ||
+                getExamStage() === ExamStage.User_OpenSubmitted ||
+                getExamStage() === ExamStage.Certifier_Open
+            ) && <div className="mt-4 fixed bottom-10 right-20">
                     Time Left To Submit: {exam && getTimeLeft(timeNow, exam.endTime)}
                 </div>
             }
