@@ -259,7 +259,7 @@ const ExamPage = () => {
                     (getExamStage() === ExamStage.Certifier_Correct)
                 }
                 showRewards={
-                    (rewardAddress !== ZERO_ADDRESS && getExamStage() === ExamStage.User_EndSuccessStats) ||
+                    rewardAddress !== ZERO_ADDRESS ||
                     getExamStage() === ExamStage.Certifier_Open ||
                     getExamStage() === ExamStage.Certifier_Correct ||
                     getExamStage() === ExamStage.Certifier_EndStats

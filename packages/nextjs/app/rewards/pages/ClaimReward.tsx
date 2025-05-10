@@ -4,6 +4,7 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { useAccount } from "wagmi";
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
+import RewardInfo from '../_components/RewardInfo';
 
 const ClaimReward = ({id}: {id: bigint}) => {
     const { address } = useAccount();
@@ -55,7 +56,8 @@ const ClaimReward = ({id}: {id: bigint}) => {
     return (
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Claim Reward</TitleWithLinkToExamPage>
-            <div>You can claim {getRewardAmountForUser?getRewardAmountForUser.toString():"0"} {tokenName?tokenName:""}!</div>
+            <RewardInfo id={id}/>
+            <div className="mt-8">You can claim {getRewardAmountForUser?getRewardAmountForUser.toString():"0"} {tokenName?tokenName:""}!</div>
             <Button onClick={handleClaim} className="block mt-5 bg-base-100 w-[200px] h-[70px] text-xl font-bold" >
                 Claim
             </Button>

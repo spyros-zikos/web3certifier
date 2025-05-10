@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react'
 import { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
@@ -5,6 +7,8 @@ import { Button, Input, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
+import RewardInfo from '../_components/RewardInfo';
+import SubHeading from '../_components/SubHeading';
 
 const ManageReward = ({id}: {id: bigint}) => {
     const { address } = useAccount();
@@ -27,25 +31,6 @@ const ManageReward = ({id}: {id: bigint}) => {
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getTokenAddress",
-    }).data;
-
-    const rewardAmountPerPersonFromContract: string = wagmiReadFromContract({
-        contractName: "Reward",
-        contractAddress: rewardAddress,
-        functionName: "getRewardAmountPerPerson",
-    }).data;
-
-    const rewardAmountPerCorrectAnswerFromContract: string = wagmiReadFromContract({
-        contractName: "Reward",
-        contractAddress: rewardAddress,
-        functionName: "getRewardAmountPerCorrectAnswer",
-    }).data;
-
-    const balance: bigint  = wagmiReadFromContract({
-        contractName: "ERC20",
-        contractAddress: tokenAddress,
-        functionName: "balanceOf",
-        args: [rewardAddress],
     }).data;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -137,10 +122,6 @@ const ManageReward = ({id}: {id: bigint}) => {
 
     const labelMarginAndPadding = 'ml-2 mt-4 block';
 
-    const SubHeading = ({ children }: { children: React.ReactNode }) => (
-        <div className="text-2xl font-bold mt-9 ml-2">{children}</div>
-    );
-
     // should:
     // 1. show reward details
     // 2. fund - 1 input
@@ -152,18 +133,8 @@ const ManageReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Manage Reward</TitleWithLinkToExamPage>
             <div>
-                <SubHeading>Info</SubHeading>
-                <div className={`${labelMarginAndPadding}`}>Reward Balance</div>
-                <div className={'ml-2'}>{balance?balance.toString():"0"}</div>
-                
-                <div className={`${labelMarginAndPadding}`}>Reward Amount Per Person</div>
-                <div className={'ml-2'}>{rewardAmountPerPersonFromContract?rewardAmountPerPersonFromContract.toString():"0"}</div>
-
-                <div className={`${labelMarginAndPadding}`}>Reward Amount Per Correct Answer</div>
-                <div className={'ml-2'}>{rewardAmountPerCorrectAnswerFromContract?rewardAmountPerCorrectAnswerFromContract.toString():"0"}</div>
-
-                <div className={`${labelMarginAndPadding}`}>Token Address</div>
-                <div className={'ml-2 max-w-[250px] text-wrap'}>{tokenAddress?tokenAddress:"unknown"}</div>
+                {/* REWARD INFO */}
+                <RewardInfo id={id}/>
 
                 {/* FUND */}
                 <SubHeading>Fund</SubHeading>
