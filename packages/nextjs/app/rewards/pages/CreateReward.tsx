@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Button, Title, Input, Text, PageWrapper } from "~~/components";
+import { Button, Input, Text, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import { chainsToContracts } from '~~/constants';

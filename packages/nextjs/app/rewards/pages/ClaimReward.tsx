@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Title, Input, PageWrapper } from "~~/components";
+import { Button, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { useAccount } from "wagmi";

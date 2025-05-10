@@ -1,10 +1,9 @@
 import React from 'react'
 import { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Button, Title, Input, PageWrapper } from "~~/components";
+import { Button, Input, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
-import LinkToExamPage from '../_components/LinkToExamPage';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 
 const ManageReward = ({id}: {id: bigint}) => {
