@@ -194,7 +194,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => setRewardAmountPerPerson(e.target.value)}
                 />
                 <Button disabled={!rewardAmountPerPerson} onClick={handleSetRewardAmountPerPerson} className="block mt-5 bg-base-100" >
-                    Create Reward
+                    Set Amount
                 </Button>
 
                 {/* SET REWARD AMOUNT PER CORRECT ANSWER */}
@@ -207,7 +207,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => setRewardAmountPerCorrectAnswer(e.target.value)}
                 />
                 <Button disabled={!rewardAmountPerCorrectAnswer} onClick={handleSetRewardAmountPerCorrectAnswer} className="block mt-5 bg-base-100" >
-                    Create Reward
+                    Set Amount
                 </Button>
 
                 {/* WITHDRAW */}
