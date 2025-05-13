@@ -77,7 +77,7 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
                                 }}
                             >
                                 <label className={"mt-6 mb-1 block"}>Question {index+1}</label>
-                                <div className="mb-2 border-2 border-gray-400 p-2">
+                                <div className="mb-2 border-2 border-gray-400 p-2 py-1 rounded-md">
                                     <div className="whitespace-pre-wrap">{question}</div>
                                     {showAnswers &&
                                     <div className="mt-4">
