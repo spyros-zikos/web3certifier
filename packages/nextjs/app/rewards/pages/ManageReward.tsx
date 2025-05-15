@@ -63,7 +63,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                 functionName: 'approve',
                 args: [
                     rewardAddress,
-                    scaledFundAmount,
+                    BigInt(scaledFundAmount),
                 ],
                 onSuccess: () => {
                     // do nothing
@@ -75,7 +75,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             contractAddress: rewardAddress,
             functionName: 'fund',
             args: [
-                scaledFundAmount
+                BigInt(scaledFundAmount)
             ],
         });
     }
@@ -89,7 +89,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             contractAddress: rewardAddress,
             functionName: 'setRewardAmountPerPerson',
             args: [
-                scaledRewardAmountPerPerson
+                BigInt(scaledRewardAmountPerPerson)
             ],
         });
     }
@@ -103,7 +103,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             contractAddress: rewardAddress,
             functionName: 'setRewardAmountPerCorrectAnswer',
             args: [
-                scaledRewardAmountPerCorrectAnswer
+                BigInt(scaledRewardAmountPerCorrectAnswer)
             ],
         });
     }
