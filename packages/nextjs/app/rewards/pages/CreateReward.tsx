@@ -6,13 +6,14 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import { chainsToContracts } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
+import { Float } from '@chakra-ui/react';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
 
-    const [initialRewardAmount, setInitialRewardAmount] = useState<bigint>(BigInt(0));
-    const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<bigint>(BigInt(0));
-    const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<bigint>(BigInt(0));
+    const [initialRewardAmount, setInitialRewardAmount] = useState<number>(0);
+    const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<number>(0);
+    const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
     const [tokenAddress, setTokenAddress] = useState<string>("");
     const rewardFactoryAddress = chainsToContracts[chain?chain?.id:11155111]["RewardFactory"].address;
 
@@ -23,6 +24,12 @@ const CreateReward = ({id}: {id: bigint}) => {
         args: [address, rewardFactoryAddress],
     }).data;
 
+    const decimals: bigint  = wagmiReadFromContract({
+        contractName: "ERC20",
+        contractAddress: tokenAddress,
+        functionName: "decimals",
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -30,14 +37,18 @@ const CreateReward = ({id}: {id: bigint}) => {
     const { writeContractAsync: approve } = wagmiWriteToContract();
     const { writeContractAsync: createReward } = wagmiWriteToContract();
     async function handleCreateReward() {
-        if (allowance < initialRewardAmount)
+        const scaledInitialRewardAmount = initialRewardAmount * (Number(10) ** Number(decimals));
+        const scaledRewardAmountPerPerson = rewardAmountPerPerson * (Number(10) ** Number(decimals));
+        const scaledRewardAmountPerCorrectAnswer = rewardAmountPerCorrectAnswer * (Number(10) ** Number(decimals));
+
+        if (allowance < scaledInitialRewardAmount)
             await approve({
                 contractName: 'ERC20',
                 contractAddress: tokenAddress,
                 functionName: 'approve',
                 args: [
                     rewardFactoryAddress,
-                    initialRewardAmount,
+                    scaledInitialRewardAmount,
                 ],
                 onSuccess: () => {
                     // do nothing
@@ -49,9 +60,9 @@ const CreateReward = ({id}: {id: bigint}) => {
             functionName: 'createReward',
             args: [
                 id,
-                initialRewardAmount,
-                rewardAmountPerPerson,
-                rewardAmountPerCorrectAnswer,
+                scaledInitialRewardAmount,
+                scaledRewardAmountPerPerson,
+                scaledRewardAmountPerCorrectAnswer,
                 tokenAddress
             ],
         });

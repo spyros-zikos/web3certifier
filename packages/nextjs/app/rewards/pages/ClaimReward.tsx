@@ -34,10 +34,16 @@ const ClaimReward = ({id}: {id: bigint}) => {
         args: [address],
     }).data;
 
-    const tokenName: string  = wagmiReadFromContract({
+    const tokenSymbol: string  = wagmiReadFromContract({
         contractName: "ERC20",
         contractAddress: tokenAddress,
-        functionName: "name",
+        functionName: "symbol",
+    }).data;
+
+    const decimals: bigint  = wagmiReadFromContract({
+        contractName: "ERC20",
+        contractAddress: tokenAddress,
+        functionName: "decimals",
     }).data;
 
     /*//////////////////////////////////////////////////////////////
@@ -54,12 +60,16 @@ const ClaimReward = ({id}: {id: bigint}) => {
         });
     }
 
+    const scaledRewardAmountForUser = Number(getRewardAmountForUser) / (Number(10) ** Number(decimals));
+
     return (
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Claim Reward</TitleWithLinkToExamPage>
             <div>
             <SubHeading>Claim</SubHeading>
-            <div className="mt-4 ml-2 max-w-[250px] wrap">You can claim {getRewardAmountForUser?getRewardAmountForUser.toString():"0"} {tokenName?tokenName:""}!</div>
+            <div className="mt-4 ml-2 max-w-[250px] wrap">
+                You can claim {scaledRewardAmountForUser?scaledRewardAmountForUser.toString():"0"} {tokenSymbol?tokenSymbol:""}!
+            </div>
             <Button onClick={handleClaim} className="block mt-5 bg-base-100 w-full h-[70px] text-xl font-bold" >
                 Claim
             </Button>

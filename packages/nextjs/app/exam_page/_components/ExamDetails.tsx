@@ -7,6 +7,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Button } from "~~/components";
 import { Accordion } from "@chakra-ui/react"
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
+import { Address } from "~~/components/scaffold-eth";
 
 const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, showRewards, answers, setAnswers}:
     {
@@ -52,7 +53,9 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
                                 <ExamDetail name="Status" value={getExamStatusStr(status)} />
                                 <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
                                 <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
-                                <ExamDetail name="Certifier" value={exam?.certifier} />
+                                <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
+                                
+                                
                                 <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
                                 <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
                                 <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />

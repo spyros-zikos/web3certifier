@@ -40,23 +40,30 @@ const ManageReward = ({id}: {id: bigint}) => {
         args: [address, rewardAddress],
     }).data;
 
+    const decimals: bigint  = wagmiReadFromContract({
+        contractName: "ERC20",
+        contractAddress: tokenAddress,
+        functionName: "decimals",
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
     // Approve
-    const { writeContractAsync: approve, success } = wagmiWriteToContract();
+    const { writeContractAsync: approve } = wagmiWriteToContract();
     // Fund
     const { writeContractAsync: fundExam } = wagmiWriteToContract();
     async function handleFundExam() {
-        if (allowance < fundAmount)
+        const scaledFundAmount = Number(fundAmount) * (Number(10) ** Number(decimals));
+        if (allowance < scaledFundAmount)
             await approve({
                 contractName: 'ERC20',
                 contractAddress: tokenAddress,
                 functionName: 'approve',
                 args: [
                     rewardAddress,
-                    fundAmount,
+                    scaledFundAmount,
                 ],
                 onSuccess: () => {
                     // do nothing
@@ -68,7 +75,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             contractAddress: rewardAddress,
             functionName: 'fund',
             args: [
-                fundAmount
+                scaledFundAmount
             ],
         });
     }
@@ -76,12 +83,13 @@ const ManageReward = ({id}: {id: bigint}) => {
     // Set reward amount per person
     const { writeContractAsync: setRewardAmountPerPersonHook } = wagmiWriteToContract();
     function handleSetRewardAmountPerPerson() {
+        const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) * (Number(10) ** Number(decimals));
         setRewardAmountPerPersonHook({
             contractName: 'Reward',
             contractAddress: rewardAddress,
             functionName: 'setRewardAmountPerPerson',
             args: [
-                rewardAmountPerPerson
+                scaledRewardAmountPerPerson
             ],
         });
     }
@@ -89,12 +97,13 @@ const ManageReward = ({id}: {id: bigint}) => {
     // Set reward amount per correct answer
     const { writeContractAsync: setRewardAmountPerCorrectAnswerHook } = wagmiWriteToContract();
     function handleSetRewardAmountPerCorrectAnswer() {
+        const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) * (Number(10) ** Number(decimals));
         setRewardAmountPerCorrectAnswerHook({
             contractName: 'Reward',
             contractAddress: rewardAddress,
             functionName: 'setRewardAmountPerCorrectAnswer',
             args: [
-                rewardAmountPerCorrectAnswer
+                scaledRewardAmountPerCorrectAnswer
             ],
         });
     }
@@ -151,7 +160,6 @@ const ManageReward = ({id}: {id: bigint}) => {
                     Fund Reward
                 </Button>
 
-
                 {/* SET REWARD AMOUNT PER PERSON */}
                 <SubHeading><><div>Set Reward Amount</div><div>{"\n"}Per Person</div></></SubHeading>
                 <label className={`${labelMarginAndPadding}`}>Reward Amount Per Person</label>
@@ -183,6 +191,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                 <Button onClick={handleWithdraw} className="block mt-5 bg-base-100" >
                     Withdraw
                 </Button>
+                
                 {/* DELETE */}
                 <SubHeading>Delete Reward</SubHeading>
                 <Button onClick={handleRemoveReward} className="block mt-5 bg-base-100" >
