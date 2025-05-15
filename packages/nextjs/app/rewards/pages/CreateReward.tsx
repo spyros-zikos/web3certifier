@@ -48,7 +48,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                 functionName: 'approve',
                 args: [
                     rewardFactoryAddress,
-                    scaledInitialRewardAmount,
+                    BigInt(scaledInitialRewardAmount),
                 ],
                 onSuccess: () => {
                     // do nothing
@@ -60,9 +60,9 @@ const CreateReward = ({id}: {id: bigint}) => {
             functionName: 'createReward',
             args: [
                 id,
-                scaledInitialRewardAmount,
-                scaledRewardAmountPerPerson,
-                scaledRewardAmountPerCorrectAnswer,
+                BigInt(scaledInitialRewardAmount),
+                BigInt(scaledRewardAmountPerPerson),
+                BigInt(scaledRewardAmountPerCorrectAnswer),
                 tokenAddress
             ],
         });
