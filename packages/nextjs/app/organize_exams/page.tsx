@@ -72,7 +72,7 @@ const CreateExam = () => {
         }, []
     );
 
-    const { getRootProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
+    const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
     const dropZoneRef: React.LegacyRef<HTMLDivElement> | undefined = createRef();
 
     const labelMarginAndPadding = 'm-2 mt-4 block';
@@ -133,6 +133,8 @@ const CreateExam = () => {
                         ref={dropZoneRef}
                         className="m-auto my-6 w-[300px] h-[300px] bg-neutral flex justify-center items-center rounded-lg"
                     >
+                        <input {...getInputProps()} />
+                        <div className={(imageUrl ? "auto" : "cursor-pointer")}>
                         {imageUrl ?
                         (
                             <div className="self-center flex justify-center items-center w-full h-full">
@@ -145,6 +147,7 @@ const CreateExam = () => {
                                 <div className="text-gray-300">Upload Image</div>
                             </div>
                         )}
+                        </div>
                     </div>
 
                     <div className="m-auto divider my-4 max-w-[300px]">OR</div>
