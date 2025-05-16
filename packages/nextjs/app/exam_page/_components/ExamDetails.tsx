@@ -53,12 +53,10 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
                                 <ExamDetail name="Status" value={getExamStatusStr(status)} />
                                 <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
                                 <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
-                                <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
-                                
-                                
-                                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
                                 <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
+                                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
                                 <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />
+                                <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
                             </Accordion.ItemBody>
                         </Accordion.ItemContent>
                     </Accordion.Item>
