@@ -8,11 +8,10 @@ const VerifyAccountMessage = () => {
 }
 
 // Password
-
 export function getHashedAnswerAndMessageWithPassword(
     answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
 ): [
-    message: any, hashedAnswer: string|undefined
+    message: any, hashedAnswer: string|undefined, userPassword: string
 ] {
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
     
@@ -25,9 +24,30 @@ export function getHashedAnswerAndMessageWithPassword(
     const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
     const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
 
-    return [message, hashedAnswer];
+    return [message, hashedAnswer, ""];
 }
 
+// Cookies
+export function getHashedAnswerAndMessageWithCookies(
+    answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
+): [
+    message: any, hashedAnswer: string|undefined, userPassword: string
+] {
+    const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
+    
+    // Get answers as string
+    const answersAsString: string = answers ? getAnswersAsString(answers) : "0";
+    // Get hash of answers, key and address
+    const hashedAnswer = address ? web3.utils.soliditySha3(answersAsString, randomKey, address) : '';
+
+    // message
+    const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
+    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
+
+    return [message, hashedAnswer, userPassword];
+}
+
+// Retrieve password
 export function getVariablesFromPasswordOrCookies(
     password: string, address?: string, userHashedSubmittedAnswer?: string
 ): [
@@ -46,29 +66,6 @@ export function getVariablesFromPasswordOrCookies(
     const passwordHashGood = hashFromInputedPassword === userHashedSubmittedAnswer;
 
     return [key, answers, passwordHashGood]
-}
-
-// Cookies
-
-export function getHashedAnswerAndMessageWithCookies(
-    answers: bigint[], randomKey: number, examId: bigint, updateCookie: boolean, chainId?: number, address?: string, needsVerification?: boolean
-): [
-    message: any, hashedAnswer: string|undefined
-] {
-    const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
-    
-    // Get answers as string
-    const answersAsString: string = answers ? getAnswersAsString(answers) : "0";
-    // Get hash of answers, key and address
-    const hashedAnswer = address ? web3.utils.soliditySha3(answersAsString, randomKey, address) : '';
-
-    // message
-    const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
-    if (updateCookie)
-        Cookies.set(`w3c.${chainId}.${examId}.${address}`, userPassword, { expires: 10000 });
-    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
-
-    return [message, hashedAnswer];
 }
 
 

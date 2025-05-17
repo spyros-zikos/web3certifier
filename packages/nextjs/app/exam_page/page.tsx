@@ -76,7 +76,7 @@ const ExamPage = () => {
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: submitAnswers, isMining: isSubmitting, success: isSubmitted } = wagmiWriteToContract();
+    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
     const { writeContractAsync: refundExam } = wagmiWriteToContract();
     const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const { writeContractAsync: correctExam } = wagmiWriteToContract();
@@ -116,14 +116,30 @@ const ExamPage = () => {
 
     const getExamStageMessageAndButton = (examStage: any): ExamPageDynamicElements => {
         switch (examStage) {
-            case ExamStage.Certifier_Open:
-                return { message: "This exam is ongoing! The certifier cannot submit.", buttonAction: undefined, buttonText: undefined };
+            case ExamStage.User_OpenNotSubmitted:
+                const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
+                const [userNotSubmittedMessage, hashedAnswerToSubmit, userPassword] = exam?.userClaimsWithPassword
+                    ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, needsVerification)
+                    : getHashedAnswerAndMessageWithCookies(answers, randomKey, address, needsVerification);
+                return {
+                    message: userNotSubmittedMessage,
+                    buttonAction: () => 
+                        {
+                            // set cookie
+                            Cookies.set(`w3c.${chain?.id}.${id}.${address}`, userPassword, { expires: 10000 });
+
+                            hashedAnswerToSubmit
+                            ? exam && (exam.price > 0 ? examPriceInEth : true)
+                                && answers.length === exam.questions.length
+                                && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!)
+                            : 0
+                        },
+                    buttonText: "Submit"
+                };
             case ExamStage.User_OpenSubmitted:
                 return { message: "Your answers are submitted!", buttonAction: undefined, buttonText: undefined };
             case ExamStage.User_WaitForCorrection:
-                return { message: "This exam is being corrected by the certifier!", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.Certifier_EndStats:
-                return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
+                return { message: "This exam is being corrected by the certifier!", buttonAction: undefined, buttonText: undefined };  
             case ExamStage.User_EndSuccessStats:
                 return { message: <div>This exam has ended! You completed it successfully!</div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.User_EndFailStats:
@@ -139,31 +155,6 @@ const ExamPage = () => {
                 }; // Can add stats
             case ExamStage.User_Details:
                 return { message: "This exam has ended. You did not participate!", buttonAction: undefined, buttonText: undefined }; // Can add stats
-            case ExamStage.Both_CancelStats:
-                return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.User_OpenNotSubmitted:
-                const updateCookie = !isSubmitting && !isSubmitted;
-                const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-                const [message, hashedAnswer] = exam?.userClaimsWithPassword
-                    ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, needsVerification)
-                    : getHashedAnswerAndMessageWithCookies(answers, randomKey, id, updateCookie, chain?.id, address, needsVerification);
-                return {
-                    message: message,
-                    buttonAction: () => 
-                        {hashedAnswer
-                            ? exam && (exam.price > 0 ? examPriceInEth : true)
-                                && answers.length === exam.questions.length
-                                && handleSubmitAnswers(submitAnswers, id, hashedAnswer, examPriceInEth!)
-                            : 0
-                        },
-                    buttonText: "Submit"
-                };
-            case ExamStage.Certifier_Correct:
-                return {
-                    message: "This exam needs correcting. Please provide the correct answers within the correction period of the exam.",
-                    buttonAction: () => {handleCorrectExam(correctExam, id, answers.map(answer => answer.toString()).reduce((a, b) => a + b, ""))},
-                    buttonText: "Correct Exam"
-                };
             case ExamStage.User_ClaimRefund:
                 return {
                     message: "You can claim your refund!",
@@ -204,7 +195,19 @@ const ExamPage = () => {
                     buttonText:
                         (passwordHashGood) ? "Claim Certificate" : undefined
                 };
-
+            case ExamStage.Certifier_Open:
+                return { message: "This exam is ongoing! The certifier cannot submit.", buttonAction: undefined, buttonText: undefined };
+            case ExamStage.Certifier_Correct:
+                return {
+                    message: "This exam needs correcting. Please provide the correct answers within the correction period of the exam.",
+                    buttonAction: () => {handleCorrectExam(correctExam, id, answers.map(answer => answer.toString()).reduce((a, b) => a + b, ""))},
+                    buttonText: "Correct Exam"
+                };
+            case ExamStage.Certifier_EndStats:
+                return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
+            case ExamStage.Both_CancelStats:
+                return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
+            
             default:
                 return { message: "Unknown stage", buttonAction: undefined, buttonText: undefined };
         }

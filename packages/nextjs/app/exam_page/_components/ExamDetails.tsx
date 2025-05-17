@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { VStack, Image, Box } from "@chakra-ui/react";
 import ExamDetail from "./ExamDetail";
 import { defaultImage } from "~~/constants";

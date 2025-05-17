@@ -20,7 +20,7 @@ export function wagmiWriteToContract() {
     const { chain } = useAccount();
     const { targetNetwork } = useTargetNetwork();
     const [isMining, setIsMining] = useState(false);
-    const [success, setSuccess] = useState(false);
+    const [success, setSuccess] = useState(false); // might not be needed
     
     async function sendContractWriteAsyncTx(params: Params) {
         if (!chain?.id) {
