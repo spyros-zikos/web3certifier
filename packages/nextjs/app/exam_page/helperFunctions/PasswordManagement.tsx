@@ -35,14 +35,16 @@ export function getHashedAnswerAndMessageWithCookies(
 ] {
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
     
+    // message
+    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
+
     // Get answers as string
     const answersAsString: string = answers ? getAnswersAsString(answers) : "0";
     // Get hash of answers, key and address
     const hashedAnswer = address ? web3.utils.soliditySha3(answersAsString, randomKey, address) : '';
 
-    // message
+    // password
     const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
-    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
 
     return [message, hashedAnswer, userPassword];
 }
