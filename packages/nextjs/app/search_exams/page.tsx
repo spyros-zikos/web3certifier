@@ -60,7 +60,7 @@ const SearchExamsPage: React.FC = () => {
     const endIndex = startIndex + examsPerPage;
     const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
 
-    if (!chain?.id || !SUPPORTED_NETWORKS.includes(chain?.id!))
+    if (!chain || !chain.id || !SUPPORTED_NETWORKS.includes(chain?.id))
         return (
             <PageWrapper>
                 <Title>Explore Exams</Title>
