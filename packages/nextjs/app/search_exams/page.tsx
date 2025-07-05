@@ -7,6 +7,7 @@ import { PageSelector } from "./_components/PageSelector";
 import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { SUPPORTED_NETWORKS } from "~~/constants";
 
 
 const SearchExamsPage: React.FC = () => {
@@ -59,6 +60,14 @@ const SearchExamsPage: React.FC = () => {
     const endIndex = startIndex + examsPerPage;
     const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
 
+    if (!chain?.id || !SUPPORTED_NETWORKS.includes(chain?.id!))
+        return (
+            <PageWrapper>
+                <Title>Explore Exams</Title>
+            <p className="text-center">Connect your wallet to Arbitrum or Celo.</p>
+            </PageWrapper>
+        );
+
     return (
         <PageWrapper>
             <Title>Explore Exams</Title>
@@ -71,7 +80,6 @@ const SearchExamsPage: React.FC = () => {
                     onChange={(e: any) => { setShowMyExams(e.target.checked); }}
                 />
             </div>
-            {!chain?.id && <p className="text-center">Connect your wallet to Arbitrum or Celo.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 space-14">
                 {(examsIdsOfPage)?.map((id, i) => (
                     <ExamCard key={i}
