@@ -69,7 +69,7 @@ const CreateReward = ({id}: {id: bigint}) => {
     }
 
     const requiredDetailsAreFilled = () => {
-        return (chain?.id === 42220 || tokenAddress) && rewardAmountPerPerson;
+        return tokenAddress && rewardAmountPerPerson;
     }
 
     const labelMarginAndPadding = 'm-2 mt-4 block';
