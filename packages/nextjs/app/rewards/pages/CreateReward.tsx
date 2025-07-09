@@ -6,7 +6,6 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import { chainsToContracts } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
-import { set } from 'nprogress';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -38,9 +37,6 @@ const CreateReward = ({id}: {id: bigint}) => {
     const { writeContractAsync: approve } = wagmiWriteToContract();
     const { writeContractAsync: createReward } = wagmiWriteToContract();
     async function handleCreateReward() {
-        if (chain?.id === 42220) {
-            setTokenAddress(goodDollarToken);
-        }
         const scaledInitialRewardAmount = initialRewardAmount * (Number(10) ** Number(decimals));
         const scaledRewardAmountPerPerson = rewardAmountPerPerson * (Number(10) ** Number(decimals));
         const scaledRewardAmountPerCorrectAnswer = rewardAmountPerCorrectAnswer * (Number(10) ** Number(decimals));
