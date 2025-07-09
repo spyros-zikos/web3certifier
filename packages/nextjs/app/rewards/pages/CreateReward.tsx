@@ -6,7 +6,7 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import { chainsToContracts } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
-import { Float } from '@chakra-ui/react';
+import { set } from 'nprogress';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -14,7 +14,8 @@ const CreateReward = ({id}: {id: bigint}) => {
     const [initialRewardAmount, setInitialRewardAmount] = useState<number>(0);
     const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<number>(0);
     const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
-    const [tokenAddress, setTokenAddress] = useState<string>("");
+    const goodDollarToken = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
+    const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? goodDollarToken : "");
     const rewardFactoryAddress = chainsToContracts[chain?chain?.id:11155111]["RewardFactory"].address;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -37,6 +38,9 @@ const CreateReward = ({id}: {id: bigint}) => {
     const { writeContractAsync: approve } = wagmiWriteToContract();
     const { writeContractAsync: createReward } = wagmiWriteToContract();
     async function handleCreateReward() {
+        if (chain?.id === 42220) {
+            setTokenAddress(goodDollarToken);
+        }
         const scaledInitialRewardAmount = initialRewardAmount * (Number(10) ** Number(decimals));
         const scaledRewardAmountPerPerson = rewardAmountPerPerson * (Number(10) ** Number(decimals));
         const scaledRewardAmountPerCorrectAnswer = rewardAmountPerCorrectAnswer * (Number(10) ** Number(decimals));
@@ -69,7 +73,7 @@ const CreateReward = ({id}: {id: bigint}) => {
     }
 
     const requiredDetailsAreFilled = () => {
-        return tokenAddress&&rewardAmountPerPerson;
+        return (chain?.id === 42220 || tokenAddress) && rewardAmountPerPerson;
     }
 
     const labelMarginAndPadding = 'm-2 mt-4 block';
@@ -78,7 +82,7 @@ const CreateReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
-                <label className={`${labelMarginAndPadding}`}>Token Address *</label>
+                {chain?.id !== 42220 && <><label className={`${labelMarginAndPadding}`}>Token Address *</label>
                 <Input
                     value={tokenAddress}
                     type="text"
@@ -86,7 +90,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => {
                         setTokenAddress(e.target.value);
                     }}
-                />
+                /></>}
                 <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
                 <Input
                     value={initialRewardAmount}
