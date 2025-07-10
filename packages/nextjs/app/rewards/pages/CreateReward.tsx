@@ -78,7 +78,7 @@ const CreateReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
-                {chain?.id !== 42220 && <><label className={`${labelMarginAndPadding}`}>Token Address *</label>
+                {chain?.id !== 42220 ? <><label className={`${labelMarginAndPadding}`}>Token Address *</label>
                 <Input
                     value={tokenAddress}
                     type="text"
@@ -86,7 +86,8 @@ const CreateReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => {
                         setTokenAddress(e.target.value);
                     }}
-                /></>}
+                /></>
+            : <>Reward users with G$ tokens!</>}
                 <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
                 <Input
                     value={initialRewardAmount}
