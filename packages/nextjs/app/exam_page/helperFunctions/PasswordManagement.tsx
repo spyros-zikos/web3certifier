@@ -1,10 +1,9 @@
 import { Web3 } from "web3";
-import Cookies from 'js-cookie';
 
 export const keyLength = 10;
 
 const VerifyAccountMessage = () => {
-    return <div>{"\n"}You need to verify your account.{"\n"}You can do this <a className="text-base-100" href='https://gooddapp.org/#/claim'>here</a>.</div>
+    return <div>{"\n"}You need to verify your account.{"\n"}You can do this <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a> by clicking on the 'CLAIM NOW' button</div>
 }
 
 // Password
