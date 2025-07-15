@@ -3,7 +3,7 @@ import { Web3 } from "web3";
 export const keyLength = 10;
 
 const VerifyAccountMessage = () => {
-    return <div>{"\n"}You need to verify your account.{"\n"}Click on the {'"'}CLAIM NOW"{'"'} button <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a>.</div>
+    return <div>{"\n"}You need to verify your account.{"\n"}Click on the &quot;CLAIM NOW&quot; button <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a>.</div>
 }
 
 // Password
