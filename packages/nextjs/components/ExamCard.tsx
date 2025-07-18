@@ -72,10 +72,10 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             {/* {exam.description} */}
             <SimpleGrid columns={2} gap={0}>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="3">Price</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Price</Text>
                 </Box>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="3">Status</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Status</Text>
                 </Box>
 
                 <Box fontWeight="bold">
@@ -86,10 +86,10 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                 </Box>
 
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="3">End Time</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">End Time</Text>
                 </Box>
                 <Box>
-                    <Text fontSize="12" p="0" m="0" mt="3">Certifier</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Certifier</Text>
                 </Box>
 
                 <Box fontWeight="bold">
