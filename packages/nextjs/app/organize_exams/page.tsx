@@ -6,15 +6,20 @@ import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
-import { defaultImage } from "~~/constants";
+import { answersSeparator, defaultImage } from "~~/constants";
 import { Accordion } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { set } from "nprogress";
 
 const CreateExam = () => {
     const [questions, setQuestions] = useState<string[]>([""]);
+    const [answers1, setAnswers1] = useState<string[]>([""]); // all answers 1
+    const [answers2, setAnswers2] = useState<string[]>([""]);
+    const [answers3, setAnswers3] = useState<string[]>([""]);
+    const [answers4, setAnswers4] = useState<string[]>([""]);
     const [name, setname] = useState<string>("");
-    const [description, setdescription] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
     const [endTime, setendTime] = useState<string>("");
     const [price, setprice] = useState<number>();
     const [baseScore, setbaseScore] = useState<string>("");
@@ -52,7 +57,14 @@ const CreateExam = () => {
                 name,
                 description,
                 BigInt(new Date(endTime.toString()).getTime() / 1000),
-                questions,
+                questions.map(
+                    (question, index) => 
+                        question + answersSeparator +
+                        answers1[index] + answersSeparator +
+                        answers2[index] + answersSeparator +
+                        answers3[index] + answersSeparator +
+                        answers4[index]
+                ),
                 price ? BigInt(price * 1e18) : BigInt(0),
                 BigInt(baseScore ? baseScore : Math.ceil(questions.length / 2)),
                 imageUrl || defaultImage,
@@ -77,6 +89,8 @@ const CreateExam = () => {
 
     const labelMarginAndPadding = 'm-2 mt-4 block';
 
+    console.log(answers1);
+
     return (
         <PageWrapper>
             <Title>Create Exams</Title>
@@ -96,7 +110,7 @@ const CreateExam = () => {
                     type="text"
                     placeholder="Description"
                     onChange={(e: any) => {
-                        setdescription(e.target.value);
+                        setDescription(e.target.value);
                     }}
                 />
                 <label className={`${labelMarginAndPadding}`}>End Time *</label>
@@ -109,20 +123,72 @@ const CreateExam = () => {
                 />
                 <label className={`${labelMarginAndPadding}`}>Questions *</label>
                 {questions.map((question, indx) => (
+                    <>
                     <TextArea
-                    key={indx}
-                    value={question}
-                    placeholder={`Question ${indx+1}`}
-                    onChange={(e: any) => {
-                        setQuestions(questions.map((q, n) => n===indx?e.target.value:q));
-                    }}
-                />
+                        key={indx}
+                        value={question}
+                        placeholder={`Question ${indx+1}`}
+                        onChange={(e: any) => {
+                            setQuestions(questions.map((q, n) => n===indx?e.target.value:q));
+                        }}
+                    />
+                    <Input
+                        key={"a1"+indx}
+                        value={answers1[indx]}
+                        type="text"
+                        placeholder="Answer 1"
+                        onChange={(e: any) => {
+                            setAnswers1(answers1.map((a, n) => n===indx?e.target.value:a));
+                        }}
+                    />
+                    <Input
+                        key={"a2"+indx}
+                        value={answers2[indx]}
+                        type="text"
+                        placeholder="Answer 2"
+                        onChange={(e: any) => {
+                            setAnswers2(answers2.map((a, n) => n===indx?e.target.value:a));
+                        }}
+                    />
+                    <Input
+                        key={"a3"+indx}
+                        value={answers3[indx]}
+                        type="text"
+                        placeholder="Answer 3"
+                        onChange={(e: any) => {
+                            setAnswers3(answers3.map((a, n) => n===indx?e.target.value:a));
+                        }}
+                    />
+                    <Input
+                        key={"a4"+indx}
+                        value={answers4[indx]}
+                        type="text"
+                        placeholder="Answer 4"
+                        onChange={(e: any) => {
+                            setAnswers4(answers4.map((a, n) => n===indx?e.target.value:a));
+                        }}
+                    />
+                </>
                 ))}
 
-                <Button className="bg-base-100" onClick={() => setQuestions([...questions, ""])}>
+                <Button className="bg-base-100" onClick={() => {
+                    setQuestions([...questions, ""]);
+                    setAnswers1([...answers1, ""]);
+                    setAnswers2([...answers2, ""]);
+                    setAnswers3([...answers3, ""]);
+                    setAnswers4([...answers4, ""]);
+                }}>
                     Add Question
                 </Button>
-                <Button className="bg-base-100" onClick={() => { if (questions.length > 1) setQuestions([...questions.slice(0, -1)]) }}>
+                <Button className="bg-base-100" onClick={() => {
+                    if (questions.length > 1) {
+                        setQuestions([...questions.slice(0, -1)])
+                        setAnswers1([...answers1.slice(0, -1)])
+                        setAnswers2([...answers2.slice(0, -1)])
+                        setAnswers3([...answers3.slice(0, -1)])
+                        setAnswers4([...answers4.slice(0, -1)])
+                    }
+                }}>
                     Remove Question
                 </Button>
 
