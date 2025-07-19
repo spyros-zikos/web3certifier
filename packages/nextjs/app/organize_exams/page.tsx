@@ -101,9 +101,8 @@ const CreateExam = () => {
                     }}
                 />
                 <label className={`${labelMarginAndPadding}`}>Description *</label>
-                <Input
+                <TextArea
                     value={description}
-                    type="text"
                     placeholder="Description"
                     onChange={(e: any) => {
                         setDescription(e.target.value);
