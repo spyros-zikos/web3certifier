@@ -12,7 +12,8 @@ const colors = {
     neutral: { value: "#F9FBFF" }, // white
     green: { value: "#84cc16" }, // base-100
     black: { value: "#18181B" }, // base-200
-    lighterBlack: { value: "#a0a0ab" }, // base-300
+    lighterBlack: { value: "#1F2937" },
+    lighterLighterBlack: { value: "#a0a0ab" }, // base-300
     info: { value: "#48F183" },
     success: { value: "#34EEB6" },
     warning: { value: "#FFCF72" },
