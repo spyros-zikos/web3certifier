@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { PageWrapper, Title } from "~~/components";
 import { useAccount } from "wagmi";
 import { handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/Handlers";
@@ -31,6 +31,8 @@ const ExamPage = () => {
         functionName: "getExam",
         args: [id],
     }).data;
+
+    const questionsWithAnswers = exam?.questions;
 
     const userStatusNum = wagmiReadFromContract({
         functionName: "getUserStatus",
@@ -127,10 +129,11 @@ const ExamPage = () => {
                         {
                             // set cookie
                             Cookies.set(`w3c.${chain?.id}.${id}.${address}`, userPassword, { expires: 10000 });
+                            console.log(userPassword);
 
                             hashedAnswerToSubmit
                             ? exam && (exam.price > 0 ? examPriceInEth : true)
-                                && answers.length === exam.questions.length
+                                && answers.length === questionsWithAnswers?.length
                                 && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!)
                             : 0
                         },
@@ -146,8 +149,8 @@ const ExamPage = () => {
                 return {
                     message: exam
                     ? <div>
-                        You failed this exam! Your score was {userScore?.toString()}/{exam.questions.length} {""}
-                        but you need at least {exam!.baseScore.toString()}/{exam.questions.length} to pass.
+                        You failed this exam! Your score was {userScore?.toString()}/{questionsWithAnswers?.length} {""}
+                        but you need at least {exam!.baseScore.toString()}/{questionsWithAnswers?.length} to pass.
                     </div>
                     : <div>Loading...</div>,
                     buttonAction: undefined,
@@ -251,7 +254,7 @@ const ExamPage = () => {
     }
 
     return (
-        <PageWrapper>
+        <Box paddingX={10} paddingY={8}>
             <ExamDetails
                 exam={exam}
                 message={getExamStageMessageAndButton(getExamStage()!).message}
@@ -287,7 +290,7 @@ const ExamPage = () => {
                     Correction duration: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
                 </div>
             }
-        </PageWrapper>
+        </Box>
     )
 }
 

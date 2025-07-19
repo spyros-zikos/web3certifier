@@ -1,13 +1,17 @@
-import React, { useEffect } from "react"
-import { VStack, Image, Box } from "@chakra-ui/react";
+import React from "react"
+import { Image, Box, Heading, Accordion, Text, Flex, chakra, Spacer } from "@chakra-ui/react";
 import ExamDetail from "./ExamDetail";
-import { defaultImage } from "~~/constants";
+import { answersSeparator, defaultImage } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Button } from "~~/components";
-import { Accordion } from "@chakra-ui/react"
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
+import Separator from "./Separator";
+
+function isChecked(inputId: string): boolean {
+    return (document.getElementById(inputId)! as HTMLInputElement)?.checked
+}
 
 const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, showRewards, answers, setAnswers}:
     {
@@ -25,92 +29,122 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
         functionName: "getExamStatus",
         args: [exam?.id],
     }).data as any;
+
+    function handleSelectAnswer(answerId: number, index: number) {
+        if (!showAnswers) return;
+        (document.getElementById(`answer${answerId}-${index}`)! as HTMLInputElement).checked = true;
+        setAnswers([
+            ...answers.slice(0, index), BigInt(answerId), ...answers.slice(index + 1),
+        ]);
+    }
+
     return (
-        <VStack>
-            <div className="max-w-[400px]">
-                {showRewards && 
-                <div className="mb-2 text-[12px] font-semibold">
-                    <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>
-                </div>
-                }
-                <div className="text-[40px] font-bold mb-4 ">{exam?.name}</div>
-                <Image src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="6" w={350} h={350} objectFit={"cover"}/>
-                <Accordion.Root className="mt-9" collapsible>
-                    <Accordion.Item value={"1"}>
-                        <Accordion.ItemTrigger>
-                        <span className={'mb-4 border bg-base-100 border-primary text-primary rounded-lg p-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
-                            <div className="flex items-center mr-1">
-                            <ArrowDownIcon className="h-4 w-4 mr-2 text-primary hover:text-accent" aria-hidden="true" />
-                            Details
-                            </div>
-                        </span>
-                        <Accordion.ItemIndicator />
-                        </Accordion.ItemTrigger>
-                        <Accordion.ItemContent>
-                        <Accordion.ItemBody>
-                                <ExamDetail name="Description" value={exam?.description} />
-                                <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString() : 0} />
-                                <ExamDetail name="Status" value={getExamStatusStr(status)} />
-                                <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
-                                <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
-                                <ExamDetail name="Number of Submissions" value={exam?.numberOfSubmissions.toString()} />
-                                <ExamDetail name="Max Submissions" value={exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString()} />
-                                <ExamDetail name="User Claims with Password" value={exam?.userClaimsWithPassword.toString()} />
-                                <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
-                            </Accordion.ItemBody>
-                        </Accordion.ItemContent>
-                    </Accordion.Item>
-                </Accordion.Root>
-                {
-                    <Box>
-                    {exam?.questions.map((question, index) => (
-                        <Box key={index}>
-                            <form
-                                onChange={e => {
-                                    const target = e.target as HTMLInputElement;
-                                    if (target.checked) {
-                                        const value = Number(target.value);
-                                        if (!isNaN(value))
-                                            setAnswers([
-                                                ...answers.slice(0, index), BigInt(value), ...answers.slice(index + 1),
-                                            ]);
-                                    }
-                                }}
-                            >
-                                <label className={"mt-6 mb-1 block"}>Question {index+1}</label>
-                                <div className="mb-2 border-2 border-gray-400 p-2 py-1 rounded-md">
-                                    <div className="whitespace-pre-wrap">{question}</div>
-                                    {showAnswers &&
-                                    <div className="mt-4">
-                                        <label className="mr-5 mt-4">
-                                            <input type="radio" name={`question-${index}`} value="1" />
-                                            <span className="ml-1">1</span>
-                                        </label>
-                                        <label className="mr-5">
-                                            <input type="radio" name={`question-${index}`} value="2" />
-                                            <span className="ml-1">2</span>
-                                        </label>
-                                        <label className="mr-5">
-                                            <input type="radio" name={`question-${index}`} value="3" />
-                                            <span className="ml-1">3</span>
-                                        </label>
-                                        <label className="mr-5">
-                                            <input type="radio" name={`question-${index}`} value="4" />
-                                            <span className="ml-1">4</span>
-                                        </label>
-                                    </div>}
-                                </div>
-                            </form>
-                        </Box>
-                    ))}
-                    </Box>
-                }
-                {<Box className="mt-12 mb-8">
-                    <div className="whitespace-pre-wrap">{message}</div>
-                </Box>}
-                {buttonText && <Box><Button className="ml-0 bg-base-100" onClick={buttonAction}>{buttonText}</Button></Box>}
+        <Box bg="lighterBlack" padding={10} borderRadius="2xl" maxWidth="600px" margin="auto">
+            {showRewards && 
+            <div className="mb-2 text-[12px] font-semibold">
+                <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>
             </div>
-        </VStack>
+            }
+            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={350} h={350} objectFit={"cover"}/>
+            <Heading fontSize="3xl" fontWeight="bold">{exam?.name}</Heading>
+
+            <Text fontSize="12" color="lighterLighterBlack" whiteSpace={"pre-wrap"} marginY="5" display={"inline-block"}>
+                {exam?.description}
+            </Text>
+
+            <Accordion.Root borderY="1px solid" borderColor="lighterLighterBlack" my="12" py="2" collapsible>
+                <Accordion.Item value={"1"}>
+                    <Accordion.ItemTrigger>
+                    <Text fontWeight="semibold" fontSize={"lg"}>
+                        Exam Information
+                    </Text>
+                    <Spacer />
+                    <Accordion.ItemIndicator />
+                    </Accordion.ItemTrigger>
+                    <Accordion.ItemContent>
+                    <Accordion.ItemBody>
+                            <ExamDetail name="Status" value={getExamStatusStr(status)} />
+                            <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(0, 17) +
+                                                                    (new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(20) : 0} />
+                            <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
+                            <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
+                            <ExamDetail name="Submissions" value={exam?.numberOfSubmissions.toString()+' of ' + (exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString())} />
+                            <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
+                        </Accordion.ItemBody>
+                    </Accordion.ItemContent>
+                </Accordion.Item>
+            </Accordion.Root>
+            {
+                <Box>
+                    {exam?.questions.map((questionWithAnswers, index) => {
+                    const [question, answer1, answer2, answer3, answer4] = questionWithAnswers.split(answersSeparator);
+                    return (<>
+                        <Box key={index}>
+                            <Text color="green" m="0" p="0">Question {index+1}</Text>
+                            <Text fontWeight={"semibold"} whiteSpace={"pre-wrap"} fontSize={"xl"} mt="2" mb="10">{question}</Text>
+                            <Text mt="4">
+                                <Text
+                                    border={isChecked(`answer1-${index}`) ? "3px solid" : "1px solid"}
+                                    borderRadius={"lg"}
+                                    borderColor={isChecked(`answer1-${index}`) ? "green" : "lighterLighterBlack"}
+                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                                    onClick={() => handleSelectAnswer(1, index)}
+                                >
+                                    <Flex align="flex-start">
+                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer1-${index}`} value="1" />}
+                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer1}</Text>
+                                    </Flex>
+                                </Text>
+                                <Text
+                                    border={isChecked(`answer2-${index}`) ? "3px solid" : "1px solid"}
+                                    borderRadius={"lg"}
+                                    borderColor={isChecked(`answer2-${index}`) ? "green" : "lighterLighterBlack"}
+                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                                    onClick={() => handleSelectAnswer(2, index)}
+                                >
+                                    <Flex align="flex-start">
+                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer2-${index}`} value="2" />}
+                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer2}</Text>
+                                    </Flex>
+                                </Text>
+                                <Text
+                                    border={isChecked(`answer3-${index}`) ? "3px solid" : "1px solid"}
+                                    borderRadius={"lg"}
+                                    borderColor={isChecked(`answer3-${index}`) ? "green" : "lighterLighterBlack"}
+                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                                    onClick={() => handleSelectAnswer(3, index)}
+                                >
+                                    <Flex align="flex-start">
+                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer3-${index}`} value="3" />}
+                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer3}</Text>
+                                    </Flex>
+                                </Text>
+                                <Text
+                                    border={isChecked(`answer4-${index}`) ? "3px solid" : "1px solid"}
+                                    borderRadius={"lg"}
+                                    borderColor={isChecked(`answer4-${index}`) ? "green" : "lighterLighterBlack"}
+                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                                    onClick={() => handleSelectAnswer(4, index)}
+                                >
+                                    <Flex align="flex-start">
+                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer4-${index}`} value="4" />}
+                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer4}</Text>
+                                    </Flex>
+                                </Text>
+                            </Text>
+                        </Box>
+                        <Separator />
+                        </>);
+                    }
+                )}
+                </Box>
+            }
+
+            {<Box className="mt-12 mb-8">
+                <div className="whitespace-pre-wrap">{message}</div>
+            </Box>}
+            {buttonText && <Box w="full" display="flex" justifyContent="center"><Button className="ml-0 bg-base-100" onClick={buttonAction}>{buttonText}</Button></Box>}
+        </Box>
     );
 }
 
