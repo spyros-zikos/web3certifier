@@ -259,13 +259,13 @@ const CreateExam = () => {
                                     setmaxSubmissions(e.target.value);
                                 }}
                             />
-                            <label className={`${labelMarginAndPadding}`} title="Default: User Claims with Cookies">User Claims with Password | Default: false</label>
+                            {/* <label className={`${labelMarginAndPadding}`} title="Default: User Claims with Cookies">User Claims with Password | Default: false</label>
                             <input
                                 className="ml-2 mb-4 w-6 h-6 accent-base-100 cursor-pointer"
                                 checked={userClaimsWithPassword}
                                 type="checkbox"
                                 onChange={(e: any) => { setUserClaimsWithPassword(e.target.checked); }}
-                            />
+                            /> */}
                         </Accordion.ItemBody>
                         </Accordion.ItemContent>
                     </Accordion.Item>
