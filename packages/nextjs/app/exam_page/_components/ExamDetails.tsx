@@ -13,7 +13,18 @@ function isChecked(inputId: string): boolean {
     return (document.getElementById(inputId)! as HTMLInputElement)?.checked
 }
 
-const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, showRewards, answers, setAnswers}:
+const ExamDetails = (
+    {
+        exam, 
+        message, 
+        buttonAction, 
+        buttonText, 
+        showAnswers, 
+        showRewards, 
+        answers, 
+        setAnswers,
+        timer
+    }:
     {
         exam: Exam|undefined,
         message: any,
@@ -22,7 +33,8 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
         showAnswers: boolean,
         showRewards: boolean,
         answers: bigint[],
-        setAnswers: any
+        setAnswers: any,
+        timer: [string, string]
     }
 ) => {
     const status: number | undefined = wagmiReadFromContract({
@@ -51,6 +63,16 @@ const ExamDetails = ({exam, message, buttonAction, buttonText, showAnswers, show
             <Text fontSize="12" color="lighterLighterBlack" whiteSpace={"pre-wrap"} marginY="5" display={"inline-block"}>
                 {exam?.description}
             </Text>
+
+            {timer[0] !== "" &&
+                <Text bg="black" pt="1" pb="1px" px="6" borderRadius="xl">
+                    <Flex >
+                        <chakra.svg xmlns="http://www.w3.org/2000/svg" mt="19px" mr="2" width="5" height="5" viewBox="0 0 24 24" fill="none" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 15 15"></polyline></chakra.svg>
+                        <Text fontWeight="semibold">{timer[0]}</Text>
+                    </Flex>
+                    <Text w="max" mt='0' mx="auto" pl="0" pr="4" fontSize="2xl" fontWeight="bold" color="green">{timer[1]}</Text>
+                </Text>
+            }
 
             <Accordion.Root borderY="1px solid" borderColor="lighterLighterBlack" my="12" py="2" collapsible>
                 <Accordion.Item value={"1"}>

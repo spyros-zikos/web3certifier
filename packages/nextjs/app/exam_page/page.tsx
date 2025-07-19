@@ -272,24 +272,18 @@ const ExamPage = () => {
                 }
                 answers={answers}
                 setAnswers={setAnswers}
+                timer={(getExamStage() === ExamStage.User_OpenNotSubmitted ||
+                    getExamStage() === ExamStage.User_OpenSubmitted ||
+                    getExamStage() === ExamStage.Certifier_Open
+                    )
+                    ? ['Time Left To Submit', exam ? getTimeLeft(timeNow, exam.endTime) : ""]
+                    : getExamStage() === ExamStage.Certifier_Correct
+                    ? ['Time Left To Correct', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
+                    : getExamStage() === ExamStage.User_WaitForCorrection
+                    ? ['Correction Duration', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
+                    : ['', '']
+                }
             />
-            {(getExamStage() === ExamStage.User_OpenNotSubmitted ||
-                getExamStage() === ExamStage.User_OpenSubmitted ||
-                getExamStage() === ExamStage.Certifier_Open
-            ) && <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left To Submit: {exam && getTimeLeft(timeNow, exam.endTime)}
-                </div>
-            }
-            {getExamStage() === ExamStage.Certifier_Correct &&
-                <div className="mt-4 fixed bottom-10 right-20">
-                    Time Left To Correct: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
-                </div>
-            }
-            {getExamStage() === ExamStage.User_WaitForCorrection &&
-                <div className="mt-4 fixed bottom-10 right-20">
-                    Correction duration: {exam && getTimeLeft(timeNow, exam.endTime + BigInt(timeToCorrect || 0))}
-                </div>
-            }
         </Box>
     )
 }
