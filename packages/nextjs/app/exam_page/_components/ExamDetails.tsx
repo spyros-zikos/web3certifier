@@ -58,7 +58,7 @@ const ExamDetails = (
             }
 
             {/* Image */}
-            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={250} h={250} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
+            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={200} h={200} sm={{ w: 290, h: 290 }} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
             
             {/* Name */}
             <Heading fontSize="3xl" fontWeight="bold">{exam?.name}</Heading>
@@ -79,8 +79,10 @@ const ExamDetails = (
                 </Text>
             }
 
+            {/* Exam Information */}
             <ExamInfoDropDown status={status} exam={exam} />
 
+            {/* Reward Information */}
             <RewardInfoDropDown id={exam?.id || BigInt(0)} />
 
             {
