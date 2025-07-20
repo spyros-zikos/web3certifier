@@ -52,7 +52,7 @@ const ExamDetails = (
     }
 
     return (
-        <Box bg="lighterBlack" padding={10} borderRadius="2xl" maxWidth="600px" margin="auto">
+        <Box bg="lighterBlack" padding={4} sm={{ padding: 10}} borderRadius="2xl" maxWidth="600px" margin="auto">
             {showRewards && 
             <div className="mb-2 text-[12px] font-semibold">
                 <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>

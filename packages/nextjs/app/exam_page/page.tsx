@@ -273,7 +273,7 @@ const ExamPage = () => {
     }
 
     return (
-        <Box paddingX={5} paddingY={8} sm={{ paddingX: 10 }}>
+        <Box paddingX={4} paddingY={8} sm={{ paddingX: 10 }}>
             <ExamDetails
                 exam={exam}
                 message={getExamStageMessageAndButton(getExamStage()!).message}
