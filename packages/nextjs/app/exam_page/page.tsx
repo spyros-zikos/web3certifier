@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Box, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { PageWrapper, Title } from "~~/components";
 import { useAccount } from "wagmi";
-import { handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/Handlers";
+import { handleClaimReward, handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/Handlers";
 import { ExamStage } from "../../types/ExamStage";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
@@ -74,14 +74,22 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
+    const userHasClaimedReward = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUserHasClaimed",
+        args: [address],
+    }).data;
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
     const { writeContractAsync: refundExam } = wagmiWriteToContract();
-    const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const { writeContractAsync: correctExam } = wagmiWriteToContract();
+    const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
+    const { writeContractAsync: claimReward } = wagmiWriteToContract();
     
 
     // Get key | For exam stage: User_OpenNotSubmitted
@@ -113,7 +121,9 @@ const ExamPage = () => {
     const getExamStage = () => {
         const examStatus = getExamStatusStr(examStatusNum);
         const userStatus = getUserStatusStr(userStatusNum);
-        return examStage(examStatus, userStatus, address, exam);
+        const hasReward = rewardAddress !== ZERO_ADDRESS;
+        const userCanClaimReward = !userHasClaimedReward && hasReward;
+        return examStage(examStatus, userStatus, address, exam, userCanClaimReward);
     }
 
     const getExamStageMessageAndButton = (examStage: any): ExamPageDynamicElements => {
@@ -198,6 +208,15 @@ const ExamPage = () => {
                     buttonText:
                         (passwordHashGood) ? "Claim Certificate" : undefined
                 };
+            case ExamStage.User_ClaimReward:
+                return {
+                    message:
+                        <div>Claim your reward!</div>,
+                    buttonAction:
+                        () => {handleClaimReward(claimReward, rewardAddress)},
+                    buttonText:
+                        "Claim Reward"
+                };
             case ExamStage.Certifier_Open:
                 return { message: "This exam is ongoing! The certifier cannot submit.", buttonAction: undefined, buttonText: undefined };
             case ExamStage.Certifier_Correct:
@@ -265,7 +284,7 @@ const ExamPage = () => {
                     (getExamStage() === ExamStage.Certifier_Correct)
                 }
                 showRewards={
-                    rewardAddress !== ZERO_ADDRESS ||
+                    // rewardAddress !== ZERO_ADDRESS ||
                     getExamStage() === ExamStage.Certifier_Open ||
                     getExamStage() === ExamStage.Certifier_Correct ||
                     getExamStage() === ExamStage.Certifier_EndStats

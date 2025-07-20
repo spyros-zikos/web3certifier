@@ -5,6 +5,7 @@ export const examStage = (
     userStatus: string,
     address: any,
     exam: Exam | undefined,
+    userCanClaimReward: boolean
 ) => {
     if (address === exam?.certifier) {
         if (examStatus === "Open") return ExamStage.Certifier_Open
@@ -25,7 +26,10 @@ export const examStage = (
         else if (examStatus === "Corrected") {
             if (userStatus === "Not Submitted") return ExamStage.User_Details;
             else {
-                if (userStatus === "Succeeded") return ExamStage.User_EndSuccessStats;
+                if (userStatus === "Succeeded") {
+                    if (userCanClaimReward) return ExamStage.User_ClaimReward;
+                    return ExamStage.User_EndSuccessStats;
+                }
                 if (userStatus === "Failed") return ExamStage.User_EndFailStats;
                 return ExamStage.User_ClaimCertificate;
             }

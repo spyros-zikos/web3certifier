@@ -8,6 +8,7 @@ import { Button } from "~~/components";
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
 import Separator from "./Separator";
+import RewardInfo from "./RewardInfo";
 
 function isChecked(inputId: string): boolean {
     return (document.getElementById(inputId)! as HTMLInputElement)?.checked
@@ -74,7 +75,7 @@ const ExamDetails = (
                 </Text>
             }
 
-            <Accordion.Root borderY="1px solid" borderColor="lighterLighterBlack" my="12" py="2" collapsible>
+            <Accordion.Root borderY="1px solid" borderColor="lighterLighterBlack" mt="12" mb="0" py="2" collapsible>
                 <Accordion.Item value={"1"}>
                     <Accordion.ItemTrigger>
                     <Text fontWeight="semibold" fontSize={"lg"}>
@@ -96,8 +97,11 @@ const ExamDetails = (
                     </Accordion.ItemContent>
                 </Accordion.Item>
             </Accordion.Root>
+
+            <RewardInfo id={exam?.id || BigInt(0)} />
+
             {
-                <Box>
+                <Box mt="12">
                     {exam?.questions.map((questionWithAnswers, index) => {
                     const [question, answer1, answer2, answer3, answer4] = questionWithAnswers.split(answersSeparator);
                     return (<>

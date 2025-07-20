@@ -42,3 +42,15 @@ export const handleClaimCertificate = async (claimCertificate: any, id: bigint, 
         args: [id, answers, key],
     });
 };
+
+/*//////////////////////////////////////////////////////////////
+                        CLAIM REWARD
+//////////////////////////////////////////////////////////////*/
+
+export const handleClaimReward = async (claimReward: any, rewardAddress: string) => {
+    claimReward({
+        contractName: 'Reward',
+        contractAddress: rewardAddress,
+        functionName: 'claim',
+    });
+};
