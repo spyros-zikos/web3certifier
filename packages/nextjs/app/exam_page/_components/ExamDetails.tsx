@@ -1,14 +1,12 @@
 import React from "react"
-import { Image, Box, Heading, Accordion, Text, Flex, chakra, Spacer } from "@chakra-ui/react";
-import ExamDetail from "./ExamDetail";
+import { Image, Box, Heading, Text, Flex, chakra } from "@chakra-ui/react";
 import { answersSeparator, defaultImage } from "~~/constants";
-import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Button } from "~~/components";
 import { ArrowDownIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
 import Separator from "./Separator";
-import RewardInfo from "./RewardInfo";
+import RewardInfoDropDown from "./RewardInfoDropDown";
+import ExamInfoDropDown from "./ExamInfoDropDown";
 
 function isChecked(inputId: string): boolean {
     return (document.getElementById(inputId)! as HTMLInputElement)?.checked
@@ -58,13 +56,19 @@ const ExamDetails = (
                 <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>
             </div>
             }
+
+            {/* Image */}
             <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={250} h={250} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
+            
+            {/* Name */}
             <Heading fontSize="3xl" fontWeight="bold">{exam?.name}</Heading>
 
+            {/* Description */}
             <Text fontSize="12" color="lighterLighterBlack" whiteSpace={"pre-wrap"} marginY="5" display={"inline-block"}>
                 {exam?.description}
             </Text>
 
+            {/* Timer */}
             {timer[0] !== "" &&
                 <Text bg="black" pt="1" pb="1px" px="6" borderRadius="xl">
                     <Flex >
@@ -75,30 +79,9 @@ const ExamDetails = (
                 </Text>
             }
 
-            <Accordion.Root borderY="1px solid" borderColor="lighterLighterBlack" mt="12" mb="0" py="2" collapsible>
-                <Accordion.Item value={"1"}>
-                    <Accordion.ItemTrigger>
-                    <Text fontWeight="semibold" fontSize={"lg"}>
-                        Exam Information
-                    </Text>
-                    <Spacer />
-                    <Accordion.ItemIndicator />
-                    </Accordion.ItemTrigger>
-                    <Accordion.ItemContent>
-                    <Accordion.ItemBody>
-                            <ExamDetail name="Status" value={getExamStatusStr(status)} />
-                            <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(0, 17) +
-                                                                    (new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(20) : 0} />
-                            <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
-                            <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
-                            <ExamDetail name="Submissions" value={exam?.numberOfSubmissions.toString()+' of ' + (exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString())} />
-                            <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
-                        </Accordion.ItemBody>
-                    </Accordion.ItemContent>
-                </Accordion.Item>
-            </Accordion.Root>
+            <ExamInfoDropDown status={status} exam={exam} />
 
-            <RewardInfo id={exam?.id || BigInt(0)} />
+            <RewardInfoDropDown id={exam?.id || BigInt(0)} />
 
             {
                 <Box mt="12">

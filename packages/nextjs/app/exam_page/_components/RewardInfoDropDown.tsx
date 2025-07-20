@@ -6,7 +6,7 @@ import { Accordion, Text, Spacer } from '@chakra-ui/react';
 import ExamDetail from './ExamDetail';
 
 
-const RewardInfo = ({id}: {id: bigint}) => {
+const RewardInfoDropDown = ({id}: {id: bigint}) => {
 
     /*//////////////////////////////////////////////////////////////
                            READ FROM CONTRACT
@@ -117,4 +117,4 @@ const RewardInfo = ({id}: {id: bigint}) => {
     );
 }
 
-export default RewardInfo
+export default RewardInfoDropDown
