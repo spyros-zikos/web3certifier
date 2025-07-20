@@ -16,6 +16,7 @@ export enum ExamStage {
     // --- Exam Ended ---
     Certifier_EndStats,
     User_ClaimCertificate, // submit
+    User_ClaimReward, // submit
     User_EndSuccessStats, // for successful participants
     User_EndFailStats, // for failed participants
     User_Details, // for non-participants
