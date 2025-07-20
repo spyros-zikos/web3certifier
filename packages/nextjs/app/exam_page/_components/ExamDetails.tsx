@@ -58,7 +58,7 @@ const ExamDetails = (
                 <a href={`/rewards/?id=${exam?.id}`} className="underline">{"Go to rewards ->"}</a>
             </div>
             }
-            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={350} h={350} objectFit={"cover"}/>
+            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={250} h={250} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
             <Heading fontSize="3xl" fontWeight="bold">{exam?.name}</Heading>
 
             <Text fontSize="12" color="lighterLighterBlack" whiteSpace={"pre-wrap"} marginY="5" display={"inline-block"}>
