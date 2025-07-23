@@ -236,7 +236,7 @@ const ExamPage = () => {
     }
 
     // Check that user is connected to supported network
-    if (!chain?.id || !SUPPORTED_NETWORKS.includes(chain.id)) {
+    if (!chain?.id || !Object.values(SUPPORTED_NETWORKS).includes(chain.id)) {
         return (
             <PageWrapper>
                 <Title>Exam Page</Title>

@@ -32,7 +32,7 @@ export function wagmiWriteToContract() {
             return;
         }
 
-        const chainId: number = (chain && SUPPORTED_NETWORKS.includes(chain.id)) ? chain.id : 11155111;
+        const chainId: number = (chain && Object.values(SUPPORTED_NETWORKS).includes(chain.id)) ? chain.id : 11155111;
         const contractName: string = params.contractName ? params.contractName : "Certifier";
         const addressAndAbi = chainsToContracts[chainId][contractName];
 
