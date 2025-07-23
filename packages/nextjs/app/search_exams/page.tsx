@@ -17,6 +17,17 @@ const SearchExamsPage: React.FC = () => {
     const [page, setPage] = useState<number>(1);
     // parameter
     const examsPerPage = 9;
+    // hidelists
+    const hidePreviousIdsOfId = {
+        [SUPPORTED_NETWORKS.sepolia]: 0,
+        [SUPPORTED_NETWORKS.arbitrum]: 0,
+        [SUPPORTED_NETWORKS.celo]: 21
+    };
+    const hidelist = {
+        [SUPPORTED_NETWORKS.sepolia]: [],
+        [SUPPORTED_NETWORKS.arbitrum]: [],
+        [SUPPORTED_NETWORKS.celo]: [BigInt(0)]
+    };
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -45,7 +56,9 @@ const SearchExamsPage: React.FC = () => {
 
     // all exams
     const allExamIds = [];
-    for (let i = (lastExamId ? lastExamId - BigInt(1) : -1); i > -1; i--) {
+    for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > -1; i--) {
+        if (chain && i < BigInt(hidePreviousIdsOfId[chain?.id])) continue
+        if (chain && hidelist[chain?.id].includes(i)) continue
         allExamIds.push(BigInt(i));
     }
 
@@ -60,7 +73,7 @@ const SearchExamsPage: React.FC = () => {
     const endIndex = startIndex + examsPerPage;
     const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
 
-    if (!chain || !chain.id || !SUPPORTED_NETWORKS.includes(chain?.id))
+    if (!chain || !chain.id || !Object.values(SUPPORTED_NETWORKS).includes(chain?.id))
         return (
             <PageWrapper>
                 <Title>Explore Exams</Title>
