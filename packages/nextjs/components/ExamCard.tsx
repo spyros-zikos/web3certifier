@@ -6,6 +6,7 @@ import { Address } from "~~/components/scaffold-eth";
 import { defaultImage } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import Link from "next/link";
 
 interface CardProps {
     className?: string;
@@ -63,8 +64,8 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             className={`${className || ""}`}
             imageUrl={exam?.imageUrl || defaultImage}
             footer={
-                <Button className="w-full" onClick={()=>{router.push(`/exam_page?id=${id}`);}}>
-                    Explore
+                <Button className="w-full" onClick={()=>{}}>
+                    <Link href={`/exam_page?id=${id}`}>Explore</Link>
                 </Button>
             }
             compact={true}
