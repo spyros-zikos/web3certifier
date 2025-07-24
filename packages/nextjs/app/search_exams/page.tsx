@@ -3,7 +3,7 @@
 import { Title } from "~~/components";
 import React, { useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
-import { PageSelector } from "./_components/PageSelector";
+import { IndexSelector } from "../../components/IndexSelector";
 import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -26,7 +26,7 @@ const SearchExamsPage: React.FC = () => {
     const hidelist = {
         [SUPPORTED_NETWORKS.sepolia]: [],
         [SUPPORTED_NETWORKS.arbitrum]: [],
-        [SUPPORTED_NETWORKS.celo]: [BigInt(0)]
+        [SUPPORTED_NETWORKS.celo]: [BigInt(22), BigInt(23)]
     };
 
     /*//////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ const SearchExamsPage: React.FC = () => {
                     />
                 ))}
             </div>
-            {lastPage > 1 && <PageSelector setPage={setPage} page={page} lastPage={lastPage} />}
+            {lastPage > 1 && <IndexSelector setIndex={setPage} index={page} firstIndex={1} lastIndex={lastPage} />}
         </PageWrapper>
     );
 };
