@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Image, Box, Heading, Text, Flex, chakra } from "@chakra-ui/react";
 import { answersSeparator, defaultImage } from "~~/constants";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -7,6 +7,7 @@ import { ArrowDownIcon } from "@heroicons/react/24/outline";
 import Separator from "./Separator";
 import RewardInfoDropDown from "./RewardInfoDropDown";
 import ExamInfoDropDown from "./ExamInfoDropDown";
+import { IndexSelector } from "~~/components/IndexSelector";
 
 function isChecked(inputId: string): boolean {
     return (document.getElementById(inputId)! as HTMLInputElement)?.checked
@@ -36,18 +37,24 @@ const ExamDetails = (
         timer: [string, string]
     }
 ) => {
+    const [questionNumber, setQuestionNumber] = useState<number>(1);
+    const [question, answer1, answer2, answer3, answer4] = exam?.questions[questionNumber-1].split(answersSeparator) || ["", "", "", "", ""];
+
+    
     const status: number | undefined = wagmiReadFromContract({
         functionName: "getExamStatus",
         args: [exam?.id],
     }).data as any;
 
-    function handleSelectAnswer(answerId: number, index: number) {
+    function handleSelectAnswer(answerId: number, questionNumber: number) {
         if (!showAnswers) return;
-        (document.getElementById(`answer${answerId}-${index}`)! as HTMLInputElement).checked = true;
+        (document.getElementById(`answer${answerId}-${questionNumber}`)! as HTMLInputElement).checked = true;
         setAnswers([
-            ...answers.slice(0, index), BigInt(answerId), ...answers.slice(index + 1),
+            ...answers.slice(0, questionNumber-1), BigInt(answerId), ...answers.slice(questionNumber),
         ]);
     }
+
+    console.log(answers);
 
     return (
         <Box bg="lighterBlack" padding={4} sm={{ padding: 10}} borderRadius="2xl" maxWidth="600px" margin="auto">
@@ -85,71 +92,67 @@ const ExamDetails = (
             {/* Reward Information */}
             <RewardInfoDropDown id={exam?.id || BigInt(0)} />
 
-            {
-                <Box mt="12">
-                    {exam?.questions.map((questionWithAnswers, index) => {
-                    const [question, answer1, answer2, answer3, answer4] = questionWithAnswers.split(answersSeparator);
-                    return (<>
-                        <Box key={index}>
-                            <Text color="green" m="0" p="0">Question {index+1}</Text>
-                            <Text fontWeight={"semibold"} whiteSpace={"pre-wrap"} fontSize={"xl"} mt="2" mb="10">{question}</Text>
-                            <Text mt="4">
-                                <Text
-                                    border={isChecked(`answer1-${index}`) ? "3px solid" : "1px solid"}
-                                    borderRadius={"lg"}
-                                    borderColor={isChecked(`answer1-${index}`) ? "green" : "lighterLighterBlack"}
-                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
-                                    onClick={() => handleSelectAnswer(1, index)}
-                                >
-                                    <Flex align="flex-start">
-                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer1-${index}`} value="1" />}
-                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer1}</Text>
-                                    </Flex>
-                                </Text>
-                                <Text
-                                    border={isChecked(`answer2-${index}`) ? "3px solid" : "1px solid"}
-                                    borderRadius={"lg"}
-                                    borderColor={isChecked(`answer2-${index}`) ? "green" : "lighterLighterBlack"}
-                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
-                                    onClick={() => handleSelectAnswer(2, index)}
-                                >
-                                    <Flex align="flex-start">
-                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer2-${index}`} value="2" />}
-                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer2}</Text>
-                                    </Flex>
-                                </Text>
-                                <Text
-                                    border={isChecked(`answer3-${index}`) ? "3px solid" : "1px solid"}
-                                    borderRadius={"lg"}
-                                    borderColor={isChecked(`answer3-${index}`) ? "green" : "lighterLighterBlack"}
-                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
-                                    onClick={() => handleSelectAnswer(3, index)}
-                                >
-                                    <Flex align="flex-start">
-                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer3-${index}`} value="3" />}
-                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer3}</Text>
-                                    </Flex>
-                                </Text>
-                                <Text
-                                    border={isChecked(`answer4-${index}`) ? "3px solid" : "1px solid"}
-                                    borderRadius={"lg"}
-                                    borderColor={isChecked(`answer4-${index}`) ? "green" : "lighterLighterBlack"}
-                                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
-                                    onClick={() => handleSelectAnswer(4, index)}
-                                >
-                                    <Flex align="flex-start">
-                                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${index}`} id={`answer4-${index}`} value="4" />}
-                                        <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer4}</Text>
-                                    </Flex>
-                                </Text>
-                            </Text>
-                        </Box>
-                        <Separator />
-                        </>);
-                    }
-                )}
+            <Box mt="12">
+                <Box key={questionNumber}>
+                    <Text color="green" m="0" p="0">Question {questionNumber}</Text>
+                    <Text fontWeight={"semibold"} whiteSpace={"pre-wrap"} fontSize={"xl"} mt="2" mb="10">{question}</Text>
+                    <Text mt="4">
+                        <Text
+                            border={isChecked(`answer1-${questionNumber}`) ? "3px solid" : "1px solid"}
+                            borderRadius={"lg"}
+                            borderColor={isChecked(`answer1-${questionNumber}`) ? "green" : "lighterLighterBlack"}
+                            p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                            onClick={() => handleSelectAnswer(1, questionNumber)}
+                        >
+                            <Flex align="flex-start">
+                                {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer1-${questionNumber}`} value="1" checked={answers[questionNumber-1] === BigInt(1)} />}
+                                <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer1}</Text>
+                            </Flex>
+                        </Text>
+                        <Text
+                            border={isChecked(`answer2-${questionNumber}`) ? "3px solid" : "1px solid"}
+                            borderRadius={"lg"}
+                            borderColor={isChecked(`answer2-${questionNumber}`) ? "green" : "lighterLighterBlack"}
+                            p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                            onClick={() => handleSelectAnswer(2, questionNumber)}
+                        >
+                            <Flex align="flex-start">
+                                {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer2-${questionNumber}`} value="2" checked={answers[questionNumber-1] === BigInt(2)} />}
+                                <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer2}</Text>
+                            </Flex>
+                        </Text>
+                        <Text
+                            border={isChecked(`answer3-${questionNumber}`) ? "3px solid" : "1px solid"}
+                            borderRadius={"lg"}
+                            borderColor={isChecked(`answer3-${questionNumber}`) ? "green" : "lighterLighterBlack"}
+                            p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                            onClick={() => handleSelectAnswer(3, questionNumber)}
+                        >
+                            <Flex align="flex-start">
+                                {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer3-${questionNumber}`} value="3" checked={answers[questionNumber-1] === BigInt(3)} />}
+                                <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer3}</Text>
+                            </Flex>
+                        </Text>
+                        <Text
+                            border={isChecked(`answer4-${questionNumber}`) ? "3px solid" : "1px solid"}
+                            borderRadius={"lg"}
+                            borderColor={isChecked(`answer4-${questionNumber}`) ? "green" : "lighterLighterBlack"}
+                            p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                            onClick={() => handleSelectAnswer(4, questionNumber)}
+                        >
+                            <Flex align="flex-start">
+                                {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer4-${questionNumber}`} value="4" checked={answers[questionNumber-1] === BigInt(4)} />}
+                                <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer4}</Text>
+                            </Flex>
+                        </Text>
+                    </Text>
                 </Box>
-            }
+                {/* <Separator /> */}
+            </Box>
+            
+            <IndexSelector setIndex={setQuestionNumber} index={questionNumber} firstIndex={1} lastIndex={exam?.questions ? exam?.questions.length : 1} />
+
+            <Separator />
 
             {<Box className="mt-12 mb-8">
                 <div className="whitespace-pre-wrap">{message}</div>
