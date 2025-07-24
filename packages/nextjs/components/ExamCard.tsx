@@ -65,7 +65,7 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             imageUrl={exam?.imageUrl || defaultImage}
             footer={
                 <Link className="w-full" href={`/exam_page?id=${id}`}>
-                    <Button className="w-full" onClick={()=>{}}>
+                    <Button className="w-full" onClick={undefined}>
                         Explore
                     </Button>
                 </Link>
