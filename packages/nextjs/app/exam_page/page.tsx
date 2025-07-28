@@ -273,37 +273,35 @@ const ExamPage = () => {
     }
 
     return (
-        <Box paddingX={4} paddingY={8} sm={{ paddingX: 10 }}>
-            <ExamDetails
-                exam={exam}
-                message={getExamStageMessageAndButton(getExamStage()!).message}
-                buttonAction={getExamStageMessageAndButton(getExamStage()!).buttonAction}
-                buttonText={getExamStageMessageAndButton(getExamStage()!).buttonText}
-                showAnswers={
-                    (getExamStage() === ExamStage.User_OpenNotSubmitted) ||
-                    (getExamStage() === ExamStage.Certifier_Correct)
-                }
-                showRewards={
-                    // rewardAddress !== ZERO_ADDRESS ||
-                    getExamStage() === ExamStage.Certifier_Open ||
-                    getExamStage() === ExamStage.Certifier_Correct ||
-                    getExamStage() === ExamStage.Certifier_EndStats
-                }
-                answers={answers}
-                setAnswers={setAnswers}
-                timer={(getExamStage() === ExamStage.User_OpenNotSubmitted ||
-                    getExamStage() === ExamStage.User_OpenSubmitted ||
-                    getExamStage() === ExamStage.Certifier_Open
-                    )
-                    ? ['Time Left To Submit', exam ? getTimeLeft(timeNow, exam.endTime) : ""]
-                    : getExamStage() === ExamStage.Certifier_Correct
-                    ? ['Time Left To Correct', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
-                    : getExamStage() === ExamStage.User_WaitForCorrection
-                    ? ['Correction Duration', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
-                    : ['', '']
-                }
-            />
-        </Box>
+        <ExamDetails
+            exam={exam}
+            message={getExamStageMessageAndButton(getExamStage()!).message}
+            buttonAction={getExamStageMessageAndButton(getExamStage()!).buttonAction}
+            buttonText={getExamStageMessageAndButton(getExamStage()!).buttonText}
+            showAnswers={
+                (getExamStage() === ExamStage.User_OpenNotSubmitted) ||
+                (getExamStage() === ExamStage.Certifier_Correct)
+            }
+            showRewards={
+                // rewardAddress !== ZERO_ADDRESS ||
+                getExamStage() === ExamStage.Certifier_Open ||
+                getExamStage() === ExamStage.Certifier_Correct ||
+                getExamStage() === ExamStage.Certifier_EndStats
+            }
+            answers={answers}
+            setAnswers={setAnswers}
+            timer={(getExamStage() === ExamStage.User_OpenNotSubmitted ||
+                getExamStage() === ExamStage.User_OpenSubmitted ||
+                getExamStage() === ExamStage.Certifier_Open
+                )
+                ? ['Time Left To Submit', exam ? getTimeLeft(timeNow, exam.endTime) : ""]
+                : getExamStage() === ExamStage.Certifier_Correct
+                ? ['Time Left To Correct', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
+                : getExamStage() === ExamStage.User_WaitForCorrection
+                ? ['Correction Duration', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
+                : ['', '']
+            }
+        />
     )
 }
 
