@@ -7,10 +7,11 @@ import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
 import { answersSeparator, defaultImage } from "~~/constants";
-import { Accordion } from "@chakra-ui/react"
+import { Accordion, Box, Flex, Spacer } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
+import Link from "next/link";
 
 const CreateExam = () => {
     const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""};
@@ -87,7 +88,19 @@ const CreateExam = () => {
 
     return (
         <PageWrapper>
-            <Title>Create Exams</Title>
+            <Title>
+                <Flex>
+                    <Box>
+                        Create Exams
+                    </Box>
+                    <Spacer />
+                    <Link href="/docs">
+                        <Button className="bg-base-100 text-sm" onClick={undefined}>
+                            Documentation
+                        </Button>
+                    </Link>
+                </Flex>
+            </Title>
             <div>
                 <InputLabel>Name *</InputLabel>
                 <Input
