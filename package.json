@@ -52,12 +52,14 @@
     "node": ">=18.17.0"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.8.0",
+    "@chakra-ui/react": "^3.23.0",
     "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "discord.js": "^14.18.0",
     "elliptic": "^6.6.1",
+    "framer-motion": "^12.23.11",
     "graphql": "^16.10.0",
     "graphql-request": "^7.1.2",
     "js-cookie": "^3.0.5",
