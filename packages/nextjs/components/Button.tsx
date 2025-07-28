@@ -12,7 +12,7 @@ const Button: FC<Props> = ({ className = '', children, ...props }) => {
     <button 
       {...props}
       className={
-        `m-2 p-2 border border-primary rounded-md text-primary
+        `my-2 p-2 border border-primary rounded-md text-primary
         hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent 
         ${className} `
       }

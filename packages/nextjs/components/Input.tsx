@@ -15,7 +15,7 @@ const Input: FC<Props> = ({ className = '', ...props }) => {
     <input
       {...props}
       className={
-        `w-[210px] block m-2 p-2
+        `w-[210px] block my-2 p-2
         border border-accent bg-base-200 placeholder-base-300 rounded-md hover:border-neutral focus:outline-none focus:border-2 focus:border-neutral
         ${className} `
       }

@@ -10,6 +10,7 @@ import { answersSeparator, defaultImage } from "~~/constants";
 import { Accordion } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import InputLabel from "./_components/InputLabel";
 
 const CreateExam = () => {
     const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""};
@@ -84,14 +85,11 @@ const CreateExam = () => {
     const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
     const dropZoneRef: React.LegacyRef<HTMLDivElement> | undefined = createRef();
 
-    const labelMarginAndPadding = 'm-2 mt-4 block';
-
-
     return (
         <PageWrapper>
             <Title>Create Exams</Title>
             <div>
-                <label className={`${labelMarginAndPadding}`}>Name *</label>
+                <InputLabel>Name *</InputLabel>
                 <Input
                     value={name}
                     type="text"
@@ -100,7 +98,7 @@ const CreateExam = () => {
                         setname(e.target.value);
                     }}
                 />
-                <label className={`${labelMarginAndPadding}`}>Description *</label>
+                <InputLabel>Description *</InputLabel>
                 <TextArea
                     value={description}
                     placeholder="Description"
@@ -108,7 +106,7 @@ const CreateExam = () => {
                         setDescription(e.target.value);
                     }}
                 />
-                <label className={`${labelMarginAndPadding}`}>End Time *</label>
+                <InputLabel>End Time *</InputLabel>
                 <Input
                     value={endTime}
                     type="datetime-local"
@@ -116,11 +114,11 @@ const CreateExam = () => {
                         setendTime(e.target.value);
                     }}
                 />
-                <label className={`${labelMarginAndPadding}`}>Questions *</label>
+                <InputLabel>Questions *</InputLabel>
                 {questionsWithAnswers.map((question, indx) => (
                     <>
                     <TextArea
-                        key={indx}
+                        key={""+indx}
                         value={question.question}
                         placeholder={`Question ${indx+1}`}
                         onChange={(e: any) => {
@@ -183,8 +181,8 @@ const CreateExam = () => {
                     Remove Question
                 </Button>
 
-                <label className={`${labelMarginAndPadding} block`}>Image (square) | optional</label>
-                <div className="ml-2 my-4 w-[350px] border border-accent rounded-lg">
+                <InputLabel>Image (square) | optional</InputLabel>
+                <div className="my-4 w-[350px] border border-accent rounded-lg">
                     <div
                         {...getRootProps()}
                         ref={dropZoneRef}
@@ -219,7 +217,7 @@ const CreateExam = () => {
                 <Accordion.Root className="mt-9" collapsible>
                     <Accordion.Item value={"1"}>
                         <Accordion.ItemTrigger>
-                        <span className={'border bg-base-100 border-primary text-primary rounded-lg p-2 ml-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
+                        <span className={'border bg-base-100 border-primary text-primary rounded-lg p-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
                             <div className="flex items-center mr-1">
                             <ArrowDownIcon className="h-4 w-4 mr-2 text-primary hover:text-accent" aria-hidden="true" />
                             Advanced Settings
@@ -229,7 +227,7 @@ const CreateExam = () => {
                         </Accordion.ItemTrigger>
                         <Accordion.ItemContent>
                         <Accordion.ItemBody>
-                            <label className={`${labelMarginAndPadding}`}>Price ($) | Default: $0</label>
+                            <InputLabel>Price ($) | Default: $0</InputLabel>
                             <Input
                                 value={price}
                                 type="number"
@@ -239,7 +237,7 @@ const CreateExam = () => {
                                     setprice(e.target.value);
                                 }}
                             />
-                            <label className={`${labelMarginAndPadding}`}>Base Score | Default: 50%</label>
+                            <InputLabel>Base Score | Default: 50%</InputLabel>
                             <Input
                                 value={baseScore}
                                 className="mb-4"
@@ -249,7 +247,7 @@ const CreateExam = () => {
                                     setbaseScore(e.target.value);
                                 }}
                             />
-                            <label className={`${labelMarginAndPadding}`}>Max Submissions | Default: 0 (unlimited)</label>
+                            <InputLabel>Max Submissions | Default: 0 (unlimited)</InputLabel>
                             <Input
                                 value={maxSubmissions}
                                 className="mb-4"
@@ -271,10 +269,10 @@ const CreateExam = () => {
                     </Accordion.Item>
                 </Accordion.Root>
 
-                <Text mt="9" ml="2" color="grey" display="block">
+                <Text mt="9" color="grey" display="block">
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
                 </Text>
-                {!requiredDetailsAreFilled() && <Text mt="2" ml="2" color="red" display="block">* Fields are required</Text>}
+                {!requiredDetailsAreFilled() && <Text mt="2" color="red" display="block">* Fields are required</Text>}
                 <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
                     Create Exam
                 </Button>
