@@ -1,4 +1,5 @@
 export { default as PageWrapper } from "./PageWrapper";
+export { default as ResponsivePageWrapper } from "./ResponsivePageWrapper";
 export { default as Text } from "./Text";
 export { default as Button } from "./Button";
 export { default as Title } from "./Title";
