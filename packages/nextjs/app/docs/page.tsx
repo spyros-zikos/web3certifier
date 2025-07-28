@@ -8,6 +8,8 @@ import {
   Container,
   Code,
 } from "@chakra-ui/react";
+import { Button } from "~~/components";
+import Link from "next/link";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Box mb={6}>
@@ -34,8 +36,7 @@ export default function ExamDocsPage() {
         </Section>
 
         <Section title="Date">
-          Specify the deadline for the exam. After this date, users cannot submit answers. A good
-          practice is to set this a week after creation.
+          Specify the deadline for the exam. After this date, users cannot submit answers. A good practice is to set it a week after the date that you create the exam.
         </Section>
 
         <Section title="Exam Questions">
@@ -64,13 +65,20 @@ export default function ExamDocsPage() {
         </Section>
 
         <Section title="Max Submissions">
-            Set a limit on how many users can submit. Default is <Code>0</Code> (infinite).
+            Set a limit on how many users can submit. Default is <Code>0</Code> (unlimited).
         </Section>
 
         <Section title="Exam Creation Fee">
           A small native currency fee (Eth or Celo) is required to prevent spam when creating an
           exam.
         </Section>
+
+        <Link href="/organize_exams">
+            <Button className="bg-base-100" onClick={undefined}>
+                Create an exam
+            </Button>
+        </Link>
+        
       </VStack>
     </Container>
   );
