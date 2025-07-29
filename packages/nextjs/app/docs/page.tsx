@@ -27,7 +27,7 @@ export default function ExamDocsPage() {
         <Heading size="xl">📚 How to Make an Exam</Heading>
 
         <Section title="Name">
-          Input the exam name. Avoid adding "<Code>Exam</Code>" at the end. For example, prefer{" "}
+          Input the exam name. Avoid adding &quot;<Code>Exam</Code>&quot; at the end. For example, prefer{" "}
           <Code>Basic Algebra</Code> over <Code>Basic Algebra Exam</Code>.
         </Section>
 
