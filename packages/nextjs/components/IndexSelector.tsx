@@ -1,29 +1,36 @@
 import React from "react";
-import { Box, Button } from "@chakra-ui/react";
+import { Flex, Spacer } from "@chakra-ui/react";
+import Button from "./Button";
 
 interface IndexSelectorProps {
     setIndex: (index: number) => void;
     index: number;
     firstIndex: number;
     lastIndex: number;
+    submitButton?: JSX.Element;
 }
 
-export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex }) => {
+export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex, submitButton=undefined }) => {
     return (
-        <Box className="w-full flex items-center justify-center mt-12">
+        <Flex minW="56">
+            {index !== firstIndex &&
             <Button
-                className="h-10 btn btn-sm btn-primary hover:border-accent"
+                className="bg-base-100 w-24"
                 onClick={() => index > firstIndex && setIndex(index - 1)}
             >
-                {"<"}
+                Previous
             </Button>
-            <div className="px-5 text-5xl" title={`${index} of ${lastIndex}`}>{index}</div>
-            <Button
-                className="h-10 btn btn-sm btn-primary hover:border-accent"
-                onClick={() => index < lastIndex && setIndex(index + 1)}
-            >
-                {">"}
-            </Button>
-        </Box>
+            }
+            <Spacer />
+            {index == lastIndex && submitButton !== undefined ?
+                submitButton :   
+                <Button
+                    className="bg-base-100 w-24"
+                    onClick={() => index < lastIndex && setIndex(index + 1)}
+                >
+                    Next
+                </Button>
+            }
+        </Flex>
     );
 }

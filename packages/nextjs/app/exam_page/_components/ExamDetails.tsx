@@ -92,7 +92,21 @@ const ExamDetails = (
             {/* Reward Information */}
             <RewardInfoDropDown id={exam?.id || BigInt(0)} />
 
+
+            {exam?.questions && exam?.questions.length > 1 &&
             <Box mt="12">
+                <Box className="flex justify-between mb-1">
+                    <Box fontSize="md" color="lightGreen">Progress</Box>
+                    <Box fontSize="md" color="lightGreen">Question {questionNumber} of {exam?.questions ? exam?.questions.length : 1}</Box>
+                </Box>
+                <Box className="w-full bg-gray-700 rounded-full h-2.5">
+                    <Box bgColor="lightGreen" h="2.5" rounded={"full"} w={`${(questionNumber / (exam?.questions ? exam?.questions.length : 1)) * 100}%`}></Box>
+                </Box>
+            </Box>
+            }
+
+
+            <Box mt="6">
                 <Box key={questionNumber}>
                     <Text color="green" m="0" p="0">Question {questionNumber}</Text>
                     <Text fontWeight={"semibold"} whiteSpace={"pre-wrap"} fontSize={"xl"} mt="2" mb="10">{question}</Text>
@@ -147,17 +161,17 @@ const ExamDetails = (
                         </Text>
                     </Text>
                 </Box>
-                {/* <Separator /> */}
             </Box>
             
-            <IndexSelector setIndex={setQuestionNumber} index={questionNumber} firstIndex={1} lastIndex={exam?.questions ? exam?.questions.length : 1} />
+            <IndexSelector setIndex={setQuestionNumber} index={questionNumber} firstIndex={1} lastIndex={exam?.questions ? exam?.questions.length : 1} submitButton={buttonText ? <Button className="w-24 bg-base-100" onClick={buttonAction}>{buttonText}</Button> : undefined}/>
 
+            <Box mt="8" display="block"></Box>
             <Separator />
 
-            {<Box className="mt-12 mb-8">
+            <Box>
                 <div className="whitespace-pre-wrap">{message}</div>
-            </Box>}
-            {buttonText && <Box w="full" display="flex" justifyContent="center"><Button className="ml-0 bg-base-100" onClick={buttonAction}>{buttonText}</Button></Box>}
+            </Box>
+            
         </ResponsivePageWrapper>
     );
 }

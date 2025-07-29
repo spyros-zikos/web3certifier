@@ -8,6 +8,7 @@ import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { SUPPORTED_NETWORKS } from "~~/constants";
+import { Box } from "@chakra-ui/react";
 
 
 const SearchExamsPage: React.FC = () => {
@@ -101,7 +102,11 @@ const SearchExamsPage: React.FC = () => {
                     />
                 ))}
             </div>
-            {lastPage > 1 && <IndexSelector setIndex={setPage} index={page} firstIndex={1} lastIndex={lastPage} />}
+            {lastPage > 1 && 
+            <>
+            <Box color="green" fontSize="xl" mt="16" mb="8">Page {page} of {lastPage}</Box>
+            <IndexSelector setIndex={setPage} index={page} firstIndex={1} lastIndex={lastPage} />
+            </>}
         </PageWrapper>
     );
 };
