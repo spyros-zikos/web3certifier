@@ -82,15 +82,15 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                 <Accordion.ItemBody>
                         <ExamDetail
                             name="Available Reward Amount"
-                            value={(scaledBalance?scaledBalance.toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
+                            value={(scaledBalance?scaledBalance.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
                         />
                         <ExamDetail
                             name="Reward Amount Per Person"
-                            value={(scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
+                            value={(scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
                         />
                         <ExamDetail
                             name="Reward Amount Per Correct Answer"
-                            value={(scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
+                            value={(scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
                         />
                         <ExamDetail name="Token Name" value={tokenName?tokenName.toString():"unknown"} />
                         <ExamDetail name="Token Symbol" value={tokenSymbol?tokenSymbol.toString():"unknown"} />
