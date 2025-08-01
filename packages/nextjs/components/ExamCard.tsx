@@ -1,9 +1,9 @@
 import React from "react";
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, Float, SimpleGrid, Text } from "@chakra-ui/react";
 import { Button, Card } from "~~/components";
 import { useRouter } from "next/navigation";
 import { Address } from "~~/components/scaffold-eth";
-import { defaultImage } from "~~/constants";
+import { defaultImage, ZERO_ADDRESS } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import Link from "next/link";
@@ -30,6 +30,25 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
         functionName: "getExamStatus",
         args: [exam?.id],
     }).data as any;
+
+    const rewardAddress = wagmiReadFromContract({
+        contractName: "RewardFactory",
+        functionName: "getRewardByExamId",
+        args: [id],
+    }).data;
+
+    const tokenAddress: string = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getTokenAddress",
+    }).data;
+
+    const totalReward: bigint  = wagmiReadFromContract({
+        contractName: "ERC20",
+        contractAddress: tokenAddress,
+        functionName: "balanceOf",
+        args: [rewardAddress],
+    }).data;
 
     // make a string with the nft meta-data
     let dataString = "";
@@ -92,14 +111,14 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
                     <Text color="black" fontSize="12" p="0" m="0" mt="3">End Time</Text>
                 </Box>
                 <Box>
-                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Certifier</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Total Reward</Text>
                 </Box>
 
                 <Box fontWeight="bold">
                     { getFormattedDate() }
                 </Box>
                 <Box fontWeight="bold">
-                    <Address address={exam.certifier.toString()} className={"text-bold"} disableAddressLink={true} />
+                    { rewardAddress !== ZERO_ADDRESS ? (Number(totalReward)/Number(1e18)).toFixed(2).toString() : "No Reward" }
                 </Box>
             </SimpleGrid>
         </Card>
