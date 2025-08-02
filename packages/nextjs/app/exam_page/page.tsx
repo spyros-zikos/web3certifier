@@ -96,8 +96,6 @@ const ExamPage = () => {
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
     // For exam stage: User_OpenNotSubmitted, Certifier_Correct, User_ClaimCertificate
     const [answers, setAnswers] = useState<bigint[]>([BigInt(0)]);
-    // For exam stage: User_ClaimCertificate
-    const [userPasswordInput, setUserPasswordInput] = useState<string>("");
     // For exam stage: Certifier_EndStats
     const [certifierStatsAfterCorrection, setCertifierStatsAfterCorrection] = useState<string>("");
 
@@ -174,32 +172,15 @@ const ExamPage = () => {
                 };
             case ExamStage.User_ClaimCertificate:
                 const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-                const [key, userAnswers, passwordHashGood] = getVariablesFromCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), address, userHashedAnswer);
+                const [key, userAnswers, passwordHashGood] = getVariablesFromCookies(cookiePassword || "", address, userHashedAnswer);
                 return {
-                    // Tell the user to input their password
                     message:
-                        exam?.userClaimsWithPassword
-                        ? <div>
-                            <div>The exam has ended. You can claim your certificate! To do so, enter your password below.</div>
-                            <input
-                                className="border-2 border-blue-400 text-base-content bg-base-100 p-2 mt-2 mr-2 min-w-[200px] sm:w-1/2 md:w-1/3 lg:w-1/4 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
-                                type="text"
-                                value={userPasswordInput}
-                                placeholder="Password"
-                                onChange={e => setUserPasswordInput(e.target.value)}
-                            />
-                            {   // Wrong password notification
-                                (passwordHashGood)
-                                ? <></>
-                                : <div className="mt-4">Your password is incorrect!</div>
-                            }
-                        </div>
-                        : <div>{passwordHashGood? "Claim your certificate!" : "Cookie not found!"}</div>,
+                        <div>{passwordHashGood? "Claim your certificate!" : "Cookie not found!"}</div>,
                     // Button exists only if password is good
                     buttonAction:
                         (passwordHashGood) ?
                         () => {
-                                userPasswordInput || cookiePassword ? handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key)) : 0
+                                cookiePassword ? handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key)) : 0
                         }
                         : undefined,
                     // Button exists only if password is good
