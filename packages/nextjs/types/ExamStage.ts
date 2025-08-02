@@ -11,7 +11,8 @@ export enum ExamStage {
 
     // --- Exam got cancelled --- 
     User_ClaimRefund, // submit
-    Both_CancelStats,
+    Certifier_CancelStats,
+    User_CancelStats,
     
     // --- Exam Ended ---
     Certifier_EndStats,
