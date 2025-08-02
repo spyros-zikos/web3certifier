@@ -11,7 +11,7 @@ import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
 import ExamDetails from "./_components/ExamDetails";
-import { keyLength, getHashedAnswerAndMessageWithPassword, getVariablesFromPasswordOrCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/PasswordManagement";
+import { keyLength, getVariablesFromCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -130,9 +130,7 @@ const ExamPage = () => {
         switch (examStage) {
             case ExamStage.User_OpenNotSubmitted:
                 const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-                const [userNotSubmittedMessage, hashedAnswerToSubmit, userPassword] = exam?.userClaimsWithPassword
-                    ? getHashedAnswerAndMessageWithPassword(answers, randomKey, address, needsVerification)
-                    : getHashedAnswerAndMessageWithCookies(answers, randomKey, address, needsVerification);
+                const [userNotSubmittedMessage, hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address, needsVerification);
                 return {
                     message: userNotSubmittedMessage,
                     buttonAction: () => 
@@ -154,7 +152,7 @@ const ExamPage = () => {
             case ExamStage.User_WaitForCorrection:
                 return { message: "This exam is being corrected by the certifier!", buttonAction: undefined, buttonText: undefined };  
             case ExamStage.User_EndSuccessStats:
-                return { message: <div>This exam has ended! You completed it successfully!</div>, buttonAction: undefined, buttonText: undefined }; // Can add stats
+                return { message: "This exam has ended! You completed it successfully!", buttonAction: undefined, buttonText: undefined }; // Can add stats
             case ExamStage.User_EndFailStats:
                 return {
                     message: exam
@@ -176,7 +174,7 @@ const ExamPage = () => {
                 };
             case ExamStage.User_ClaimCertificate:
                 const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-                const [key, userAnswers, passwordHashGood] = getVariablesFromPasswordOrCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), address, userHashedAnswer);
+                const [key, userAnswers, passwordHashGood] = getVariablesFromCookies((exam?.userClaimsWithPassword ? userPasswordInput : (cookiePassword || "")), address, userHashedAnswer);
                 return {
                     // Tell the user to input their password
                     message:

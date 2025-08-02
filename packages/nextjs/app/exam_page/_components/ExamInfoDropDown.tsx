@@ -16,7 +16,7 @@ const ExamInfoDropDown = ({status, exam}: {status: number | undefined, exam: Exa
             <Accordion.ItemIndicator />
             </Accordion.ItemTrigger>
             <Accordion.ItemContent>
-            <Accordion.ItemBody>
+                <Accordion.ItemBody>
                     <ExamDetail name="Status" value={getExamStatusStr(status)} />
                     <ExamDetail name="End Time" value={exam?(new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(0, 17) +
                                                             (new Date(Number(exam?.endTime)*1000)).toString().split("(")[0].slice(4).slice(20) : 0} />

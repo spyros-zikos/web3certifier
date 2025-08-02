@@ -6,26 +6,6 @@ const VerifyAccountMessage = () => {
     return <div>{"\n"}You need to verify your account.{"\n"}Click on the &quot;CLAIM NOW&quot; button <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a>.</div>
 }
 
-// Password
-export function getHashedAnswerAndMessageWithPassword(
-    answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
-): [
-    message: any, hashedAnswer: string|undefined, userPassword: string
-] {
-    const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
-    
-    // Get answers as string
-    const answersAsString: string = answers ? getAnswersAsString(answers) : '0';
-    // Get hash of answers, key and address
-    const hashedAnswer = address ? web3.utils.soliditySha3(answersAsString, randomKey, address) : '';
-
-    // message
-    const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
-    const message = <div>Your password is {userPassword}. Copy it and store it. You&apos;ll need it to claim your certificate.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
-
-    return [message, hashedAnswer, ""];
-}
-
 // Cookies
 export function getHashedAnswerAndMessageWithCookies(
     answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
@@ -49,7 +29,7 @@ export function getHashedAnswerAndMessageWithCookies(
 }
 
 // Retrieve password
-export function getVariablesFromPasswordOrCookies(
+export function getVariablesFromCookies(
     password: string, address?: string, userHashedSubmittedAnswer?: string
 ): [
     key: number, answers: string, passwordHashGood: boolean
