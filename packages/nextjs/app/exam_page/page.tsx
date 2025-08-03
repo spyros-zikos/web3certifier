@@ -3,19 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box } from "@chakra-ui/react";
-import { PageWrapper, Title } from "~~/components";
+import { PageWrapper, ResponsivePageWrapper, Title } from "~~/components";
 import { useAccount } from "wagmi";
-import { handleClaimReward, handleClaimCertificate, handleCorrectExam, handleRefundExam, handleSubmitAnswers } from "./helperFunctions/Handlers";
 import { ExamStage } from "../../types/ExamStage";
 import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
-import ExamDetails from "./_components/ExamDetails";
-import { keyLength, getVariablesFromCookies, getHashedAnswerAndMessageWithCookies } from "./helperFunctions/PasswordManagement";
-import Cookies from 'js-cookie';
-import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import {SUPPORTED_NETWORKS, ZERO_ADDRESS} from "~~/constants";
+import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection } from "./pages";
+import StaticExamPage from "./pages/StaticExamPage";
+import { DropDowns, ImageNameDescription, ManageRewardsLink, Timer } from "./_components";
+import getTimeLeft from "./helperFunctions/GetTimeLeft";
+
 
 const ExamPage = () => {
     const { address, chain } = useAccount();
@@ -32,21 +32,11 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
-    const questionsWithAnswers = exam?.questions;
+    const questionsAndPossibleAnswers = exam?.questions;
 
     const userStatusNum = wagmiReadFromContract({
         functionName: "getUserStatus",
         args: [address, id],
-    }).data;
-
-    const userHashedAnswer = wagmiReadFromContract({
-        functionName: "getUserHashedAnswer",
-        args: [address, id],
-    }).data;
-
-    const examPriceInEth = wagmiReadFromContract({
-        functionName: "getUsdToEthRate",
-        args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
 
     const examStatusNum: number | undefined = wagmiReadFromContract({
@@ -54,18 +44,13 @@ const ExamPage = () => {
         args: [id],
     }).data;
 
-    const timeToCorrect: bigint | undefined = wagmiReadFromContract({
-        functionName: "getTimeToCorrectExam",
-    }).data;
-
-    const isVerifiedOnCelo: boolean = wagmiReadFromContract({
-        functionName: "getIsVerifiedOnCelo",
-        args: [address],
-    }).data;
-
     const userScore: bigint | undefined = wagmiReadFromContract({
         functionName: "getUserScore",
         args: [id, address],
+    }).data;
+
+    const timeToCorrect: bigint | undefined = wagmiReadFromContract({
+        functionName: "getTimeToCorrectExam",
     }).data;
 
     const rewardAddress = wagmiReadFromContract({
@@ -81,22 +66,8 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
-    /*//////////////////////////////////////////////////////////////
-                           WRITE TO CONTRACT
-    //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
-    const { writeContractAsync: refundExam } = wagmiWriteToContract();
-    const { writeContractAsync: correctExam } = wagmiWriteToContract();
-    const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
-    const { writeContractAsync: claimReward } = wagmiWriteToContract();
-    
-
-    // Get key | For exam stage: User_OpenNotSubmitted
-    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
-    // For exam stage: User_OpenNotSubmitted, Certifier_Correct, User_ClaimCertificate
-    const [answers, setAnswers] = useState<bigint[]>([BigInt(0)]);
-    // For exam stage: Certifier_EndStats
+    // For exam stage: Certifier_Corrected
     const [certifierStatsAfterCorrection, setCertifierStatsAfterCorrection] = useState<string>("");
 
     // Stats
@@ -116,102 +87,12 @@ const ExamPage = () => {
         return () => clearInterval(interval); // cleanup
     }, []);
 
-    const getExamStage = () => {
+    const getExamStage: any = () => {
         const examStatus = getExamStatusStr(examStatusNum);
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
         const userCanClaimReward = !userHasClaimedReward && hasReward;
         return examStage(examStatus, userStatus, address, exam, userCanClaimReward);
-    }
-
-    const getExamStageMessageAndButton = (examStage: any): ExamPageDynamicElements => {
-        switch (examStage) {
-            case ExamStage.User_OpenNotSubmitted:
-                const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-                const [userNotSubmittedMessage, hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address, needsVerification);
-                return {
-                    message: userNotSubmittedMessage,
-                    buttonAction: () => 
-                        {
-                            // set cookie
-                            Cookies.set(`w3c.${chain?.id}.${id}.${address}`, userPassword, { expires: 10000 });
-                            console.log(userPassword);
-
-                            hashedAnswerToSubmit
-                            ? exam && (exam.price > 0 ? examPriceInEth : true)
-                                && answers.length === questionsWithAnswers?.length
-                                && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!)
-                            : 0
-                        },
-                    buttonText: "Submit"
-                };
-            case ExamStage.User_OpenSubmitted:
-                return { message: "Your answers are submitted!", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.User_WaitForCorrection:
-                return { message: "This exam is being corrected by the certifier!", buttonAction: undefined, buttonText: undefined };  
-            case ExamStage.User_EndSuccessStats:
-                return { message: "This exam has ended! You completed it successfully!", buttonAction: undefined, buttonText: undefined }; // Can add stats
-            case ExamStage.User_EndFailStats:
-                return {
-                    message: exam
-                    ? <div>
-                        You failed this exam! Your score was {userScore?.toString()}/{questionsWithAnswers?.length} {""}
-                        but you need at least {exam!.baseScore.toString()}/{questionsWithAnswers?.length} to pass.
-                    </div>
-                    : <div>Loading...</div>,
-                    buttonAction: undefined,
-                    buttonText: undefined
-                }; // Can add stats
-            case ExamStage.User_Details:
-                return { message: "This exam has ended. You did not participate!", buttonAction: undefined, buttonText: undefined }; // Can add stats
-            case ExamStage.User_ClaimRefund:
-                return {
-                    message: "You can claim your refund!",
-                    buttonAction: () => {handleRefundExam(refundExam, id)},
-                    buttonText: "Claim Refund"
-                };
-            case ExamStage.User_ClaimCertificate:
-                const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-                const [key, userAnswers, passwordHashGood] = getVariablesFromCookies(cookiePassword || "", address, userHashedAnswer);
-                return {
-                    message:
-                        <div>{passwordHashGood? "Claim your certificate!" : "Cookie not found!"}</div>,
-                    // Button exists only if password is good
-                    buttonAction:
-                        (passwordHashGood) ?
-                        () => {
-                                cookiePassword ? handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key)) : 0
-                        }
-                        : undefined,
-                    // Button exists only if password is good
-                    buttonText:
-                        (passwordHashGood) ? "Claim Certificate" : undefined
-                };
-            case ExamStage.User_ClaimReward:
-                return {
-                    message:
-                        <div>Claim your reward!</div>,
-                    buttonAction:
-                        () => {handleClaimReward(claimReward, rewardAddress)},
-                    buttonText:
-                        "Claim Reward"
-                };
-            case ExamStage.Certifier_Open:
-                return { message: "This exam is ongoing! The certifier cannot submit.", buttonAction: undefined, buttonText: undefined };
-            case ExamStage.Certifier_Correct:
-                return {
-                    message: "This exam needs correcting. Please provide the correct answers within the correction period of the exam.",
-                    buttonAction: () => {handleCorrectExam(correctExam, id, answers.map(answer => answer.toString()).reduce((a, b) => a + b, ""))},
-                    buttonText: "Correct Exam"
-                };
-            case ExamStage.Certifier_EndStats:
-                return { message: "This exam has ended!\n\n" + certifierStatsAfterCorrection, buttonAction: undefined, buttonText: undefined };
-            case ExamStage.Both_CancelStats:
-                return { message: "The exam has been cancelled!", buttonAction: undefined, buttonText: undefined };
-            
-            default:
-                return { message: "Unknown stage", buttonAction: undefined, buttonText: undefined };
-        }
     }
 
     // Check that user is connected to supported network
@@ -237,50 +118,63 @@ const ExamPage = () => {
             </PageWrapper>
         );
     }
-    
-    function getTimeLeft(now: number, deadline: bigint) {
-        const deadlineDate = new Date(Number(deadline) * 1000);
-        const diffMs = deadlineDate.getTime() - now > 0 ? deadlineDate.getTime() - now : 0;
-        const timeLeft = Math.floor(diffMs / 1000);
-
-        const days = Math.floor(timeLeft / (3600 * 24));
-        const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
-        const minutes = Math.floor((timeLeft % 3600) / 60);
-        const seconds = timeLeft % 60;
-
-        return `${days > 0 ? days + "d ":""}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    }
 
     return (
-        <ExamDetails
-            exam={exam}
-            message={getExamStageMessageAndButton(getExamStage()!).message}
-            buttonAction={getExamStageMessageAndButton(getExamStage()!).buttonAction}
-            buttonText={getExamStageMessageAndButton(getExamStage()!).buttonText}
-            showAnswers={
-                (getExamStage() === ExamStage.User_OpenNotSubmitted) ||
-                (getExamStage() === ExamStage.Certifier_Correct)
+        <ResponsivePageWrapper>
+            {/* Manage Rewards */}
+            { address === exam?.certifier && <ManageRewardsLink id={exam?.id || BigInt(0)} /> }
+
+            {/* Image, Name, Description */}
+            <ImageNameDescription exam={exam} />
+
+            {/* Submission Timer */}
+            {examStatusNum == 0 && <Timer message={'Time Left To Submit'} timeLeft={exam ? getTimeLeft(timeNow, exam.endTime) : ""} />}
+            {/* Correction Timer */}
+            {examStatusNum == 1 && <Timer message={'Time Left To Correct'} timeLeft={exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""} />}
+
+            <DropDowns exam={exam} status={examStatusNum} />
+
+            { ////// User //////
+            // Open
+            getExamStage() === ExamStage.User_Open_NotSubmitted ?
+            <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} />
+            : getExamStage() === ExamStage.User_Open_Submitted ?
+            <StaticExamPage exam={exam} message="Your answers are submitted!" />
+            // Under Correction
+            : getExamStage() === ExamStage.User_UnderCorrection ?
+            <StaticExamPage exam={exam} message="This exam is being corrected by the certifier!" />
+            // Cancelled
+            : getExamStage() === ExamStage.User_Cancelled_ClaimRefund ?
+            <UserCancelledClaimRefund id={id} exam={exam} />
+            : getExamStage() === ExamStage.User_Cancelled_NoRefund ?
+            <StaticExamPage exam={exam} message="The exam has been cancelled!" />  
+            // Corrected
+            : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
+            <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
+            <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
+            <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully!" />
+            : getExamStage() === ExamStage.User_Corrected_Failed ?
+            <StaticExamPage exam={exam} message={exam ? <div> You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div> : <div>Loading...</div>} />
+            : getExamStage() === ExamStage.User_Corrected_NotSubmitted ?
+            <StaticExamPage exam={exam} message="This exam has ended. You did not participate!" />
+
+            ////// Certifier //////
+            // Open
+            : getExamStage() === ExamStage.Certifier_Open ?
+            <StaticExamPage exam={exam} message="This exam is ongoing! The certifier cannot submit." />
+            // Under Correction
+            : getExamStage() === ExamStage.Certifier_UnderCorrection ?
+            <CertifierUnderCorrection id={id} exam={exam} />
+            // Cancelled
+            : getExamStage() === ExamStage.Certifier_Cancelled ?
+            <StaticExamPage exam={exam} message="The exam has been cancelled!" />
+            // Corrected
+            : getExamStage() === ExamStage.Certifier_Corrected &&
+            <StaticExamPage exam={exam} message={"This exam has ended!\n\n" + certifierStatsAfterCorrection} />
             }
-            showRewards={
-                // rewardAddress !== ZERO_ADDRESS ||
-                getExamStage() === ExamStage.Certifier_Open ||
-                getExamStage() === ExamStage.Certifier_Correct ||
-                getExamStage() === ExamStage.Certifier_EndStats
-            }
-            answers={answers}
-            setAnswers={setAnswers}
-            timer={(getExamStage() === ExamStage.User_OpenNotSubmitted ||
-                getExamStage() === ExamStage.User_OpenSubmitted ||
-                getExamStage() === ExamStage.Certifier_Open
-                )
-                ? ['Time Left To Submit', exam ? getTimeLeft(timeNow, exam.endTime) : ""]
-                : getExamStage() === ExamStage.Certifier_Correct
-                ? ['Time Left To Correct', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
-                : getExamStage() === ExamStage.User_WaitForCorrection
-                ? ['Correction Duration', exam ? getTimeLeft(timeNow, exam!.endTime + BigInt(timeToCorrect || 0)) : ""]
-                : ['', '']
-            }
-        />
+        </ResponsivePageWrapper>
     )
 }
 

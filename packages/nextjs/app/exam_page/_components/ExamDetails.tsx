@@ -5,14 +5,11 @@ import { ArrowDownIcon } from "@heroicons/react/24/outline";
 import RewardInfoDropDown from "./RewardInfoDropDown";
 import ExamInfoDropDown from "./ExamInfoDropDown";
 import { IndexSelector } from "~~/components/IndexSelector";
-import ResponsivePageWrapper from "~~/components/ResponsivePageWrapper";
 import Timer from "./Timer";
 import ImageNameDescription from "./ImageNameDescription";
 import ProgressBar from "./ProgressBar";
 import Question from "./Question";
 import MessageForUser from "./MessageForUser";
-import Link from "next/link";
-import { ManageReward } from "~~/app/rewards/pages";
 import ManageRewardsLink from "./ManageRewardsLink";
 
 
@@ -23,7 +20,7 @@ const ExamDetails = (
         buttonAction, 
         buttonText, 
         showAnswers, 
-        showRewards, 
+        showManageRewardsLink, 
         answers, 
         setAnswers,
         timer
@@ -34,7 +31,7 @@ const ExamDetails = (
         buttonAction?: any,
         buttonText?: string,
         showAnswers: boolean,
-        showRewards: boolean,
+        showManageRewardsLink: boolean,
         answers: bigint[],
         setAnswers: any,
         timer: [string, string]
@@ -48,8 +45,8 @@ const ExamDetails = (
     }).data as any;
 
     return (
-        <ResponsivePageWrapper>
-            { showRewards && <ManageRewardsLink id={exam?.id || BigInt(0)} /> }
+        <>
+            { showManageRewardsLink && <ManageRewardsLink id={exam?.id || BigInt(0)} /> }
 
             {/* Image, Name, Description */}
             <ImageNameDescription exam={exam} />
@@ -75,7 +72,7 @@ const ExamDetails = (
 
             <MessageForUser message={message} />
             
-        </ResponsivePageWrapper>
+        </>
     );
 }
 

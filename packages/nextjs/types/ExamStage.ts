@@ -2,23 +2,23 @@
 export enum ExamStage {
     // --- Start --- 
     Certifier_Open,
-    User_OpenNotSubmitted, // submit
-    User_OpenSubmitted,
+    User_Open_NotSubmitted, // submit
+    User_Open_Submitted,
 
     // --- Correction period start --- 
-    Certifier_Correct, // submit
-    User_WaitForCorrection,
+    Certifier_UnderCorrection, // submit
+    User_UnderCorrection,
 
     // --- Exam got cancelled --- 
-    User_ClaimRefund, // submit
-    Certifier_CancelStats,
-    User_CancelStats,
+    Certifier_Cancelled,
+    User_Cancelled_ClaimRefund, // submit
+    User_Cancelled_NoRefund,
     
     // --- Exam Ended ---
-    Certifier_EndStats,
-    User_ClaimCertificate, // submit
-    User_ClaimReward, // submit
-    User_EndSuccessStats, // for successful participants
-    User_EndFailStats, // for failed participants
-    User_Details, // for non-participants
+    Certifier_Corrected,
+    User_Corrected_ClaimCertificate, // submit
+    User_Corrected_SucceededClaimReward, // submit
+    User_Corrected_SucceededNoReward, // for successful participants
+    User_Corrected_Failed, // for failed participants
+    User_Corrected_NotSubmitted, // for non-participants
 }

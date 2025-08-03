@@ -1,13 +1,14 @@
 import { Box, Text, Flex } from '@chakra-ui/react'
 import React from 'react'
 import { answersSeparator } from "~~/constants";
+import ProgressBar from './ProgressBar';
 
 
 
 const Question = ({
         questionNumber, exam, showAnswers, answers, setAnswers
     } : {
-        questionNumber: number, exam: Exam | undefined, showAnswers: boolean, answers: bigint[], setAnswers: any
+        questionNumber: number, exam: Exam | undefined, showAnswers: boolean, answers?: bigint[], setAnswers?: any
     }) => {
     const [question, answer1, answer2, answer3, answer4] = exam?.questions[questionNumber-1].split(answersSeparator) || ["", "", "", "", ""];
     
@@ -19,11 +20,16 @@ const Question = ({
         if (!showAnswers) return;
         (document.getElementById(`answer${answerId}-${questionNumber}`)! as HTMLInputElement).checked = true;
         setAnswers([
-            ...answers.slice(0, questionNumber-1), BigInt(answerId), ...answers.slice(questionNumber),
+            ...answers!.slice(0, questionNumber-1), BigInt(answerId), ...answers!.slice(questionNumber),
         ]);
     }
 
     return (
+        <>
+        {exam?.questions && exam?.questions.length > 1 &&
+            <ProgressBar exam={exam} questionNumber={questionNumber} />
+        }
+
         <Box mt="6">
             <Box key={questionNumber}>
                 <Text color="green" m="0" p="0">Question {questionNumber}</Text>
@@ -37,7 +43,7 @@ const Question = ({
                         onClick={() => handleSelectAnswer(1, questionNumber)}
                     >
                         <Flex align="flex-start">
-                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer1-${questionNumber}`} value="1" checked={answers[questionNumber-1] === BigInt(1)} />}
+                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer1-${questionNumber}`} value="1" checked={answers![questionNumber-1] === BigInt(1)} />}
                             <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer1}</Text>
                         </Flex>
                     </Text>
@@ -49,7 +55,7 @@ const Question = ({
                         onClick={() => handleSelectAnswer(2, questionNumber)}
                     >
                         <Flex align="flex-start">
-                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer2-${questionNumber}`} value="2" checked={answers[questionNumber-1] === BigInt(2)} />}
+                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer2-${questionNumber}`} value="2" checked={answers![questionNumber-1] === BigInt(2)} />}
                             <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer2}</Text>
                         </Flex>
                     </Text>
@@ -61,7 +67,7 @@ const Question = ({
                         onClick={() => handleSelectAnswer(3, questionNumber)}
                     >
                         <Flex align="flex-start">
-                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer3-${questionNumber}`} value="3" checked={answers[questionNumber-1] === BigInt(3)} />}
+                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer3-${questionNumber}`} value="3" checked={answers![questionNumber-1] === BigInt(3)} />}
                             <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer3}</Text>
                         </Flex>
                     </Text>
@@ -73,13 +79,14 @@ const Question = ({
                         onClick={() => handleSelectAnswer(4, questionNumber)}
                     >
                         <Flex align="flex-start">
-                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer4-${questionNumber}`} value="4" checked={answers[questionNumber-1] === BigInt(4)} />}
+                            {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer4-${questionNumber}`} value="4" checked={answers![questionNumber-1] === BigInt(4)} />}
                             <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer4}</Text>
                         </Flex>
                     </Text>
                 </Text>
             </Box>
         </Box>
+        </>
     )
 }
 

@@ -7,10 +7,10 @@ interface IndexSelectorProps {
     index: number;
     firstIndex: number;
     lastIndex: number;
-    submitButton?: JSX.Element;
+    submitButtonOnClick?: () => void;
 }
 
-export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex, submitButton=undefined }) => {
+export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex, submitButtonOnClick=undefined }) => {
     return (
         <Flex minW="56">
             {index !== firstIndex &&
@@ -22,8 +22,11 @@ export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, f
             </Button>
             }
             <Spacer />
-            {index == lastIndex && submitButton !== undefined ?
-                submitButton :   
+            {(index == lastIndex) && (submitButtonOnClick !== undefined) ?
+                <Button className="w-24 bg-base-100" onClick={submitButtonOnClick}>
+                    Submit
+                </Button>
+                : (index !== lastIndex) &&
                 <Button
                     className="bg-base-100 w-24"
                     onClick={() => index < lastIndex && setIndex(index + 1)}

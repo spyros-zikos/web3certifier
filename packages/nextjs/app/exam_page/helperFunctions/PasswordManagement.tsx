@@ -2,20 +2,13 @@ import { Web3 } from "web3";
 
 export const keyLength = 10;
 
-const VerifyAccountMessage = () => {
-    return <div>{"\n"}You need to verify your account.{"\n"}Click on the &quot;CLAIM NOW&quot; button <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a>.</div>
-}
 
-// Cookies
 export function getHashedAnswerAndMessageWithCookies(
-    answers: bigint[], randomKey: number, address?: string, needsVerification?: boolean
+    answers: bigint[], randomKey: number, address?: string
 ): [
-    message: any, hashedAnswer: string|undefined, userPassword: string
+    hashedAnswer: string|undefined, userPassword: string
 ] {
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
-    
-    // message
-    const message = <div>The system uses cookies to store your password. This means that you can claim your certificate only from this device.{needsVerification ? <VerifyAccountMessage /> : ""}</div>
 
     // Get answers as string
     const answersAsString: string = answers ? getAnswersAsString(answers) : "0";
@@ -25,7 +18,7 @@ export function getHashedAnswerAndMessageWithCookies(
     // password
     const userPassword = answersAsString + String(randomKey).padStart(keyLength, '0');
 
-    return [message, hashedAnswer, userPassword];
+    return [hashedAnswer, userPassword];
 }
 
 // Retrieve password

@@ -6,7 +6,7 @@ const MessageForUser = ({message}: {message: any}) => {
         <>
             <Box mt="8" display="block"></Box>
             <Text borderTop="1px solid" borderColor="lighterLighterBlack"></Text>
-            <Box whiteSpace={"pre-wrap"}>{message}</Box>
+            <Box mt="8" whiteSpace={"pre-wrap"}>{message}</Box>
         </>
     )
 }
