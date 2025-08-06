@@ -6,6 +6,8 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
 import { chainsToContracts } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
+import Link from 'next/link';
+import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -78,6 +80,14 @@ const CreateReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
+                <Link href="/docs/RewardSetUp" target="_blank" rel="noopener noreferrer">
+                    <Button className="bg-base-100 w-[75%]" onClick={undefined}>
+                        <BookOpenIcon className="h-5 w-5 mr-2 inline" />
+                        Documentation 
+                        <BookOpenIcon className="h-5 w-5 ml-2 inline" />
+                    </Button>
+                </Link>
+            
                 {chain?.id !== 42220 ? <><label className={`${labelMarginAndPadding}`}>Token Address *</label>
                 <Input
                     value={tokenAddress}
@@ -87,7 +97,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setTokenAddress(e.target.value);
                     }}
                 /></>
-            : <>Reward users with G$ tokens!</>}
+                : <>Reward users with G$ tokens!</>}
                 <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
                 <Input
                     value={initialRewardAmount}

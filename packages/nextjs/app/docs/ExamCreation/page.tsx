@@ -3,22 +3,13 @@ import React from "react";
 import {
   Box,
   Heading,
-  Text,
   VStack,
   Container,
   Code,
 } from "@chakra-ui/react";
 import { Button } from "~~/components";
 import Link from "next/link";
-
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <Box mb={6}>
-    <Heading size="md" mb={2}>
-      {title}
-    </Heading>
-    <Text>{children}</Text>
-  </Box>
-);
+import { Section } from "../_components/Section";
 
 export default function ExamDocsPage() {
   return (

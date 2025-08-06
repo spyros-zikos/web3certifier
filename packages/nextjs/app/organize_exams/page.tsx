@@ -94,7 +94,7 @@ const CreateExam = () => {
                         Create Exams
                     </Box>
                     <Spacer />
-                    <Link href="/docs">
+                    <Link href="/docs/ExamCreation">
                         <Button className="bg-base-100 text-sm" onClick={undefined}>
                             Documentation
                         </Button>
