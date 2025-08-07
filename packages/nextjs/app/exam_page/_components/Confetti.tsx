@@ -38,7 +38,6 @@ const createConfetti = (width: number, height: number): ConfettiPiece[] => {
 // Define the Confetti React component
 const Confetti = ({ show }: { show: boolean }) => {
     const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-    //const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const dimensionsRef = useRef({ width: 0, height: 0});
 
     // Get and update window dimensions
