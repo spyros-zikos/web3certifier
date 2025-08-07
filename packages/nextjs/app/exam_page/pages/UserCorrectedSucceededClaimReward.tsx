@@ -1,8 +1,8 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import { IndexSelector } from "~~/components/IndexSelector";
 import { handleClaimReward } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser, ClaimButton } from "../_components";
+import { Question, MessageForUser, ClaimButton, Confetti } from "../_components";
 
 const UserCorrectedSucceededClaimReward = ({
     exam, rewardAddress
@@ -10,10 +10,12 @@ const UserCorrectedSucceededClaimReward = ({
     exam: Exam | undefined, rewardAddress: string
 }) => {
     const [questionNumber, setQuestionNumber] = useState<number>(1);
+    const [showConfetti, setShowConfetti] = useState(false);
 
     const { writeContractAsync: claimReward } = wagmiWriteToContract();
     const onClickClaimRewardButton = () => {
         handleClaimReward(claimReward, rewardAddress)
+        setShowConfetti(true);
     }
 
     return (
@@ -33,6 +35,8 @@ const UserCorrectedSucceededClaimReward = ({
             />
 
             <ClaimButton text="Claim Reward" onClick={onClickClaimRewardButton}/>
+
+            <Confetti show={showConfetti} />
         </>
     );
 }
