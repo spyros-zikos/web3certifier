@@ -29,7 +29,7 @@ const createConfetti = (width: number, height: number): ConfettiPiece[] => {
             rotationSpeed: (Math.random() - 0.5) * 20,
             color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
             size: Math.random() * 8 + 4,
-            gravity: 0.2
+            gravity: 0.3
         });
     }
     return newConfetti;
