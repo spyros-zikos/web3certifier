@@ -3,7 +3,10 @@ import { arbitrum } from "viem/chains";
 export const defaultImage = "https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/Qme6b3de9ATPVjNh5mhFPwHgJUmqKz8vqYx2LPj6j3uQTY/KNOWLEDGE.png";
 export const SUPPORTED_NETWORKS = { sepolia: 11155111, arbitrum: 42161, celo: 42220 };
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-export const answersSeparator = "|&&|"
+export const answersSeparator = "|&&|";
+export const cookieExpirationTime = 10000;
+export const timePerQuestion = 30; // seconds
+
 
 export interface ContractsConfig {
     [chainId: number]: {

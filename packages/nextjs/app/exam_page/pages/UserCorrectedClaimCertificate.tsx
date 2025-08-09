@@ -6,6 +6,7 @@ import { Question, MessageForUser, ClaimButton } from "../_components";
 import Cookies from 'js-cookie';
 import { getVariablesFromCookies } from "../helperFunctions/PasswordManagement";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { Box } from "@chakra-ui/react";
 
 const UserCorrectedClaimCertificate = ({
     id, exam, address, chain
@@ -19,12 +20,12 @@ const UserCorrectedClaimCertificate = ({
         args: [address, id],
     }).data;
     
-    const cookiePassword = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-    const [key, userAnswers, passwordHashGood] = getVariablesFromCookies(cookiePassword || "", address, userHashedAnswer);
+    const passwordCookie = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
+    const [key, userAnswers, passwordHashGood] = getVariablesFromCookies(passwordCookie || "", address, userHashedAnswer);
 
     const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const onClickClaimCertificateButton = () => {
-        cookiePassword && handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key))
+        passwordCookie && handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key))
     }
 
     return (
@@ -39,8 +40,8 @@ const UserCorrectedClaimCertificate = ({
                 lastIndex={exam?.questions ? exam?.questions.length : 1}
             />
 
-            <MessageForUser 
-                message={<div>{passwordHashGood? "Claim your certificate!" : "Cookie not found!"}</div>}
+            <MessageForUser
+                message={<div>{passwordHashGood? <><Box>Claim your certificate!</Box></> : "Cookie not found!"}</div>}
             />
 
             {passwordHashGood && <ClaimButton text="Claim Certificate" onClick={onClickClaimCertificateButton}/>}

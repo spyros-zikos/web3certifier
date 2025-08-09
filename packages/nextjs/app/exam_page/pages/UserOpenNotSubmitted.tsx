@@ -5,9 +5,9 @@ import { getHashedAnswerAndMessageWithCookies, keyLength } from "../helperFuncti
 import Cookies from 'js-cookie';
 import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser } from "../_components";
+import { Question, MessageForUser, ExamStartWarningBox } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { Button } from "~~/components";
+import { cookieExpirationTime, timePerQuestion } from "~~/constants";
 
 
 const UserOpenNotSubmitted = ({
@@ -18,7 +18,11 @@ const UserOpenNotSubmitted = ({
     const [questionNumber, setQuestionNumber] = useState<number>(0);
     const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
+    const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
+
+    const passwordCookie = `w3c.${chain?.id}.${id}.${address}`;
+    const startTimeCookie = `w3c.${chain?.id}.${id}.${address}.startTime`;
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -40,7 +44,7 @@ const UserOpenNotSubmitted = ({
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
     const onClickSubmitAnswersButton = () => {
         // set cookie
-        Cookies.set(`w3c.${chain?.id}.${id}.${address}`, userPassword, { expires: 10000 });
+        Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });
         console.log(userPassword);
 
         hashedAnswerToSubmit
@@ -51,18 +55,25 @@ const UserOpenNotSubmitted = ({
     }
 
     const VerifyAccountMessage = () => {
-        return <div>{"\n"}You need to verify your account.{"\n"}Click on the &quot;CLAIM NOW&quot; button <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>here</a>.</div>
+        return <div>
+            {"\n"}You need to verify your account.{"\n"}
+            Click on the &quot;CLAIM NOW&quot; button
+            <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>
+                here
+            </a>.
+        </div>
     }
 
-    const timePerQuestion = 30; // seconds
-    const [startTime, setStartTime] = useState(0);
-    
-    const secondsNow = Math.floor(Date.now()/1000);
+    /// timer for each question ///
 
-    useEffect(() => {
-        if (startTime === 0) setStartTime(Number(Cookies.get(`w3c.${chain?.id}.${id}.${address}.startTime`)) || 0);
+    const getCurrentTimestamp = () => {
+        return Math.floor(Date.now()/1000);
+    }
     
-        const unboundQuestionNumber = Math.floor(((Date.now()/1000) - startTime) / timePerQuestion) + 1;
+    useEffect(() => {
+        if (startTime === 0) setStartTime(Number(Cookies.get(startTimeCookie)) || 0);
+    
+        const unboundQuestionNumber = Math.floor((getCurrentTimestamp() - startTime) / timePerQuestion) + 1;
         if (unboundQuestionNumber > (exam?.questions.length || 1)) {
             setTimeEnded(true);
         } else {
@@ -71,14 +82,22 @@ const UserOpenNotSubmitted = ({
 
         const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
         if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
-        console.log(secondsNow - startTime);
-    }, [secondsNow]);
+        console.log(getCurrentTimestamp() - startTime);
+    }, [getCurrentTimestamp()]);
 
+    /// if a user clicks next before the timer of the question goes to 0, the remaining time must be discarded
+    /// the way this is done is by making the startTime be sooner by the remaining time
     const handleNextQuestion = (nextQuestionNumber: number) => {
-        const timeRemainingForPreviousQuestion = Math.max(0, startTime + (questionNumber * timePerQuestion) - secondsNow);
+        // calculate remaining time
+        const timeRemainingForPreviousQuestion = Math.max(0, startTime + (questionNumber * timePerQuestion) - getCurrentTimestamp());
         console.log(timeRemainingForPreviousQuestion);
-        setStartTime(startTime - timeRemainingForPreviousQuestion);
-        Cookies.set(`w3c.${chain?.id}.${id}.${address}.startTime`, (startTime - timeRemainingForPreviousQuestion).toString(), { expires: 10000 });
+        // new startTime
+        const newStartTime = startTime - timeRemainingForPreviousQuestion;
+        // update the variable startTime
+        setStartTime(newStartTime);
+        // update the cookie startTime
+        Cookies.set(startTimeCookie, newStartTime.toString(), { expires: cookieExpirationTime });
+        // do the default action that changes the questionNumber
         setQuestionNumber(nextQuestionNumber);
     }
 
@@ -86,31 +105,23 @@ const UserOpenNotSubmitted = ({
         <>
             {/* Questions */}
             {questionNumber > 0 ?
+                // if user has started the exam
                 <Question questionNumber={questionNumber} exam={exam} showAnswers={timeEnded ? false : true} answers={answers} setAnswers={setAnswers} />
-                : 
-                <Box display={"flex"} flexDirection={"column"} justifyContent={"end"} alignItems={"center"} bg="primary" w="full" h="500px" border="2px" borderStyle="solid" borderColor="lightGreen">
-                    <Button
-                        className="bg-base-100 w-32 h-12 font-bold text-xl mb-24"
-                        onClick={() => {
-                            const startTime = Math.floor(Date.now()/1000); 
-                            Cookies.set(`w3c.${chain?.id}.${id}.${address}.startTime`, startTime.toString(), { expires: 10000 });
-                            setQuestionNumber(1);
-                        }}
-                    >
-                        Start
-                    </Button>
-                    <Box className="flex items-center justify-center mt-8 mb-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <Box className="font-bold max-w-[80%] ml-4">Once you press start you will have 30 seconds to answer each question! Make sure you have studied for the exam!</Box>
-                    </Box>
-                </Box>
+                :
+                // if user has not started the exam
+                <ExamStartWarningBox
+                    onClickStart={() => {
+                        const startTime = getCurrentTimestamp(); 
+                        Cookies.set(startTimeCookie, startTime.toString(), { expires: cookieExpirationTime });
+                        setQuestionNumber(1);
+                    }}
+                />
             }
 
+            {/* Timer for each question */}
             {startTime > 0 &&
             <Box>Time left: &nbsp;
-                {Math.max(0, startTime + (questionNumber * timePerQuestion) - secondsNow)}
+                {Math.max(0, startTime + (questionNumber * timePerQuestion) - getCurrentTimestamp())}
             </Box>}
 
             {questionNumber > 0 ? <IndexSelector
