@@ -6,7 +6,7 @@ import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
-import { answersSeparator, defaultImage } from "~~/constants";
+import { answersSeparator, defaultImage, defaultQuestionTime } from "~~/constants";
 import { Accordion, Box, Flex, Spacer } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -14,7 +14,7 @@ import InputLabel from "./_components/InputLabel";
 import Link from "next/link";
 
 const CreateExam = () => {
-    const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""};
+    const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""}; 
     const [questionsWithAnswers, setQuestionsWithAnswers] = useState<QuestionWithAnswers[]>([emptyQuestionWithAnswers]);
 
     const [name, setname] = useState<string>("");
@@ -25,9 +25,11 @@ const CreateExam = () => {
     const [maxSubmissions, setmaxSubmissions] = useState<string>("");
     const [userClaimsWithPassword, setUserClaimsWithPassword] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>("");
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // New state gia thn diaxeirisi tou form submission
 
     const requiredDetailsAreFilled = () => {
-        return name&&description&&endTime&&questionsWithAnswers[0];
+        const allTimesValid = questionsWithAnswers.every(q => (q.completionTime === undefined || q.completionTime > 0));
+        return name && description && endTime && questionsWithAnswers[0] && allTimesValid;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -45,33 +47,60 @@ const CreateExam = () => {
     }).data;
 
     /*//////////////////////////////////////////////////////////////
-                           WRITE TO CONTRACT
+                           WRITE TO DB AND CONTRACT
     //////////////////////////////////////////////////////////////*/
 
     const { writeContractAsync: createExam } = wagmiWriteToContract();
-    function handleCreateExam() {
-        createExam({
-            functionName: 'createExam',
-            args: [
-                name,
-                description,
-                BigInt(new Date(endTime.toString()).getTime() / 1000),
-                questionsWithAnswers.map(
-                    (question) => 
-                        question.question + answersSeparator +
-                        question.answer1 + answersSeparator +
-                        question.answer2 + answersSeparator +
-                        question.answer3 + answersSeparator +
-                        question.answer4
-                ),
-                price ? BigInt(price * 1e18) : BigInt(0),
-                BigInt(baseScore ? baseScore : Math.ceil(questionsWithAnswers.length / 2)),
-                imageUrl || defaultImage,
-                maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
-                userClaimsWithPassword,
-            ],
-            value: examCreationFeeInEth,
-        });
+    async function handleCreateExam() {
+        setIsSubmitting(true);
+        try {
+            // 1. Save exam data to MongoDB via API
+            const apiResponse = await fetch('/api/certifier/exams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    description: description,
+                    questions: questionsWithAnswers.map(q => ({
+                        completionTime: Number(q.completionTime) || defaultQuestionTime,
+                    })),
+                }),
+            });
+            
+            if (!apiResponse.ok) {
+                const errorData = await apiResponse.json();
+                throw new Error(errorData.error || "Failed to save exam to the database.");
+            }
+            console.log("Exam data saved to DB successfully.");
+
+            // 2. If the DB save was successful, create the exam on-chain
+            await createExam({
+                functionName: 'createExam',
+                args: [
+                    name,
+                    description,
+                    BigInt(new Date(endTime.toString()).getTime() / 1000),
+                    questionsWithAnswers.map(
+                        (question) => 
+                            question.question + answersSeparator +
+                            question.answer1 + answersSeparator +
+                            question.answer2 + answersSeparator +
+                            question.answer3 + answersSeparator +
+                            question.answer4
+                    ),
+                    price ? BigInt(price * 1e18) : BigInt(0),
+                    BigInt(baseScore ? baseScore : Math.ceil(questionsWithAnswers.length / 2)),
+                    imageUrl || defaultImage,
+                    maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
+                    userClaimsWithPassword,
+                ],
+                value: examCreationFeeInEth,
+            });
+        } catch (error) {
+            console.error("Error creating exam:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     const onDrop = useCallback(
@@ -129,56 +158,72 @@ const CreateExam = () => {
                 />
                 <InputLabel>Questions *</InputLabel>
                 {questionsWithAnswers.map((question, indx) => (
-                    <>
-                    <TextArea
-                        key={""+indx}
-                        value={question.question}
-                        placeholder={`Question ${indx+1}`}
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
-                                n===indx ?
-                                { ...q, question: e.target.value }
-                                : q
-                            ));
-                        }}
-                    />
-                    <Input
-                        key={"a1"+indx}
-                        value={question.answer1}
-                        type="text"
-                        placeholder="Answer 1"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer1: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a2"+indx}
-                        value={question.answer2}
-                        type="text"
-                        placeholder="Answer 2"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer2: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a3"+indx}
-                        value={question.answer3}
-                        type="text"
-                        placeholder="Answer 3"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer3: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a4"+indx}
-                        value={question.answer4}
-                        type="text"
-                        placeholder="Answer 4"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer4: e.target.value}:q));
-                        }}
-                    />
-                </>
+                    <div key={indx} className="py-2">
+                        <TextArea
+                            key={""+indx}
+                            value={question.question}
+                            placeholder={`Question ${indx+1}`}
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
+                                    n===indx ?
+                                    { ...q, question: e.target.value }
+                                    : q
+                                ));
+                            }}
+                        />
+                        <Input
+                            key={"a1"+indx}
+                            value={question.answer1}
+                            type="text"
+                            placeholder="Answer 1"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer1: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a2"+indx}
+                            value={question.answer2}
+                            type="text"
+                            placeholder="Answer 2"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer2: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a3"+indx}
+                            value={question.answer3}
+                            type="text"
+                            placeholder="Answer 3"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer3: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a4"+indx}
+                            value={question.answer4}
+                            type="text"
+                            placeholder="Answer 4"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer4: e.target.value}:q));
+                            }}
+                        />
+                        {/* New input for question completion time */}
+                        <div className="mt-2 mb-4">
+                            <InputLabel>Question Completion Time (seconds)</InputLabel>
+                            <Input
+                                value={question.completionTime}
+                                type="number"
+                                placeholder={`Default ${defaultQuestionTime} seconds`}
+                                onChange={(e: any) => {
+                                    const time = parseInt(e.target.value, 10);
+                                    setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n === indx ? {...q, completionTime: isNaN(time) ? undefined : time } : q));
+                                }}
+                            />
+                            {question.completionTime !== undefined && question.completionTime <= 0 && (
+                                <Text color="red" display="block" mt="1">Time must be greater than 0.</Text>
+                            )}
+                        </div>
+                    </div>
                 ))}
 
                 <Button className="bg-base-100" onClick={() => // add empty question
@@ -286,8 +331,8 @@ const CreateExam = () => {
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
                 </Text>
                 {!requiredDetailsAreFilled() && <Text mt="2" color="red" display="block">* Fields are required</Text>}
-                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
-                    Create Exam
+                <Button disabled={!requiredDetailsAreFilled() || isSubmitting} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
+                    {isSubmitting ? "Creating Exam..." : "Create Exam"}
                 </Button>
             </div>
         </PageWrapper>

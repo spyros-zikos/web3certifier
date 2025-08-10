@@ -1,3 +1,5 @@
+// This is an example of a Next.js API route
+
 export async function GET(request: Request) {
     // For example, fetch data from your DB here
     const users = [
