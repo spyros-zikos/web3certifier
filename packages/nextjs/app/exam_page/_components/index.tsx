@@ -9,4 +9,5 @@ export { default as RewardInfoDropDown } from "./RewardInfoDropDown";
 export { default as Timer } from "./Timer";
 export { default as ClaimButton } from "./ClaimButton";
 export { default as DropDowns } from "./DropDowns";
+export { default as ExamStartWarningBox } from "./ExamStartWarningBox";
 export { default as Confetti } from "./Confetti";

@@ -8,12 +8,13 @@ interface IndexSelectorProps {
     firstIndex: number;
     lastIndex: number;
     submitButtonOnClick?: () => void;
+    previousEnabled?: boolean;
 }
 
-export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex, submitButtonOnClick=undefined }) => {
+export const IndexSelector: React.FC<IndexSelectorProps> = ({ setIndex, index, firstIndex, lastIndex, submitButtonOnClick=undefined, previousEnabled=true }) => {
     return (
         <Flex minW="56">
-            {index !== firstIndex &&
+            {previousEnabled && (index !== firstIndex) &&
             <Button
                 className="bg-base-100 w-24"
                 onClick={() => index > firstIndex && setIndex(index - 1)}

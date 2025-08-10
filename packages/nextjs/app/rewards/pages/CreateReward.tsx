@@ -8,6 +8,7 @@ import { chainsToContracts } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
+import { Box } from '@chakra-ui/react';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -80,7 +81,7 @@ const CreateReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
-                <Link href="/docs/RewardSetUp" target="_blank" rel="noopener noreferrer">
+                <Link className="mb-8 block" href="/docs/RewardSetUp" target="_blank" rel="noopener noreferrer">
                     <Button className="bg-base-100 w-[75%]" onClick={undefined}>
                         <BookOpenIcon className="h-5 w-5 mr-2 inline" />
                         Documentation 
@@ -97,7 +98,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setTokenAddress(e.target.value);
                     }}
                 /></>
-                : <>Reward users with G$ tokens!</>}
+                : <Box>Reward users with G$ tokens!</Box>}
                 <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
                 <Input
                     value={initialRewardAmount}
