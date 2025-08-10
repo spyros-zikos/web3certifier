@@ -12,8 +12,8 @@ interface IQuestionInput {
 
 // Expected structure of the request body
 interface IExamRequestBody {
-    name: string;
-    description: string;
+    examId: number;
+    chainId: number;
     questions: IQuestionInput[];
 }
 
@@ -24,10 +24,10 @@ export async function POST(request: Request) {
         client = connectedClient;
 
         const body: IExamRequestBody = await request.json();
-        const {name, description, questions } = body;
+        const {examId, chainId, questions } = body;
 
-        if (!name || !description || !questions || questions.length === 0) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        if (examId === undefined || !chainId || !questions || questions.length === 0) {
+            return NextResponse.json({ error: "Invalid request. The 'examId', 'chainId', and a non-empty 'questions' array are required." }, { status: 400 });
         }
 
         // Validate that completion times are positive
@@ -46,13 +46,13 @@ export async function POST(request: Request) {
 
         // Insert the document into the 'exams' collection
         const result = await db.collection("exams").insertOne({
-            name,
-            description,
+            examId,
+            chainId,
             questions: inputQuestions,
         })
 
         return NextResponse.json(
-            { message: "Exam created successfully", examId: result.insertedId },
+            { message: "Exam created successfully", documentId: result.insertedId },
             { status: 201 }
         );
     }

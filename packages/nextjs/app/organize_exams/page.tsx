@@ -10,6 +10,8 @@ import { answersSeparator, defaultImage, defaultQuestionTime } from "~~/constant
 import { Accordion, Box, Flex, Spacer } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { useAccount } from "wagmi";
+
 import InputLabel from "./_components/InputLabel";
 import Link from "next/link";
 
@@ -26,6 +28,8 @@ const CreateExam = () => {
     const [userClaimsWithPassword, setUserClaimsWithPassword] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // New state gia thn diaxeirisi tou form submission
+
+    const { chain } = useAccount(); // Gia to chain.id
 
     const requiredDetailsAreFilled = () => {
         const allTimesValid = questionsWithAnswers.every(q => (q.completionTime === undefined || q.completionTime > 0));
@@ -46,34 +50,28 @@ const CreateExam = () => {
         args: [examCreationFee ? examCreationFee : BigInt(0)],
     }).data;
 
+    const { data: lastExamId } = wagmiReadFromContract({
+        functionName: 'getLastExamId',
+    });
+
     /*//////////////////////////////////////////////////////////////
-                           WRITE TO DB AND CONTRACT
+                           WRITE TO CONTRACT AND THEN DB
     //////////////////////////////////////////////////////////////*/
 
     const { writeContractAsync: createExam } = wagmiWriteToContract();
     async function handleCreateExam() {
-        setIsSubmitting(true);
-        try {
-            // 1. Save exam data to MongoDB via API
-            const apiResponse = await fetch('/api/certifier/exams', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    description: description,
-                    questions: questionsWithAnswers.map(q => ({
-                        completionTime: Number(q.completionTime) || defaultQuestionTime,
-                    })),
-                }),
-            });
-            
-            if (!apiResponse.ok) {
-                const errorData = await apiResponse.json();
-                throw new Error(errorData.error || "Failed to save exam to the database.");
-            }
-            console.log("Exam data saved to DB successfully.");
+        if (!chain || lastExamId === undefined) {
+            console.error("Cannot create exam: Wallet not connected or lastExamId is not loaded.");
+            return;
+        }
 
-            // 2. If the DB save was successful, create the exam on-chain
+        setIsSubmitting(true);
+
+        try {
+            const newExamId = lastExamId;
+            console.log("Creating exam with ID:", newExamId.toString()); // del
+
+            // Create the exam on-chain
             await createExam({
                 functionName: 'createExam',
                 args: [
@@ -96,8 +94,29 @@ const CreateExam = () => {
                 ],
                 value: examCreationFeeInEth,
             });
+
+            // Save exam data to MongoDB via API
+            const apiResponse = await fetch('/api/certifier/exams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    examId: Number(newExamId),
+                    chainId: chain.id,
+                    questions: questionsWithAnswers.map(q => ({
+                        completionTime: Number(q.completionTime) || defaultQuestionTime,
+                    })),
+                }),
+            });
+
+            if (!apiResponse.ok) {
+                const errorData = await apiResponse.json();
+                throw new Error(`On-chain creation may have succeeded, but DB save failed: ${errorData.error || "Unknown error"}`);
+            }
+            
+            console.log("Exam created on-chain and data saved to DB successfully.");
+            
         } catch (error) {
-            console.error("Error creating exam:", error);
+            console.error("Error during exam creation process:", error);
         } finally {
             setIsSubmitting(false);
         }
