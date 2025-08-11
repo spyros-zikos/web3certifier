@@ -66,7 +66,7 @@ const CertifierCorrected = ({
             <MessageForUser message={"This exam has ended!"} />
 
 
-            <Box w="100%" overflowX="auto" mt="8">
+            <Box w="100%" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"}>
                 <Table.Root variant="outline" bgColor={"green"}>
                     <Table.Header>
                         <Table.Row>
