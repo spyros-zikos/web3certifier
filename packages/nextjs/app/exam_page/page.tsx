@@ -6,12 +6,11 @@ import { Box } from "@chakra-ui/react";
 import { PageWrapper, ResponsivePageWrapper, Title } from "~~/components";
 import { useAccount } from "wagmi";
 import { ExamStage } from "../../types/ExamStage";
-import getCertifierStatsAfterCorrection from "./helperFunctions/GetStats";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import {SUPPORTED_NETWORKS, ZERO_ADDRESS} from "~~/constants";
-import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection } from "./pages";
+import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
@@ -67,17 +66,6 @@ const ExamPage = () => {
     }).data;
 
 
-    // For exam stage: Certifier_Corrected
-    const [certifierStatsAfterCorrection, setCertifierStatsAfterCorrection] = useState<string>("");
-
-    // Stats
-    useEffect(() => {
-        const fetchData = async () => {
-            const stats = await getCertifierStatsAfterCorrection(exam!);
-            setCertifierStatsAfterCorrection(stats);
-        };
-        if (exam) fetchData();
-    }, [exam]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -172,7 +160,7 @@ const ExamPage = () => {
             <StaticExamPage exam={exam} message="The exam has been cancelled!" />
             // Corrected
             : getExamStage() === ExamStage.Certifier_Corrected &&
-            <StaticExamPage exam={exam} message={"This exam has ended!\n\n" + certifierStatsAfterCorrection} />
+            <CertifierCorrected exam={exam} id={id} />
             }
         </ResponsivePageWrapper>
     )

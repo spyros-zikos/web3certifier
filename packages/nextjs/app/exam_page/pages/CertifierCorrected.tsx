@@ -1,0 +1,124 @@
+import React, { useEffect, useState } from "react"
+import { IndexSelector } from "~~/components/IndexSelector";
+import { MessageForUser, Question } from "../_components";
+import { Box, Table } from "@chakra-ui/react";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { useAccount } from "wagmi";
+import { ZERO_ADDRESS } from "thirdweb";
+
+const CertifierCorrected = ({
+    exam, id
+}: {
+    exam: Exam | undefined, id: bigint
+}) => {
+    const { chain } = useAccount();
+
+    const [questionNumber, setQuestionNumber] = useState<number>(1);
+    const [avgScore, setAvgScore] = useState<number>(1);
+    const [avgSuccessScore, setAvgSuccessScore] = useState<number>(1);
+    const [avgFailScore, setAvgFailScore] = useState<number>(1);
+
+    const rewardAddress = wagmiReadFromContract({
+        contractName: "RewardFactory",
+        functionName: "getRewardByExamId",
+        args: [id],
+    }).data;
+
+    const usersThatClaimedReward = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUsersThatClaimed",
+    }).data;
+
+    // avg score
+    useEffect(() => {
+        fetch("api/certifier/stats/avgScore/?examId=" + id + "&chainId=" + chain?.id)
+        .then(response => response.json())
+        .then(data => setAvgScore(data.toFixed(2)));
+    }, [id, chain]);
+
+    // avg success score
+    useEffect(() => {
+        fetch("api/certifier/stats/avgSuccessScore/?examId=" + id + "&chainId=" + chain?.id)
+        .then(response => response.json())
+        .then(data => setAvgSuccessScore(data.toFixed(2)));
+    }, [id, chain]);
+
+    // avg fail score
+    useEffect(() => {
+        fetch("api/certifier/stats/avgFailScore/?examId=" + id + "&chainId=" + chain?.id)
+        .then(response => response.json())
+        .then(data => setAvgFailScore(data.toFixed(2)));
+    }, [id, chain]);
+
+    return (
+        <>
+            {/* Questions */}
+            <Question questionNumber={questionNumber} exam={exam} showAnswers={false} />
+
+            <IndexSelector
+                setIndex={setQuestionNumber}
+                index={questionNumber}
+                firstIndex={1}
+                lastIndex={exam?.questions ? exam?.questions.length : 1}
+            />
+
+            <MessageForUser message={"This exam has ended!"} />
+
+
+            <Box w="100%" overflowX="auto" mt="8">
+                <Table.Root variant="outline" bgColor={"green"}>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader>Statistic</Table.ColumnHeader>
+                            <Table.ColumnHeader>Value</Table.ColumnHeader>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        <Table.Row>
+                            <Table.Cell>Submissions</Table.Cell>
+                            <Table.Cell>{exam && exam?.users.length}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                            <Table.Cell>Successful submissions</Table.Cell>
+                            <Table.Cell>{exam && exam.tokenIds.length}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                            <Table.Cell>Failed submissions</Table.Cell>
+                            <Table.Cell>
+                                {exam && exam.users.map(user => wagmiReadFromContract({
+                                    functionName: "getUserStatus",
+                                    args: [user, id],
+                                }).data).filter(status => status === 3).length}
+                            </Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                            <Table.Cell>Average score of submissions</Table.Cell>
+                            <Table.Cell>{avgScore}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                            <Table.Cell>Average score of successful submissions</Table.Cell>
+                            <Table.Cell>{avgSuccessScore}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                            <Table.Cell>Average score of failed submissions</Table.Cell>
+                            <Table.Cell>{avgFailScore}</Table.Cell>
+                        </Table.Row>
+                        {exam?.price && <Table.Row>
+                            <Table.Cell>Revenue (in $)</Table.Cell>
+                            <Table.Cell>{exam ? Number(exam.price) * exam.users.length / 1e18 : 0}</Table.Cell>
+                        </Table.Row>}
+                        {rewardAddress !== ZERO_ADDRESS && <Table.Row>
+                            <Table.Cell>Number of users that claimed the reward</Table.Cell>
+                            <Table.Cell>{usersThatClaimedReward ? usersThatClaimedReward.length : 0}</Table.Cell>
+                        </Table.Row>}
+                    </Table.Body>
+                </Table.Root>
+            </Box>
+
+
+        </>
+    );
+}
+
+export default CertifierCorrected
