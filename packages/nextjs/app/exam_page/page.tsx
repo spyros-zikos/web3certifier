@@ -66,7 +66,6 @@ const ExamPage = () => {
     }).data;
 
 
-
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeNow(Date.now());
