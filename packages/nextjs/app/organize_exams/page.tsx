@@ -1,17 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { createRef, useCallback, useState } from "react";
 import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components";
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
-import { answersSeparator, defaultImage } from "~~/constants";
+import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
 import { Accordion, Box, Flex, Spacer } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
 import Link from "next/link";
+import { useAccount } from "wagmi";
+
 
 const CreateExam = () => {
     const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""};
@@ -23,8 +25,10 @@ const CreateExam = () => {
     const [price, setprice] = useState<number>();
     const [baseScore, setbaseScore] = useState<string>("");
     const [maxSubmissions, setmaxSubmissions] = useState<string>("");
-    const [userClaimsWithPassword, setUserClaimsWithPassword] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>("");
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    const { chain } = useAccount();
 
     const requiredDetailsAreFilled = () => {
         return name&&description&&endTime&&questionsWithAnswers[0];
@@ -44,35 +48,74 @@ const CreateExam = () => {
         args: [examCreationFee ? examCreationFee : BigInt(0)],
     }).data;
 
+    const { data: lastExamId } = wagmiReadFromContract({
+        functionName: 'getLastExamId',
+    });
+
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const { writeContractAsync: createExam } = wagmiWriteToContract();
+    const { writeContractAsync: createExam, isMining, success } = wagmiWriteToContract();
     function handleCreateExam() {
-        createExam({
-            functionName: 'createExam',
-            args: [
-                name,
-                description,
-                BigInt(new Date(endTime.toString()).getTime() / 1000),
-                questionsWithAnswers.map(
-                    (question) => 
-                        question.question + answersSeparator +
-                        question.answer1 + answersSeparator +
-                        question.answer2 + answersSeparator +
-                        question.answer3 + answersSeparator +
-                        question.answer4
-                ),
-                price ? BigInt(price * 1e18) : BigInt(0),
-                BigInt(baseScore ? baseScore : Math.ceil(questionsWithAnswers.length / 2)),
-                imageUrl || defaultImage,
-                maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
-                userClaimsWithPassword,
-            ],
-            value: examCreationFeeInEth,
-        });
+        setIsSubmitting(true);
+        try {
+            createExam({
+                functionName: 'createExam',
+                args: [
+                    name,
+                    description,
+                    BigInt(new Date(endTime.toString()).getTime() / 1000),
+                    questionsWithAnswers.map(
+                        (question) => 
+                            question.question + answersSeparator +
+                            question.answer1 + answersSeparator +
+                            question.answer2 + answersSeparator +
+                            question.answer3 + answersSeparator +
+                            question.answer4
+                    ),
+                    price ? BigInt(price * 1e18) : BigInt(0),
+                    BigInt(baseScore ? baseScore : Math.ceil(questionsWithAnswers.length / 2)),
+                    imageUrl || defaultImage,
+                    maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
+                    false,
+                ],
+                value: examCreationFeeInEth,
+                onSuccess: () => {
+                    // do nothing
+                }
+            });
+        } catch (error) {
+            console.error("Error creating exam:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
+
+    useEffect(() => {
+        // Save timers to MongoDB via API
+        if (success) {
+            if (!chain || lastExamId === undefined) {
+                console.error("Cannot create exam: Wallet not connected or lastExamId is not loaded.");
+                return;
+            }
+            const newExamId = lastExamId;
+            console.log("Creating exam with id:", newExamId.toString());
+            fetch('/api/certifier/create_exam/store_timers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    examId: Number(newExamId),
+                    chainId: chain.id,
+                    questions: questionsWithAnswers.map(q => ({
+                        completionTime: Number(q.completionTime) || timePerQuestion,
+                    })),
+                }),
+            }).then(response => console.log("API response:", response.json()));
+            
+            console.log("Exam data saved to DB successfully.");
+        }
+    }, [success]);
 
     const onDrop = useCallback(
         async (acceptedFiles: File[]) => {
@@ -129,56 +172,71 @@ const CreateExam = () => {
                 />
                 <InputLabel>Questions *</InputLabel>
                 {questionsWithAnswers.map((question, indx) => (
-                    <>
-                    <TextArea
-                        key={""+indx}
-                        value={question.question}
-                        placeholder={`Question ${indx+1}`}
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
-                                n===indx ?
-                                { ...q, question: e.target.value }
-                                : q
-                            ));
-                        }}
-                    />
-                    <Input
-                        key={"a1"+indx}
-                        value={question.answer1}
-                        type="text"
-                        placeholder="Answer 1"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer1: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a2"+indx}
-                        value={question.answer2}
-                        type="text"
-                        placeholder="Answer 2"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer2: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a3"+indx}
-                        value={question.answer3}
-                        type="text"
-                        placeholder="Answer 3"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer3: e.target.value}:q));
-                        }}
-                    />
-                    <Input
-                        key={"a4"+indx}
-                        value={question.answer4}
-                        type="text"
-                        placeholder="Answer 4"
-                        onChange={(e: any) => {
-                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer4: e.target.value}:q));
-                        }}
-                    />
-                </>
+                    <div key={indx} className="py-2">
+                        <TextArea
+                            key={""+indx}
+                            value={question.question}
+                            placeholder={`Question ${indx+1}`}
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
+                                    n===indx ?
+                                    { ...q, question: e.target.value }
+                                    : q
+                                ));
+                            }}
+                        />
+                        <Input
+                            key={"a1"+indx}
+                            value={question.answer1}
+                            type="text"
+                            placeholder="Answer 1"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer1: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a2"+indx}
+                            value={question.answer2}
+                            type="text"
+                            placeholder="Answer 2"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer2: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a3"+indx}
+                            value={question.answer3}
+                            type="text"
+                            placeholder="Answer 3"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer3: e.target.value}:q));
+                            }}
+                        />
+                        <Input
+                            key={"a4"+indx}
+                            value={question.answer4}
+                            type="text"
+                            placeholder="Answer 4"
+                            onChange={(e: any) => {
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer4: e.target.value}:q));
+                            }}
+                        />
+                        
+                        <div className="mt-2 mb-4">
+                            <Input
+                                value={question.completionTime}
+                                type="number"
+                                placeholder={`Timer (default: ${timePerQuestion} sec)`}
+                                onChange={(e: any) => {
+                                    const time = parseInt(e.target.value, 10);
+                                    setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n === indx ? {...q, completionTime: isNaN(time) ? undefined : time } : q));
+                                }}
+                            />
+                            {question.completionTime !== undefined && question.completionTime <= 0 && (
+                                <Text color="red" display="block" mt="1">Time must be greater than 0.</Text>
+                            )}
+                        </div>
+                    </div>
                 ))}
 
                 <Button className="bg-base-100" onClick={() => // add empty question
@@ -270,13 +328,6 @@ const CreateExam = () => {
                                     setmaxSubmissions(e.target.value);
                                 }}
                             />
-                            {/* <label className={`${labelMarginAndPadding}`} title="Default: User Claims with Cookies">User Claims with Password | Default: false</label>
-                            <input
-                                className="ml-2 mb-4 w-6 h-6 accent-base-100 cursor-pointer"
-                                checked={userClaimsWithPassword}
-                                type="checkbox"
-                                onChange={(e: any) => { setUserClaimsWithPassword(e.target.checked); }}
-                            /> */}
                         </Accordion.ItemBody>
                         </Accordion.ItemContent>
                     </Accordion.Item>
@@ -286,8 +337,8 @@ const CreateExam = () => {
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
                 </Text>
                 {!requiredDetailsAreFilled() && <Text mt="2" color="red" display="block">* Fields are required</Text>}
-                <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
-                    Create Exam
+                <Button disabled={!requiredDetailsAreFilled() || isMining} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
+                    {isMining ? "Creating Exam..." : "Create Exam"}
                 </Button>
             </div>
         </PageWrapper>
