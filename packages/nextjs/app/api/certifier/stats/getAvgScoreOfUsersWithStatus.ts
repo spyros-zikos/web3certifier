@@ -25,7 +25,7 @@ export async function getScoresOfUsersWithStatus(
     
     if (usersThatSucceededOrFailed.length == 0) return 0;
 
-    const scores: Number[] = [];
+    const scores: number[] = [];
     
     for (const user of usersThatSucceededOrFailed) {
         const score = await wagmiReadFromContractAsync({
