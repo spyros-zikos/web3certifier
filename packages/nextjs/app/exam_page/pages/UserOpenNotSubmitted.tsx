@@ -57,7 +57,7 @@ const UserOpenNotSubmitted = ({
     const VerifyAccountMessage = () => {
         return <div>
             {"\n"}You need to verify your account.{"\n"}
-            Click on the &quot;CLAIM NOW&quot; button
+            Click on the &quot;CLAIM NOW&quot; button&nbsp;
             <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>
                 here
             </a>.
