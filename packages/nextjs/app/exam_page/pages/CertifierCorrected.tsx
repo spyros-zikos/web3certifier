@@ -6,6 +6,40 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useAccount } from "wagmi";
 import { ZERO_ADDRESS } from "thirdweb";
 import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
+import { downloadListAsTxt } from "../helperFunctions/downloadListAsTxt";
+
+const DownloadButton = ({onClick}: {onClick: any}) => {
+    return <Box position="absolute" top="1" right="2">
+        <Button
+            onClick={onClick}
+            size="sm"
+            color="black"
+        >
+            <ArrowDownOnSquareIcon />
+        </Button>
+    </Box>
+}
+
+const TableFromList = ({list, title, download}: {list: readonly string[] | undefined, title: string, download: any}) => {
+    if (!list) return <></>
+    return <Box w="100%" h="300px" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"} position="relative">
+                <Table.Root variant="outline" bgColor={"green"}>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader>{title}</Table.ColumnHeader>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {list.map((item, index) => <Table.Row key={index}>
+                            <Table.Cell>{item}</Table.Cell>
+                        </Table.Row>)}
+                    </Table.Body>
+                </Table.Root>
+
+
+                <DownloadButton onClick={download} />
+            </Box>
+}
 
 const CertifierCorrected = ({
     exam, id
@@ -31,58 +65,6 @@ const CertifierCorrected = ({
         functionName: "getUsersThatClaimed",
     }).data;
 
-     // Function to download users that claimed rewards as txt file
-    const downloadUsersThatSubmittedAsTxt = () => {
-        if (!exam?.users || exam.users.length === 0) {
-            return;
-        }
-
-        // Create the content for the txt file
-        const content = exam.users.join('\n');
-        
-        // Create a blob with the content
-        const blob = new Blob([content], { type: 'text/plain' });
-        
-        // Create a temporary URL for the blob
-        const url = window.URL.createObjectURL(blob);
-        
-        // Create a temporary anchor element and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `exam-${id}-submitters.txt`;
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    };
-
-    const downloadUsersThatClaimedAsTxt = () => {
-        if (!usersThatClaimedReward || usersThatClaimedReward.length === 0) {
-            return;
-        }
-
-        // Create the content for the txt file
-        const content = usersThatClaimedReward.join('\n');
-        
-        // Create a blob with the content
-        const blob = new Blob([content], { type: 'text/plain' });
-        
-        // Create a temporary URL for the blob
-        const url = window.URL.createObjectURL(blob);
-        
-        // Create a temporary anchor element and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `exam-${id}-reward-claimers.txt`;
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    };
 
     // avg score
     useEffect(() => {
@@ -119,6 +101,7 @@ const CertifierCorrected = ({
 
             <MessageForUser message={"This exam has ended!"} />
 
+            {/* Stats Table */}
             <Box w="100%" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"}>
                 <Table.Root variant="outline" bgColor={"green"}>
                     <Table.Header>
@@ -169,66 +152,19 @@ const CertifierCorrected = ({
                 </Table.Root>
             </Box>
 
-            {/* Users that submitted */}
-            <Box w="100%" h="300px" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"} position="relative">
-                <Table.Root variant="outline" bgColor={"green"}>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.ColumnHeader>Users that submitted</Table.ColumnHeader>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {exam?.users.map((user, index) => <Table.Row key={index}>
-                            <Table.Cell>{user}</Table.Cell>
-                        </Table.Row>)}
-                    </Table.Body>
-                </Table.Root>
+            {/* Submitters Table */}
+            <TableFromList 
+                list={exam?.users}
+                title={"Users that submitted"}
+                download={() => downloadListAsTxt(exam?.users, `exam-${id}-submitters`)}
+            />
 
-                {/* Download Button */}
-                {usersThatClaimedReward && usersThatClaimedReward.length > 0 && (
-                    <Box position="absolute" top="1" right="2">
-                        <Button
-                            onClick={downloadUsersThatSubmittedAsTxt}
-                            size="sm"
-                            color="black"
-                        >
-                            <ArrowDownOnSquareIcon />
-                        </Button>
-                    </Box>
-                )}
-            </Box>
-
-            {/* Users that claimed the reward */}
-            <Box w="100%" h="300px" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"} position="relative">
-                <Table.Root variant="outline" bgColor={"green"}>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.ColumnHeader>Users that claimed the reward</Table.ColumnHeader>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {usersThatClaimedReward?.map((user: any, index: any) => <Table.Row key={index}>
-                            <Table.Cell>{user}</Table.Cell>
-                        </Table.Row>)}
-                    </Table.Body>
-                </Table.Root>
-
-                {/* Download Button */}
-                {usersThatClaimedReward && usersThatClaimedReward.length > 0 && (
-                    <Box position="absolute" top="1" right="2">
-                        <Button
-                            onClick={downloadUsersThatClaimedAsTxt}
-                            size="sm"
-                            color="black"
-                        >
-                            <ArrowDownOnSquareIcon />
-                        </Button>
-                    </Box>
-                )}
-            </Box>
-
-            
-
+            {/* Users that claimed the reward Table */}
+            <TableFromList 
+                list={usersThatClaimedReward}
+                title={"Users that claimed the reward"}
+                download={() => downloadListAsTxt(usersThatClaimedReward, `exam-${id}-reward-claimers`)}
+            />
         </>
     );
 }
