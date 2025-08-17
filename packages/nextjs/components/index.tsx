@@ -13,4 +13,5 @@ export { EtherInput } from "./EtherInput";
 // export { default as NFTMarketplaceCard } from "./NFTMarketplaceCard";
 // export { default as PurchaseTokenWidget } from "./PurchaseTokenWidget";
 // export { default as Loader } from "./Loader";
+export { default as ProgressBar } from "./ProgressBar";
 export { default as Input} from "./Input";
