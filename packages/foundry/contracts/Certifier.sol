@@ -142,7 +142,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         string memory imageUrl,
         uint256 maxSubmissions,
         bool userClaimsWithPassword
-    ) external payable verifiedOnCelo(msg.sender) {
+    ) external payable {
         if (keccak256(abi.encode(name)) == keccak256(abi.encode(""))) revert Certifier__NameCannotBeEmpty();
         uint256 ethAmountRequired = getUsdToEthRate(s_examCreationFee);
         if (s_userIsWhitelisted[msg.sender]) ethAmountRequired = 0;

@@ -44,6 +44,7 @@ Before you begin, you need to install the following tools:
 2. From the `packages/foundry` directory execute the commands: 
    - `yarn deploy --network sepolia`
    - `yarn verify --network sepolia` or `forge verify-contract 0x8c008619305dC27009d0c81E204C30F7c9726E9B contracts/Certifier.sol:Certifier --compiler-version "0.8.24+commit.e11b9ed9" --chain 42161 --constructor-args 0x000000000000000000000000694aa1769357215de4fac081bf1f309adc325306 --watch --etherscan-api-key <key>`
+3. For deployments you need to change the "DEPLOY_CONTRACT", "UPGRADE_CERTIFIER_CONTRACT", "UPGRADE_REWARD_FACTORY_CONTRACT" and the proxy addresses in the .env file.
 
 ### To redeploy the subgraph:
 Delete the `packages/the-graph` directory and go to <a href="https://thegraph.com/studio/">https://thegraph.com/studio/</a>. There you can follow the instructions to create a new subgraph.
