@@ -2,17 +2,19 @@
 
 import React, { useEffect } from "react";
 import { createRef, useCallback, useState } from "react";
-import { Button, Title, Input, Text, TextArea, PageWrapper } from "~~/components";
+import { Button, Title, Input, ResponsivePageWrapper } from "~~/components";
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
-import { PhotoIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
-import { Accordion, Box, Flex, Spacer } from "@chakra-ui/react"
+import { Accordion, Box, Text, Flex, Spacer } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
+import TextArea from "./_components/TextArea";
 import Link from "next/link";
 import { useAccount } from "wagmi";
+import { ProgressBar, IndexSelector } from '~~/components';
 
 
 const CreateExam = () => {
@@ -26,7 +28,7 @@ const CreateExam = () => {
     const [baseScore, setbaseScore] = useState<string>("");
     const [maxSubmissions, setmaxSubmissions] = useState<string>("");
     const [imageUrl, setImageUrl] = useState<string>("");
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [questionNumber, setQuestionNumber] = useState<number>(1);
 
     const { chain } = useAccount();
 
@@ -58,7 +60,6 @@ const CreateExam = () => {
 
     const { writeContractAsync: createExam, isMining, success } = wagmiWriteToContract();
     function handleCreateExam() {
-        setIsSubmitting(true);
         try {
             createExam({
                 functionName: 'createExam',
@@ -87,8 +88,6 @@ const CreateExam = () => {
             });
         } catch (error) {
             console.error("Error creating exam:", error);
-        } finally {
-            setIsSubmitting(false);
         }
     }
 
@@ -130,7 +129,7 @@ const CreateExam = () => {
     const dropZoneRef: React.LegacyRef<HTMLDivElement> | undefined = createRef();
 
     return (
-        <PageWrapper>
+        <ResponsivePageWrapper>
             <Title>
                 <Flex>
                     <Box>
@@ -144,7 +143,41 @@ const CreateExam = () => {
                     </Link>
                 </Flex>
             </Title>
+
             <div>
+                <InputLabel>Image (square)</InputLabel>
+                <div className="my-4 w-[350px] border border-accent rounded-lg">
+                    <div
+                        {...getRootProps()}
+                        ref={dropZoneRef}
+                        className="m-auto my-6 w-[300px] h-[300px] bg-neutral flex justify-center items-center rounded-lg"
+                    >
+                        <input {...getInputProps()} />
+                        <div className={(imageUrl ? "auto" : "cursor-pointer")}>
+                        {imageUrl ?
+                        (
+                            <div className="self-center flex justify-center items-center w-full h-full">
+                                <img src={imageUrl} className="max-w-full max-h-full" />
+                            </div>
+                        ) :
+                        (
+                            <div className="self-center flex flex-col justify-center ">
+                                <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                                <div className="text-gray-300">Upload Image</div>
+                            </div>
+                        )}
+                        </div>
+                    </div>
+
+                    <div className="m-auto divider my-4 max-w-[300px]">OR</div>
+                    <Input
+                        placeholder="https://ipfs.io/pathToImage.jpg"
+                        value={imageUrl}
+                        onChange={(e: any) => setImageUrl(e.target.value)}
+                        className='m-auto my-4'
+                    />
+                </div>
+
                 <InputLabel>Name *</InputLabel>
                 <Input
                     value={name}
@@ -170,130 +203,13 @@ const CreateExam = () => {
                         setendTime(e.target.value);
                     }}
                 />
-                <InputLabel>Questions *</InputLabel>
-                {questionsWithAnswers.map((question, indx) => (
-                    <div key={indx} className="py-2">
-                        <TextArea
-                            key={""+indx}
-                            value={question.question}
-                            placeholder={`Question ${indx+1}`}
-                            onChange={(e: any) => {
-                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
-                                    n===indx ?
-                                    { ...q, question: e.target.value }
-                                    : q
-                                ));
-                            }}
-                        />
-                        <Input
-                            key={"a1"+indx}
-                            value={question.answer1}
-                            type="text"
-                            placeholder="Answer 1"
-                            onChange={(e: any) => {
-                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer1: e.target.value}:q));
-                            }}
-                        />
-                        <Input
-                            key={"a2"+indx}
-                            value={question.answer2}
-                            type="text"
-                            placeholder="Answer 2"
-                            onChange={(e: any) => {
-                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer2: e.target.value}:q));
-                            }}
-                        />
-                        <Input
-                            key={"a3"+indx}
-                            value={question.answer3}
-                            type="text"
-                            placeholder="Answer 3"
-                            onChange={(e: any) => {
-                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer3: e.target.value}:q));
-                            }}
-                        />
-                        <Input
-                            key={"a4"+indx}
-                            value={question.answer4}
-                            type="text"
-                            placeholder="Answer 4"
-                            onChange={(e: any) => {
-                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===indx?{...q, answer4: e.target.value}:q));
-                            }}
-                        />
-                        
-                        <div className="mt-2 mb-4">
-                            <Input
-                                value={question.completionTime}
-                                type="number"
-                                placeholder={`Timer (default: ${timePerQuestion} sec)`}
-                                onChange={(e: any) => {
-                                    const time = parseInt(e.target.value, 10);
-                                    setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n === indx ? {...q, completionTime: isNaN(time) ? undefined : time } : q));
-                                }}
-                            />
-                            {question.completionTime !== undefined && question.completionTime <= 0 && (
-                                <Text color="red" display="block" mt="1">Time must be greater than 0.</Text>
-                            )}
-                        </div>
-                    </div>
-                ))}
 
-                <Button className="bg-base-100" onClick={() => // add empty question
-                    setQuestionsWithAnswers([
-                        ...questionsWithAnswers, emptyQuestionWithAnswers
-                    ])}
-                    >
-                    Add Question
-                </Button>
-                <Button className="bg-base-100" onClick={() => {
-                    if (questionsWithAnswers.length > 1) setQuestionsWithAnswers([...questionsWithAnswers.slice(0, -1)])
-                }}>
-                    Remove Question
-                </Button>
-
-                <InputLabel>Image (square) | optional</InputLabel>
-                <div className="my-4 w-[350px] border border-accent rounded-lg">
-                    <div
-                        {...getRootProps()}
-                        ref={dropZoneRef}
-                        className="m-auto my-6 w-[300px] h-[300px] bg-neutral flex justify-center items-center rounded-lg"
-                    >
-                        <input {...getInputProps()} />
-                        <div className={(imageUrl ? "auto" : "cursor-pointer")}>
-                        {imageUrl ?
-                        (
-                            <div className="self-center flex justify-center items-center w-full h-full">
-                                <img src={imageUrl} className="max-w-full max-h-full" />
-                            </div>
-                        ) :
-                        (
-                            <div className="self-center flex flex-col justify-center ">
-                                <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                                <div className="text-gray-300">Upload Image</div>
-                            </div>
-                        )}
-                        </div>
-                    </div>
-
-                    <div className="m-auto divider my-4 max-w-[300px]">OR</div>
-                        <Input
-                            placeholder="https://ipfs.io/pathToImage.jpg"
-                            value={imageUrl}
-                            onChange={(e: any) => setImageUrl(e.target.value)}
-                            className='m-auto my-4'
-                    />
-                </div>
-
-                <Accordion.Root className="mt-9" collapsible>
+                <Accordion.Root  borderY="1px solid" borderColor="lighterLighterBlack" mt="12" mb="0" py="2" collapsible>
                     <Accordion.Item value={"1"}>
                         <Accordion.ItemTrigger>
-                        <span className={'border bg-base-100 border-primary text-primary rounded-lg p-2 mt-2 text-xl hover:bg-base-200 hover:text-accent hover:border-2 hover:border-accent'}>
-                            <div className="flex items-center mr-1">
-                            <ArrowDownIcon className="h-4 w-4 mr-2 text-primary hover:text-accent" aria-hidden="true" />
+                        <Text fontWeight="semibold" fontSize={"lg"}>
                             Advanced Settings
-                            </div>
-                        </span>
+                        </Text>
                         <Accordion.ItemIndicator />
                         </Accordion.ItemTrigger>
                         <Accordion.ItemContent>
@@ -333,15 +249,124 @@ const CreateExam = () => {
                     </Accordion.Item>
                 </Accordion.Root>
 
+                <Box mt="8">Questions *</Box>
+                {questionsWithAnswers && questionsWithAnswers.length > 1 &&
+                    <ProgressBar questions={questionsWithAnswers.map(q => q.question)} questionNumber={questionNumber} />
+                }
+                <Box mt="6">
+                    <Text color="green" m="0" p="0">Question {questionNumber}</Text>
+                    
+                    <TextArea
+                        className="mb-8"
+                        key={""+questionNumber}
+                        value={questionsWithAnswers[questionNumber-1].question}
+                        placeholder={`Question ${questionNumber}`}
+                        onChange={(e: any) => {
+                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) =>
+                                n===questionNumber-1 ?
+                                { ...q, question: e.target.value }
+                                : q
+                            ));
+                        }}
+                    />
+                    <Input
+                        className="w-[90%]"
+                        key={"a1"+questionNumber}
+                        value={questionsWithAnswers[questionNumber-1].answer1}
+                        type="text"
+                        placeholder="Answer 1"
+                        onChange={(e: any) => {
+                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===questionNumber-1?{...q, answer1: e.target.value}:q));
+                        }}
+                    />
+                    <Input
+                        className="w-[90%]"
+                        key={"a2"+questionNumber}
+                        value={questionsWithAnswers[questionNumber-1].answer2}
+                        type="text"
+                        placeholder="Answer 2"
+                        onChange={(e: any) => {
+                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===questionNumber-1?{...q, answer2: e.target.value}:q));
+                        }}
+                    />
+                    <Input
+                        className="w-[90%]"
+                        key={"a3"+questionNumber}
+                        value={questionsWithAnswers[questionNumber-1].answer3}
+                        type="text"
+                        placeholder="Answer 3"
+                        onChange={(e: any) => {
+                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===questionNumber-1?{...q, answer3: e.target.value}:q));
+                        }}
+                    />
+                    <Input
+                        className="w-[90%]"
+                        key={"a4"+questionNumber}
+                        value={questionsWithAnswers[questionNumber-1].answer4}
+                        type="text"
+                        placeholder="Answer 4"
+                        onChange={(e: any) => {
+                            setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n===questionNumber-1?{...q, answer4: e.target.value}:q));
+                        }}
+                    />
+                    
+                    {/* <div className="my-4">
+                        <Input
+                            value={questionsWithAnswers[questionNumber-1].completionTime}
+                            type="number"
+                            placeholder={`Timer (default: ${timePerQuestion} sec)`}
+                            onChange={(e: any) => {
+                                const time = parseInt(e.target.value, 10);
+                                setQuestionsWithAnswers(questionsWithAnswers.map((q, n) => n === questionNumber-1 ? {...q, completionTime: isNaN(time) ? undefined : time } : q));
+                            }}
+                        />
+                        {questionsWithAnswers[questionNumber-1].completionTime !== undefined && questionsWithAnswers[questionNumber-1].completionTime <= 0 && (
+                            <Text color="red" display="block" mt="1">Time must be greater than 0.</Text>
+                        )}
+                    </div> */}
+                </Box>
+
+                <IndexSelector
+                    setIndex={setQuestionNumber}
+                    index={questionNumber}
+                    firstIndex={1}
+                    lastIndex={questionsWithAnswers.length}
+                />
+
+                <Box mt="4"></Box>
+
+                <Button className="bg-base-100" onClick={() => {
+                    setQuestionNumber(questionsWithAnswers.length + 1);
+                        // add empty question
+                        setQuestionsWithAnswers([ ...questionsWithAnswers, emptyQuestionWithAnswers ]);
+                    }}
+                    
+                    >
+                    Add Question
+                </Button>
+                <Button className="bg-base-100" onClick={() => {
+                    if (questionsWithAnswers.length > 1) {
+                        if (questionNumber === questionsWithAnswers.length) {
+                            setQuestionNumber(questionsWithAnswers.length - 1)
+                        }
+                        setQuestionsWithAnswers([...questionsWithAnswers.slice(0, questionNumber-1), ...questionsWithAnswers.slice(questionNumber)])
+                    }
+                }}>
+                    Remove Question
+                </Button>
+
+                <Text borderTop="1px solid" mt="8" borderColor="lighterLighterBlack"></Text>
+                
+
                 <Text mt="9" color="grey" display="block">
-                    Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()}
+                    Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()} in ({chain?.id === 42220 ? "CELO" : "ETH"})
                 </Text>
                 {!requiredDetailsAreFilled() && <Text mt="2" color="red" display="block">* Fields are required</Text>}
                 <Button disabled={!requiredDetailsAreFilled() || isMining} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
                     {isMining ? "Creating Exam..." : "Create Exam"}
                 </Button>
             </div>
-        </PageWrapper>
+        </ResponsivePageWrapper>
     )
 }
 
