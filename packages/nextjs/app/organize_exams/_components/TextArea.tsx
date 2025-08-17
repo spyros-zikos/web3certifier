@@ -12,7 +12,7 @@ const TextArea: FC<Props> = ({ className = '', ...props }) => {
     <textarea
       {...props}
       className={
-        `w-64 block my-2 p-2 rounded-md
+        `w-[75%] block my-2 p-2 rounded-md
         border border-accent bg-base-200 placeholder-base-300 hover:border-neutral focus:outline-none focus:border-2 focus:border-neutral
         ${className} `
       }
