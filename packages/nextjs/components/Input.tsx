@@ -16,7 +16,7 @@ const Input: FC<Props> = ({ className = '', ...props }) => {
       {...props}
       className={
         `w-[210px] block my-2 p-2
-        border border-accent bg-base-200 placeholder-base-300 rounded-md hover:border-neutral focus:outline-none focus:border-2 focus:border-neutral
+        border border-neutral bg-base-200 placeholder-base-300 rounded-md hover:border-accent focus:outline-none focus:border-2 focus:border-accent
         ${className} `
       }
     />

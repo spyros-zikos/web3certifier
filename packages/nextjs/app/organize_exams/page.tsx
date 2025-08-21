@@ -146,7 +146,7 @@ const CreateExam = () => {
 
             <div>
                 <InputLabel>Image (square)</InputLabel>
-                <div className="my-4 w-[350px] border border-accent rounded-lg">
+                <div className="my-4 w-[350px] border border-neutral rounded-lg">
                     <div
                         {...getRootProps()}
                         ref={dropZoneRef}

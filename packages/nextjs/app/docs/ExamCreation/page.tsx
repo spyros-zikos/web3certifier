@@ -17,6 +17,11 @@ export default function ExamDocsPage() {
       <VStack align="start" gap={6}>
         <Heading size="xl">📚 How to Make an Exam</Heading>
 
+        <Section title="Image">
+          Upload a square image via drag-and-drop or file selection. This image will appear on the
+          exam page and on the NFT certificate.
+        </Section>
+
         <Section title="Name">
           Input the exam name. Avoid adding &quot;<Code>Exam</Code>&quot; at the end. For example, prefer{" "}
           <Code>Basic Algebra</Code> over <Code>Basic Algebra Exam</Code>.
@@ -26,27 +31,19 @@ export default function ExamDocsPage() {
           Input the exam description. This field supports newlines for better readability.
         </Section>
 
-        <Section title="Date">
+        <Section title="End time">
           Specify the deadline for the exam. After this date, users cannot submit answers. A good practice is to set it a week after the date that you create the exam.
         </Section>
 
-        <Section title="Exam Questions">
-          Add the questions and four possible answers for each. Avoid prefixes like{" "}
-          <Code>Question 1:</Code> or <Code>A)</Code>—these are already handled by the UI.
-        </Section>
-
-        <Section title="Image">
-          Upload a square image via drag-and-drop or file selection. This image will appear on the
-          exam page and on the NFT certificate.
-        </Section>
+        <Box w="full" borderTop="1px solid" borderColor="lighterLighterBlack"></Box>
 
         <Box flex="1" textAlign="left">
-            ⚙️ Advanced Options
+            ⚙️ Advanced Options (Best left to default values)
         </Box>
 
         <Section title="Price">
-            Set a price per submission in USD. It will be charged in equivalent Celo. Set to{" "}
-            <Code>0</Code> for a free exam.
+            Set a price per submission in USD. It will be charged in equivalent Celo. Default value is{" "}
+            <Code>0</Code> so that the exam is free.
         </Section>
 
         <Section title="Base Score">
@@ -59,9 +56,16 @@ export default function ExamDocsPage() {
             Set a limit on how many users can submit. Default is <Code>0</Code> (unlimited).
         </Section>
 
+        <Box w="full" borderTop="1px solid" borderColor="lighterLighterBlack"></Box>
+
+        <Section title="Exam Questions">
+            Add the questions and four possible answers for each. Avoid prefixes like{" "}
+            <Code>Question 1:</Code> or <Code>A)</Code>—these are already handled by the UI.
+        </Section>
+
         <Section title="Exam Creation Fee">
-          A small native currency fee (Eth or Celo) is required to prevent spam when creating an
-          exam.
+            A small native currency fee (Eth or Celo) is required to prevent spam when creating an
+            exam.
         </Section>
 
         <Link href="/organize_exams">
