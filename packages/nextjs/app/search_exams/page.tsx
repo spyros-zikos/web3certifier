@@ -27,7 +27,7 @@ const SearchExamsPage: React.FC = () => {
     const hidelist = {
         [SUPPORTED_NETWORKS.sepolia]: [],
         [SUPPORTED_NETWORKS.arbitrum]: [],
-        [SUPPORTED_NETWORKS.celo]: [BigInt(22), BigInt(23), BigInt(26), BigInt(27)]
+        [SUPPORTED_NETWORKS.celo]: [22n, 23n, 26n, 27n, 29n]
     };
 
     /*//////////////////////////////////////////////////////////////
