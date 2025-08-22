@@ -7,7 +7,10 @@ import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ExamStartWarningBox } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { cookieExpirationTime, timePerQuestion } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, timePerQuestion } from "~~/constants";
+import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
+import { useSearchParams } from "next/navigation";
+import { ZERO_ADDRESS } from "thirdweb";
 
 
 const UserOpenNotSubmitted = ({
@@ -20,9 +23,15 @@ const UserOpenNotSubmitted = ({
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
+    const [userCanClaimEngagementReward, setUserCanClaimEngagementReward] = useState(false);
+    const [signature, setSignature] = useState(String);
+    const searchParams = useSearchParams();
+    const inviter = searchParams.get("inviter");
 
     const passwordCookie = `w3c.${chain?.id}.${id}.${address}`;
     const startTimeCookie = `w3c.${chain?.id}.${id}.${address}.startTime`;
+
+    const validUntilBlock = 10000000000000000000n // Valid
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -42,7 +51,59 @@ const UserOpenNotSubmitted = ({
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
 
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+
+    // useEffect(() => {
+    //     (async function getUserCanClaimEngagementReward() {
+    //         if (chain.id === 42220) {
+    //         const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
+            
+    //         setUserCanClaimEngagementReward(
+    //             await engagementRewards?.canClaim(chainsToContracts[chain?.id]["Certifier"].address, address || "") || false
+    //         );
+    //         }
+    //     })()
+    // }, [address, chain]);
+
+    
+    // useEffect(() => {
+    //     (async function getGetSignature() {
+    //         if (chain.id === 42220)
+    //         if (userCanClaimEngagementReward) {
+    //             const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
+
+    //             setSignature(await engagementRewards?.signClaim(
+    //                 chainsToContracts[chain?.id]["Certifier"].address, // is this correct???
+    //                 inviter || "",
+    //                 validUntilBlock // Valid for 10 blocks
+    //             ) || "0x")
+    //         }
+    //     })()
+    // }, [address, chain, userCanClaimEngagementReward]);
+
     const onClickSubmitAnswersButton = () => {
+        // const validUntilBlock = 10000000000000000000n // Valid
+        // let signature = "0x";
+
+        // if (chain.id === 42220) {
+        //     try {
+        //         // 1. Get current block for signature
+        //         // const currentBlock = await engagementRewards?.getCurrentBlockNumber()
+        //         // const validUntilBlock = currentBlock! + 10n // Valid for 10 blocks
+
+        //         // Generate signature for first-time users or after app re-apply
+        //         if (userCanClaimEngagementReward) {
+        //             signature = await engagementRewards?.signClaim(
+        //             chainsToContracts[chain?.id]["Certifier"].address, // is this correct???
+        //             inviter || "",
+        //             validUntilBlock
+        //             ) || "0x"
+        //         }
+
+        //     } catch (error) {
+        //     console.error('Error', error)
+        //     }
+        // }
+
         // set cookie
         Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });
         console.log(userPassword);
@@ -50,7 +111,7 @@ const UserOpenNotSubmitted = ({
         hashedAnswerToSubmit
         ? exam && (exam.price > 0 ? examPriceInEth : true)
             && answers.length === exam?.questions?.length
-            && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!)
+            && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature)
         : 0
     }
 

@@ -2,10 +2,10 @@
                             SUBMIT EXAM
 //////////////////////////////////////////////////////////////*/
 
-export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: bigint) => {
+export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashedAnswer: string, examPrice: bigint, inviter: string, validUntilBlock: bigint, signature: string) => {
     submitAnswers({
         functionName: 'submitAnswers',
-        args: [id, `0x${hashedAnswer?.substring(2)}`],
+        args: [id, `0x${hashedAnswer?.substring(2)}`, inviter, validUntilBlock, `0x${signature?.substring(2)}`],
         value: examPrice,
     });
 };
