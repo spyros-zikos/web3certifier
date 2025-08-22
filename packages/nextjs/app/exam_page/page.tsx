@@ -124,7 +124,7 @@ const ExamPage = () => {
             { ////// User //////
             // Open
             getExamStage() === ExamStage.User_Open_NotSubmitted ?
-            <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} />
+            <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} userStatus={userStatusNum} />
             : getExamStage() === ExamStage.User_Open_Submitted ?
             <StaticExamPage exam={exam} message="Your answers are submitted!" />
             // Under Correction

@@ -14,9 +14,9 @@ import { ZERO_ADDRESS } from "thirdweb";
 
 
 const UserOpenNotSubmitted = ({
-    id, exam, address, chain
+    id, exam, address, chain, userStatus
 }: {
-    id: bigint, exam: Exam | undefined, address: string | undefined, chain: any
+    id: bigint, exam: Exam | undefined, address: string | undefined, chain: any, userStatus: number
 }) => {
     const [questionNumber, setQuestionNumber] = useState<number>(0);
     const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
@@ -190,7 +190,7 @@ const UserOpenNotSubmitted = ({
                 index={questionNumber}
                 firstIndex={1}
                 lastIndex={exam?.questions ? exam?.questions.length : 1}
-                submitButtonOnClick={onClickSubmitAnswersButton}
+                submitButtonOnClick={userStatus === 0 ? onClickSubmitAnswersButton : undefined}
                 previousEnabled={false}
             />: <></>}
 
