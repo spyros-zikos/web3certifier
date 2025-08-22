@@ -24,7 +24,7 @@ const UserOpenNotSubmitted = ({
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userCanClaimEngagementReward, setUserCanClaimEngagementReward] = useState(false);
-    const [signature, setSignature] = useState(String);
+    const [signature, setSignature] = useState<string>("0x");
     const searchParams = useSearchParams();
     const inviter = searchParams.get("inviter");
 
