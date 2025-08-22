@@ -78,6 +78,7 @@ interface ICertifier {
     event SetRequiresSignature(bool requiresSignature);
     event SetPriceFeed(address priceFeed);
     event UserFailed(address user, uint256 examId, string answers);
+    event EngagementRewardClaimFailed(string message);
 
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
@@ -141,8 +142,11 @@ interface ICertifier {
      * @notice The user can only submit answers once.
      * @param examId The id of the exam
      * @param hashedAnswer The hash of the answers and the key and msg.sender
+     * @param inviter The inviter of the user
+     * @param validUntilBlock The block number until which the signature is valid
+     * @param signature The signature of the user
      */
-    function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable;
+    function submitAnswers(uint256 examId, bytes32 hashedAnswer, address inviter, uint256 validUntilBlock, bytes memory signature) external payable;
 
     /**
     * @notice Corrects the exam

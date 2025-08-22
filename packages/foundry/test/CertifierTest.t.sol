@@ -98,7 +98,7 @@ contract CertifierTest is Test {
         // User submits
         uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
         vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
 
         console2.log("3");
         vm.warp(block.timestamp + TIME_DURATION + 1);
@@ -165,11 +165,11 @@ contract CertifierTest is Test {
         // User submits
         uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
         vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
 
         // User2 submits
         vm.prank(user2);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
 
         vm.warp(block.timestamp + TIME_DURATION + certifier.getTimeToCorrectExam() + 1);
         assert(certifier.getExamStatus(examId) == ICertifier.ExamStatus.Cancelled);
@@ -212,7 +212,7 @@ contract CertifierTest is Test {
         // User submits
         uint256 submissionFeeInEth = certifier.getUsdToEthRate(certifier.getExam(examId).price);
         vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
     }
 
     function _testUsername() public notCelo {
@@ -246,11 +246,11 @@ contract CertifierTest is Test {
         // Unverified submits
         vm.expectRevert();
         vm.prank(user);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
 
         // Verified submits
         vm.prank(verifiedUser);
-        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer);
+        certifier.submitAnswers{value: submissionFeeInEth}(examId, hashedAnswer, address(0), 0, "0x");
     }
 
     function _testWhitelist() public {

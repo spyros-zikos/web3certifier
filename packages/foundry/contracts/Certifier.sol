@@ -12,6 +12,7 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import {ICertifier} from "./interfaces/ICertifier.sol";
+import {IEngagementRewards} from "./interfaces/IEngagementRewards.sol";
 import {PriceConverter} from "./lib/PriceConverter.sol";
 import {IGoodDollarVerifierProxy} from "./interfaces/IGoodDollarVerifierProxy.sol";
 
@@ -196,7 +197,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     }
 
     /// @inheritdoc ICertifier
-    function submitAnswers(uint256 examId, bytes32 hashedAnswer) external payable verifiedOnCelo(msg.sender) {
+    function submitAnswers(uint256 examId, bytes32 hashedAnswer, address inviter, uint256 validUntilBlock, bytes memory signature) external payable verifiedOnCelo(msg.sender) {
         ExamStatus status = getExamStatus(examId);
         if (status != ExamStatus.Open) revert Certifier__ExamEndedOrCancelled(examId, uint256(status));
         UserStatus userStatus = s_userStatus[msg.sender][examId];
@@ -215,6 +216,23 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         s_userToExamIds[msg.sender].push(examId);
         s_userToHashedAnswers[msg.sender][examId] = hashedAnswer;
         s_examIdToExam[examId].users.push(msg.sender);
+
+        if (block.chainid == 42220) {
+            try IEngagementRewards(0x25db74CF4E7BA120526fd87e159CF656d94bAE43).appClaim(
+                msg.sender,
+                inviter,
+                validUntilBlock,
+                signature
+            ) returns (bool success) {
+                if (!success) {
+                    emit EngagementRewardClaimFailed("Claim returned false");
+                }
+            } catch Error(string memory reason) {
+                emit EngagementRewardClaimFailed(reason);
+            } catch {
+                emit EngagementRewardClaimFailed("unknown error");
+            }
+        }
 
         emit SubmitAnswers(msg.sender, examId, hashedAnswer);
     }
