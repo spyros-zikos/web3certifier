@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Box } from '@chakra-ui/react'
 
-const Faucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string | undefined}) => {
+const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string | undefined}) => {
     const initialStatus = 1000;
     const [status, setStatus] = useState(initialStatus);
     
@@ -34,11 +34,12 @@ const Faucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string 
             justifyContent="center"
             color="lighterLighterBlack"
             onClick={status === initialStatus ? handleFaucet : undefined}
+            cursor={status === initialStatus ? "pointer" : "default"}
         >
             <Box>
                 {status === initialStatus ? <>Get funds to cover gas fees</> :
                 status === 200 ? <>Claimed funds successfully!</> :
-                status === 401 ? <>Not submitted</> :
+                status === 401 ? <>Status is not submitted</> :
                 status === 402 ? <>Already claimed</> :
                 status === 403 ? <>Connect your wallet</> :
                 <>Faucet failed</>}
@@ -47,4 +48,4 @@ const Faucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string 
     )
 }
 
-export default Faucet
+export default ClaimCertificateFaucet

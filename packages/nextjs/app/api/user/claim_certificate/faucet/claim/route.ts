@@ -5,10 +5,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "~~/services/mongodb";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
-import { getChainFromChainNumber } from "~~/utils/wagmi/getChainFromChainNumber";
-import { createWalletClient, parseEther } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { transports } from "~~/utils/wagmi/config";
+import { sendFundsToUser } from "../../../helpers";
 
 interface IFaucetRequestBody {
     chainId: number;
@@ -33,13 +30,13 @@ export async function POST(request: Request) {
 
         // 1. Check if user has submitted
         const status = await wagmiReadFromContractAsync({
-                functionName: "getUserStatus",
-                args: [user, BigInt(examId)],
-                chainId: chainId
-            }) as any;
+            functionName: "getUserStatus",
+            args: [user, BigInt(examId)],
+            chainId: chainId
+        }) as any;
 
-        if (status === 0) {
-            return NextResponse.json({ message: "User has not submitted" }, { status: 401 });
+        if (status !== 1) {
+            return NextResponse.json({ message: "User status is not 'submitted'" }, { status: 401 });
         }
 
         // 2. Check if user has already claimed faucet funds
@@ -56,31 +53,10 @@ export async function POST(request: Request) {
         })
 
         // 4. Send funds to user
-        const privateKey: any = `0x${process.env.CLAIM_CERTIFICATE_FAUCET_PRIVATE_KEY}`;
-        if (!privateKey) {
-            return NextResponse.json({ message: "Private key not found" }, { status: 500 });
-        }
-        const account = privateKeyToAccount(privateKey);
-
-        const walletClient = createWalletClient({
-            account,
-            chain: getChainFromChainNumber(chainId),
-            transport: transports[getChainFromChainNumber(chainId).id],
-        })
-
-        const amount = chainId === 42220 ? parseEther("0.04") : parseEther("0.00001");
-        const hash = await walletClient.sendTransaction({
-            to: user,
-            value: amount
-        })
-
-        return NextResponse.json(
-            { message: "Faucet funds sent", documentId: insertionResult.insertedId, "transactionHash": hash },
-            { status: 200 }
-        );
+        return await sendFundsToUser(chainId, user, insertionResult.insertedId.toString(), "0.00001", "0.03");
     }
     catch (error: any) {
-        console.error("Failed to create exam:", error);
+        console.error("Failed fund user:", error);
         return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
     }
 }

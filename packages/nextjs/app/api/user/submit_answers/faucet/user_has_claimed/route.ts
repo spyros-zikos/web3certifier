@@ -4,5 +4,5 @@ import { userHasClaimedFaucet } from "../../../helpers";
 
 export async function GET(request: Request) {
     const { db } = await connectToDatabase();
-    return await userHasClaimedFaucet(request, db, "claim_certificate_faucet");
+    return await userHasClaimedFaucet(request, db, "submit_answers_faucet");
 }

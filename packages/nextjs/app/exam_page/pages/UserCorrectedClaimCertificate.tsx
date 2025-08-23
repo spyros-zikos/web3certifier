@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { IndexSelector } from "~~/components/IndexSelector";
 import { handleClaimCertificate } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser, ClaimButton, Faucet } from "../_components";
+import { Question, MessageForUser, ClaimButton, ClaimCertificateFaucet } from "../_components";
 import Cookies from 'js-cookie';
 import { getVariablesFromCookies } from "../helperFunctions/PasswordManagement";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -53,7 +53,7 @@ const UserCorrectedClaimCertificate = ({
             />
 
             {passwordHashGood && <ClaimButton text="Claim Certificate" onClick={onClickClaimCertificateButton}/>}
-            {passwordHashGood && !userHasAlreadyClaimedFaucetFunds && <Faucet id={id} user={address} chainId={chain?.id}/>}
+            {passwordHashGood && !userHasAlreadyClaimedFaucetFunds && <ClaimCertificateFaucet id={id} user={address} chainId={chain?.id}/>}
         </>
     );
 }

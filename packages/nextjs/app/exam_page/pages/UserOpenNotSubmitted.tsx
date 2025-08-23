@@ -5,7 +5,7 @@ import { getHashedAnswerAndMessageWithCookies, keyLength } from "../helperFuncti
 import Cookies from 'js-cookie';
 import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser, ExamStartWarningBox } from "../_components";
+import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
 import { Box } from "@chakra-ui/react";
 import { chainsToContracts, cookieExpirationTime, timePerQuestion } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
@@ -23,6 +23,7 @@ const UserOpenNotSubmitted = ({
     const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
+    const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
     const [userCanClaimEngagementReward, setUserCanClaimEngagementReward] = useState(false);
     const [signature, setSignature] = useState<string>("0x");
     const searchParams = useSearchParams();
@@ -32,6 +33,14 @@ const UserOpenNotSubmitted = ({
     const startTimeCookie = `w3c.${chain?.id}.${id}.${address}.startTime`;
 
     const validUntilBlock = 10000000000000000000n // Valid
+
+    // Faucet
+    useEffect(() => {
+        // call the api api/user/claim_certificate/faucet/user_has_claimed
+        fetch(`/api/user/submit_answers/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
+        .then(response => response.json())
+        .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
+    }, [address, id, chain?.id])
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -143,7 +152,7 @@ const UserOpenNotSubmitted = ({
 
         const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
         if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
-        console.log(getCurrentTimestamp() - startTime);
+        // console.log(getCurrentTimestamp() - startTime);
     }, [getCurrentTimestamp()]);
 
     /// if a user clicks next before the timer of the question goes to 0, the remaining time must be discarded
@@ -151,7 +160,6 @@ const UserOpenNotSubmitted = ({
     const handleNextQuestion = (nextQuestionNumber: number) => {
         // calculate remaining time
         const timeRemainingForPreviousQuestion = Math.max(0, startTime + (questionNumber * timePerQuestion) - getCurrentTimestamp());
-        console.log(timeRemainingForPreviousQuestion);
         // new startTime
         const newStartTime = startTime - timeRemainingForPreviousQuestion;
         // update the variable startTime
@@ -203,6 +211,9 @@ const UserOpenNotSubmitted = ({
                     </div>
                 }
             />
+
+            {!needsVerification && !userHasAlreadyClaimedFaucetFunds && <SubmitAnswersFaucet id={id} user={address} chainId={chain?.id}/>}
+            
         </>
     );
 }
