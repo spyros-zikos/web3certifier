@@ -10,3 +10,4 @@ export { default as ClaimButton } from "./ClaimButton";
 export { default as DropDowns } from "./DropDowns";
 export { default as ExamStartWarningBox } from "./ExamStartWarningBox";
 export { default as Confetti } from "./Confetti";
+export { default as Faucet } from "./Faucet";

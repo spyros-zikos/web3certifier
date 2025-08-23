@@ -1,8 +1,8 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { IndexSelector } from "~~/components/IndexSelector";
 import { handleClaimCertificate } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser, ClaimButton } from "../_components";
+import { Question, MessageForUser, ClaimButton, Faucet } from "../_components";
 import Cookies from 'js-cookie';
 import { getVariablesFromCookies } from "../helperFunctions/PasswordManagement";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -14,6 +14,7 @@ const UserCorrectedClaimCertificate = ({
     id: bigint, exam: Exam | undefined, address: string | undefined, chain: any
 }) => {
     const [questionNumber, setQuestionNumber] = useState<number>(1);
+    const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState<boolean>(true);
 
     const userHashedAnswer = wagmiReadFromContract({
         functionName: "getUserHashedAnswer",
@@ -27,6 +28,13 @@ const UserCorrectedClaimCertificate = ({
     const onClickClaimCertificateButton = () => {
         passwordCookie && handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key))
     }
+
+    useEffect(() => {
+        // call the api api/user/claim_certificate/faucet/user_has_claimed
+        fetch(`/api/user/claim_certificate/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
+        .then(response => response.json())
+        .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
+    }, [address, id, chain?.id])
 
     return (
         <>
@@ -45,6 +53,7 @@ const UserCorrectedClaimCertificate = ({
             />
 
             {passwordHashGood && <ClaimButton text="Claim Certificate" onClick={onClickClaimCertificateButton}/>}
+            {passwordHashGood && !userHasAlreadyClaimedFaucetFunds && <Faucet id={id} user={address} chainId={chain?.id}/>}
         </>
     );
 }
