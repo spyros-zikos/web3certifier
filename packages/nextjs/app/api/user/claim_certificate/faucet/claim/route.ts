@@ -23,9 +23,9 @@ export async function POST(request: Request) {
         client = connectedClient;
 
         const body: IFaucetRequestBody = await request.json();
-        let {chainId, examId, user } = body;
-        chainId = Number(chainId);
-        examId = BigInt(examId);
+        const { chainId: chainIdString, examId: examIdString, user } = body;
+        const chainId = Number(chainIdString);
+        const examId = BigInt(examIdString);
 
         if (examId === undefined || !chainId || !user) {
             return NextResponse.json({ error: "Invalid request. The 'examId', 'chainId', and 'user' are required." }, { status: 400 });
