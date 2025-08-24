@@ -11,6 +11,7 @@ import { chainsToContracts, cookieExpirationTime, timePerQuestion } from "~~/con
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { ZERO_ADDRESS } from "thirdweb";
+import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 
 
 const UserOpenNotSubmitted = ({
@@ -153,6 +154,19 @@ const UserOpenNotSubmitted = ({
         const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
         if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
         // console.log(getCurrentTimestamp() - startTime);
+
+        // Also check if user has submitted
+        (async () => {
+            const userStatus = await wagmiReadFromContractAsync({
+                functionName: "getUserStatus",
+                args: [address, BigInt(id)],
+                chainId: chain?.id
+            }) as any;
+            
+            if (userStatus !== 0) {
+                window.location.reload();
+            }
+        })();
     }, [getCurrentTimestamp()]);
 
     /// if a user clicks next before the timer of the question goes to 0, the remaining time must be discarded
