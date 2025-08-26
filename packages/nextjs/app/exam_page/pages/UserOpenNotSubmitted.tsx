@@ -62,6 +62,9 @@ const UserOpenNotSubmitted = ({
 
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
 
+    // TODO make the following line not bug out
+    // const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
+
     // useEffect(() => {
     //     (async function getUserCanClaimEngagementReward() {
     //         if (chain.id === 42220) {
