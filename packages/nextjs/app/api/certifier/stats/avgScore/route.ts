@@ -1,5 +1,3 @@
-import { chain } from "lodash";
-import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { getScoresOfUsersWithStatus } from "../getAvgScoreOfUsersWithStatus";
 
 export async function GET(request: Request) {
