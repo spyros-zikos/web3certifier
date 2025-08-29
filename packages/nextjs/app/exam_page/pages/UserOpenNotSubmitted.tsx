@@ -7,10 +7,9 @@ import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { chainsToContracts, cookieExpirationTime, timePerQuestion } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
-import { ZERO_ADDRESS } from "thirdweb";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 
 
@@ -61,61 +60,23 @@ const UserOpenNotSubmitted = ({
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
 
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
 
-    // TODO make the following line not bug out
-    // const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
-
-    // useEffect(() => {
-    //     (async function getUserCanClaimEngagementReward() {
-    //         if (chain.id === 42220) {
-    //         const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
-            
-    //         setUserCanClaimEngagementReward(
-    //             await engagementRewards?.canClaim(chainsToContracts[chain?.id]["Certifier"].address, address || "") || false
-    //         );
-    //         }
-    //     })()
-    // }, [address, chain]);
-
-    
-    // useEffect(() => {
-    //     (async function getGetSignature() {
-    //         if (chain.id === 42220)
-    //         if (userCanClaimEngagementReward) {
-    //             const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
-
-    //             setSignature(await engagementRewards?.signClaim(
-    //                 chainsToContracts[chain?.id]["Certifier"].address, // is this correct???
-    //                 inviter || "",
-    //                 validUntilBlock // Valid for 10 blocks
-    //             ) || "0x")
-    //         }
-    //     })()
-    // }, [address, chain, userCanClaimEngagementReward]);
-
-    const onClickSubmitAnswersButton = () => {
+    const onClickSubmitAnswersButton = async () => {
         // const validUntilBlock = 10000000000000000000n // Valid
-        // let signature = "0x";
+        let signature = "0x";
+        const currentBlock = await engagementRewards?.getCurrentBlockNumber()
+        const validUntilBlock = (currentBlock || 1000000000n) + 10000n // Valid for 10 blocks
+        console.log("validUntilBlock", validUntilBlock);
 
-        // if (chain.id === 42220) {
-        //     try {
-        //         // 1. Get current block for signature
-        //         // const currentBlock = await engagementRewards?.getCurrentBlockNumber()
-        //         // const validUntilBlock = currentBlock! + 10n // Valid for 10 blocks
+        if (chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
+            signature = await engagementRewards?.signClaim(
+                chainsToContracts[chain?.id]["Certifier"].address,
+                inviter || "",
+                validUntilBlock
+            ) as any;
 
-        //         // Generate signature for first-time users or after app re-apply
-        //         if (userCanClaimEngagementReward) {
-        //             signature = await engagementRewards?.signClaim(
-        //             chainsToContracts[chain?.id]["Certifier"].address, // is this correct???
-        //             inviter || "",
-        //             validUntilBlock
-        //             ) || "0x"
-        //         }
-
-        //     } catch (error) {
-        //     console.error('Error', error)
-        //     }
-        // }
+        console.log("signature", signature);
 
         // set cookie
         Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });
