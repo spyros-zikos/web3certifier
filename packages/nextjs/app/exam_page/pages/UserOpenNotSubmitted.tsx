@@ -72,11 +72,12 @@ const UserOpenNotSubmitted = ({
         if (chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
             signature = await engagementRewards?.signClaim(
                 chainsToContracts[chain?.id]["Certifier"].address,
-                inviter || "",
+                inviter || "0x",
                 validUntilBlock
             ) as any;
 
-        console.log("signature", signature);
+        console.log("id,hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
+            id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
 
         // set cookie
         Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });

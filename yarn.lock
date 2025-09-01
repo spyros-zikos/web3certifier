@@ -608,6 +608,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@divvi/referral-sdk@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@divvi/referral-sdk@npm:2.3.0"
+  checksum: 521432e6aab60ee0388b67588c6bf9ef1abaeb03675baff61084d8ea203da53f018cdf6e80d8aca29bbbb450e60b07368ea8cc53c6b3e7637749b0ea56db425b
+  languageName: node
+  linkType: hard
+
 "@edge-runtime/cookies@npm:3.4.1":
   version: 3.4.1
   resolution: "@edge-runtime/cookies@npm:3.4.1"
@@ -3949,6 +3956,7 @@ __metadata:
     "@chakra-ui/styled-system": ^2.12.0
     "@chakra-ui/theme-tools": ^2.2.6
     "@chakra-ui/theme-utils": ^2.0.21
+    "@divvi/referral-sdk": ^2.3.0
     "@emotion/react": ^11.14.0
     "@emotion/styled": ^11.14.1
     "@goodsdks/engagement-sdk": ^1.0.1
