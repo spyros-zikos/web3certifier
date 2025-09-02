@@ -63,12 +63,10 @@ const UserOpenNotSubmitted = ({
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
 
     const onClickSubmitAnswersButton = async () => {
-        // const validUntilBlock = 10000000000000000000n // Valid
+        const currentBlock = await engagementRewards?.getCurrentBlockNumber();
+        const validUntilBlock = (currentBlock || 1000000000n) + 10n // Valid for 10 blocks
+        
         let signature = "0x";
-        const currentBlock = await engagementRewards?.getCurrentBlockNumber()
-        const validUntilBlock = (currentBlock || 1000000000n) + 10000n // Valid for 10 blocks
-        console.log("validUntilBlock", validUntilBlock);
-
         if (chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
             signature = await engagementRewards?.signClaim(
                 chainsToContracts[chain?.id]["Certifier"].address,
