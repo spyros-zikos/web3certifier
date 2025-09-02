@@ -4,20 +4,20 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box } from "@chakra-ui/react";
 import { PageWrapper, ResponsivePageWrapper, Title } from "~~/components";
-import { useAccount } from "wagmi";
 import { ExamStage } from "../../types/ExamStage";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
-import {SUPPORTED_NETWORKS, ZERO_ADDRESS} from "~~/constants";
+import { SUPPORTED_NETWORKS, ZERO_ADDRESS } from "~~/constants";
 import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 
 const ExamPage = () => {
-    const { address, chain } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
     const [timeNow, setTimeNow] = useState(Date.now());
@@ -79,11 +79,11 @@ const ExamPage = () => {
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
         const userCanClaimReward = !userHasClaimedReward && hasReward;
-        return examStage(examStatus, userStatus, address, exam, userCanClaimReward);
+        return examStage(examStatus, userStatus, address, exam, userCanClaimReward, id);
     }
 
-    // Check that user is connected to supported network
-    if (!chain?.id || !Object.values(SUPPORTED_NETWORKS).includes(chain.id)) {
+    // If user is connected, check that he's on supported network
+    if (chain && !Object.values(SUPPORTED_NETWORKS).includes(chain.id)) {
         return (
             <PageWrapper>
                 <Title>Exam Page</Title>
@@ -100,7 +100,7 @@ const ExamPage = () => {
             <PageWrapper>
                 <Title>Exam Page</Title>
                 <Box>
-                    <div className="text-2xl mt-32">This exam does not exist on this network.</div>
+                    <div className="text-2xl mt-32">Exam does not exist.<br /><br />Try connecting your wallet to a supported netwrok.</div>
                 </Box>
             </PageWrapper>
         );

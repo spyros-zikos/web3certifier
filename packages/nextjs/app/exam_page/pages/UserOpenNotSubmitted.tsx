@@ -7,7 +7,7 @@ import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { chainsToContracts, cookieExpirationTime, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, getLastSubmitterAddressCookieName, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
@@ -29,8 +29,11 @@ const UserOpenNotSubmitted = ({
     const searchParams = useSearchParams();
     const inviter = searchParams.get("inviter");
 
-    const passwordCookie = `w3c.${chain?.id}.${id}.${address}`;
-    const startTimeCookie = `w3c.${chain?.id}.${id}.${address}.startTime`;
+    const passwordCookie = getPasswordCookieName(chain, id, address);
+    const startTimeCookie = getStartTimeCookieName(chain, id);
+    // if the last address is not undefined
+    // then someone already submitted from the browser successfully
+    const lastSubmitterAddressCookie = getLastSubmitterAddressCookieName(chain, id);
 
     // Faucet
     useEffect(() => {
@@ -57,8 +60,15 @@ const UserOpenNotSubmitted = ({
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
 
-    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
+
+    useEffect(() => {
+        if (submitAnswersSuccess) {
+            Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
+            Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
+        }
+    })
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
@@ -76,11 +86,10 @@ const UserOpenNotSubmitted = ({
             id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
 
         // set cookie
-        Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });
         console.log(userPassword);
 
         if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
-            handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature)
+            handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature);
     }
 
     const VerifyAccountMessage = () => {
@@ -170,7 +179,7 @@ const UserOpenNotSubmitted = ({
                 index={questionNumber}
                 firstIndex={1}
                 lastIndex={exam?.questions ? exam?.questions.length : 1}
-                submitButtonOnClick={userStatus === 0 ? onClickSubmitAnswersButton : undefined}
+                submitButtonOnClick={userStatus === 0 && !Cookies.get(lastSubmitterAddressCookie) ? onClickSubmitAnswersButton : undefined}
                 previousEnabled={false}
             />: <></>}
 

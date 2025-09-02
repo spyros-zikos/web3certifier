@@ -1,12 +1,17 @@
+import { getLastSubmitterAddressCookieName } from "~~/constants";
 import { ExamStage } from "~~/types/ExamStage";
+import Cookies from 'js-cookie';
 
 export const examStage = (
     examStatus: string,
     userStatus: string,
     address: any,
     exam: Exam | undefined,
-    userCanClaimReward: boolean
+    userCanClaimReward: boolean,
+    id: bigint
 ) => {
+    const lastSubmitterAddressCookie = getLastSubmitterAddressCookieName(address, id);
+    
     if (address === exam?.certifier) {
         // Open
         if (examStatus === "Open") return ExamStage.Certifier_Open
@@ -19,7 +24,7 @@ export const examStage = (
     } else {
         // Open
         if (examStatus === "Open") {
-            if (userStatus === "Not Submitted") return ExamStage.User_Open_NotSubmitted;
+            if ((userStatus === "Not Submitted") && !Cookies.get(lastSubmitterAddressCookie)) return ExamStage.User_Open_NotSubmitted;
             else return ExamStage.User_Open_Submitted;
         }
         // Under Correction

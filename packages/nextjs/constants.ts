@@ -1,12 +1,15 @@
 export const defaultImage = "https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/Qme6b3de9ATPVjNh5mhFPwHgJUmqKz8vqYx2LPj6j3uQTY/KNOWLEDGE.png";
 export const SUPPORTED_NETWORKS = { sepolia: 11155111, arbitrum: 42161, celo: 42220 };
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ONE_ADDRESS = "0x0000000000000000000000000000000000000001";
 export const answersSeparator = "|&&|";
 export const cookieExpirationTime = 10000;
 export const timePerQuestion = 30; // seconds
 export const dbName = "Web3Certifier";
 export const grantReceiverAddress = "0x637365C8697C63186dC4759bd0F10af9B32D3c1A";
-
+export const getPasswordCookieName = (chain: any, id: bigint, address?: string) => `w3c.${chain?.id}.${id}.${address}`;
+export const getStartTimeCookieName = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.startTime`;
+export const getLastSubmitterAddressCookieName = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.lastSubmitterAddress`;
 
 export interface ContractsConfig {
     [chainId: number]: {

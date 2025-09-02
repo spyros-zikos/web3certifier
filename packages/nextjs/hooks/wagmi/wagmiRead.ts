@@ -1,6 +1,7 @@
 import { SUPPORTED_NETWORKS } from "~~/constants";
 import { useAccount, useReadContract } from "wagmi";
 import { chainsToContracts } from '~~/constants';
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 interface Params {
     contractName?: string;
@@ -10,7 +11,8 @@ interface Params {
 }
 
 export function wagmiReadFromContract(params: Params): any {
-    const { chain } = useAccount();
+    // const { chain } = useAccount();
+    const { chain } = useNonUndefinedAccount();
 
     const chainId: number = (chain && Object.values(SUPPORTED_NETWORKS).includes(chain.id)) ? chain.id : 11155111;
     const contractName: string = params.contractName ? params.contractName : "Certifier";

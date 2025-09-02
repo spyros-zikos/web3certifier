@@ -82,6 +82,7 @@ export function wagmiWriteToContract() {
             })
             
             params.onSuccess ? params.onSuccess() : window.location.reload();
+            // new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
             setSuccess(true);
             return writeTxResult;
         } catch (error) {
