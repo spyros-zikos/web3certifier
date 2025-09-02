@@ -5,6 +5,7 @@ export const answersSeparator = "|&&|";
 export const cookieExpirationTime = 10000;
 export const timePerQuestion = 30; // seconds
 export const dbName = "Web3Certifier";
+export const grantReceiverAddress = "0x637365C8697C63186dC4759bd0F10af9B32D3c1A";
 
 
 export interface ContractsConfig {

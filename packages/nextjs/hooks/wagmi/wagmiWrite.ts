@@ -2,7 +2,7 @@ import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-eth";
 import { useAccount, useWriteContract, useSendTransaction } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { useState } from "react";
-import { chainsToContracts, SUPPORTED_NETWORKS } from '~~/constants';
+import { chainsToContracts, grantReceiverAddress, SUPPORTED_NETWORKS } from '~~/constants';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { encodeFunctionData } from 'viem'
 
@@ -41,7 +41,7 @@ export function wagmiWriteToContract() {
         // Generate referral tag
         const referralTag = getReferralTag({
             user: address as any,
-            consumer: '0x637365C8697C63186dC4759bd0F10af9B32D3c1A',
+            consumer: grantReceiverAddress,
         })
 
         try {
