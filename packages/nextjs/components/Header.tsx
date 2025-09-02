@@ -69,7 +69,7 @@ export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
-    burgerMenuRef,
+    burgerMenuRef as React.RefObject<HTMLDivElement>,
     useCallback(() => setIsDrawerOpen(false), []),
   );
 
