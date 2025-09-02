@@ -32,8 +32,6 @@ const UserOpenNotSubmitted = ({
     const passwordCookie = `w3c.${chain?.id}.${id}.${address}`;
     const startTimeCookie = `w3c.${chain?.id}.${id}.${address}.startTime`;
 
-    const validUntilBlock = 10000000000000000000n // Valid
-
     // Faucet
     useEffect(() => {
         // call the api api/user/claim_certificate/faucet/user_has_claimed
@@ -64,17 +62,17 @@ const UserOpenNotSubmitted = ({
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
-        const validUntilBlock = (currentBlock || 1000000000n) + 10n // Valid for 10 blocks
+        const validUntilBlock = (currentBlock || 1000000000n) + 50n // Valid for 10 blocks
         
         let signature = "0x";
-        if (chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
+        if (inviter && chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
             signature = await engagementRewards?.signClaim(
                 chainsToContracts[chain?.id]["Certifier"].address,
-                inviter || "0x",
+                inviter || ZERO_ADDRESS,
                 validUntilBlock
             ) as any;
 
-        console.log("id,hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
+        console.log("id, hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
             id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
 
         // set cookie
