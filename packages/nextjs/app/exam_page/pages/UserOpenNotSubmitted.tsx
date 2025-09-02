@@ -83,11 +83,8 @@ const UserOpenNotSubmitted = ({
         Cookies.set(passwordCookie, userPassword, { expires: cookieExpirationTime });
         console.log(userPassword);
 
-        hashedAnswerToSubmit
-        ? exam && (exam.price > 0 ? examPriceInEth : true)
-            && answers.length === exam?.questions?.length
-            && handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature)
-        : 0
+        if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
+            handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature)
     }
 
     const VerifyAccountMessage = () => {

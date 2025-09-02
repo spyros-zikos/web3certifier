@@ -26,7 +26,7 @@ const UserCorrectedClaimCertificate = ({
 
     const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const onClickClaimCertificateButton = () => {
-        passwordCookie && handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key))
+        return passwordCookie && handleClaimCertificate(claimCertificate, id, userAnswers, BigInt(key))
     }
 
     useEffect(() => {
