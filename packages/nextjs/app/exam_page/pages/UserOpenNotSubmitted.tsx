@@ -55,12 +55,14 @@ const UserOpenNotSubmitted = ({
         args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
 
-    // const userIsRegisteredOnEngagementRewards = wagmiReadFromContractAsync({
-    //     contractName: "EngagementRewards",
-    //     functionName: "isRegistered",
-    //     args: [address],
-    // }).data;
-    
+    // the [0] field is the isRegistered field which is a uint32 timestamp
+    const isRegisteredOnEngagementRewards = chain?.id === 42220 ? wagmiReadFromContract({
+        contractName: "EngagementRewards",
+        functionName: "userRegistrations",
+        args: [chainsToContracts[chain?.id]["Certifier"].address, address],
+    })?.data[0]
+    : 0;
+
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
 
@@ -80,7 +82,7 @@ const UserOpenNotSubmitted = ({
         
         try {
             let signature = "0x";
-            if (inviter && chain.id === 42220/* && !(await engagementRewards?.canClaim(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
+            if (inviter && chain.id === 42220 && isRegisteredOnEngagementRewards==0)
                 signature = await engagementRewards?.signClaim(
                     chainsToContracts[chain?.id]["Certifier"].address,
                     inviter || ZERO_ADDRESS,
