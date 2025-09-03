@@ -54,6 +54,12 @@ const UserOpenNotSubmitted = ({
         functionName: "getUsdToEthRate",
         args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
+
+    // const userIsRegisteredOnEngagementRewards = wagmiReadFromContractAsync({
+    //     contractName: "EngagementRewards",
+    //     functionName: "isRegistered",
+    //     args: [address],
+    // }).data;
     
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
@@ -72,22 +78,26 @@ const UserOpenNotSubmitted = ({
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
         const validUntilBlock = (currentBlock || 1000000000n) + 50n // Valid for 10 blocks
         
-        let signature = "0x";
-        if (inviter && chain.id === 42220/* && !(await engagementRewards?.isUserRegistered(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
-            signature = await engagementRewards?.signClaim(
-                chainsToContracts[chain?.id]["Certifier"].address,
-                inviter || ZERO_ADDRESS,
-                validUntilBlock
-            ) as any;
-
-        console.log("id, hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
-            id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
-
-        // set cookie
-        console.log(userPassword);
-
-        if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
-            handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature);
+        try {
+            let signature = "0x";
+            if (inviter && chain.id === 42220/* && !(await engagementRewards?.canClaim(chainsToContracts[chain?.id]["Certifier"].address, address || ""))*/)
+                signature = await engagementRewards?.signClaim(
+                    chainsToContracts[chain?.id]["Certifier"].address,
+                    inviter || ZERO_ADDRESS,
+                    validUntilBlock
+                ) as any;
+                
+            console.log("id, hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
+                id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
+                
+            // set cookie
+            console.log(userPassword);
+            
+            if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
+                handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const VerifyAccountMessage = () => {

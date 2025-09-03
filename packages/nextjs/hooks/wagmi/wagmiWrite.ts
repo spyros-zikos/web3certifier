@@ -1,5 +1,5 @@
 import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-eth";
-import { useAccount, useWriteContract, useSendTransaction } from "wagmi";
+import { useAccount, useSendTransaction } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { useState } from "react";
 import { chainsToContracts, grantReceiverAddress, SUPPORTED_NETWORKS } from '~~/constants';
