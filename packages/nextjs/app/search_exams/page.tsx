@@ -18,16 +18,11 @@ const SearchExamsPage: React.FC = () => {
     const [page, setPage] = useState<number>(1);
     // parameter
     const examsPerPage = 9;
-    // hidelists
-    const hidePreviousIdsOfId = {
-        [SUPPORTED_NETWORKS.sepolia]: 0,
-        [SUPPORTED_NETWORKS.arbitrum]: 0,
-        [SUPPORTED_NETWORKS.celo]: 21
-    };
-    const hidelist = {
+    // showList
+    const showList = {
         [SUPPORTED_NETWORKS.sepolia]: [],
         [SUPPORTED_NETWORKS.arbitrum]: [],
-        [SUPPORTED_NETWORKS.celo]: [22n, 23n, 26n, 27n, 29n, 30n, 31n, 32n, 33n]
+        [SUPPORTED_NETWORKS.celo]: [21n, 24n, 25n, 28n]
     };
 
     /*//////////////////////////////////////////////////////////////
@@ -55,11 +50,11 @@ const SearchExamsPage: React.FC = () => {
     // union of userExamIds and certifierExamIds
     const userAndCertifierExamIds: bigint[] = Array.from(new Set([...(userExamIds || []), ...(certifierExamIds || [])])).reverse();
 
-    // all exams
+    // Get only the exams that are selected in the showList
+    // If the showList is empty, show all the exams
     const allExamIds = [];
     for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > -1; i--) {
-        if (chain && i < BigInt(hidePreviousIdsOfId[chain?.id])) continue
-        if (chain && hidelist[chain?.id].includes(i)) continue
+        if (showList[chain?.id].length && !showList[chain?.id].includes(i)) continue
         allExamIds.push(BigInt(i));
     }
 
