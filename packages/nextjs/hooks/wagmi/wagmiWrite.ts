@@ -5,6 +5,8 @@ import { useState } from "react";
 import { chainsToContracts, grantReceiverAddress, SUPPORTED_NETWORKS } from '~~/constants';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { encodeFunctionData } from 'viem'
+import { estimateGas } from '@wagmi/core'
+import { config } from "~~/utils/wagmi/config";
 
 interface Params {
     contractName?: string;
@@ -17,7 +19,6 @@ interface Params {
 
 export function wagmiWriteToContract() {
     const writeTx = useTransactor();
-    const wagmiContractWrite = useWriteContract();
     const wagmiSendTransaction = useSendTransaction();
     const { chain, address } = useAccount();
     const { targetNetwork } = useTargetNetwork();
@@ -57,13 +58,33 @@ export function wagmiWriteToContract() {
             // Append referral tag to the encoded data
             const dataWithReferral = `${encodedData}${referralTag}`;
 
-            function writeWithParams() {
-                // Use sendTransaction for full control over transaction data
-                return wagmiSendTransaction.sendTransactionAsync({
-                    to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
-                    data: dataWithReferral as `0x${string}`,
-                    value: params.value,
-                });
+            async function writeWithParams() {
+                try {
+                    // First estimate the gas needed
+                    const estimatedGas = await estimateGas(config, {
+                        to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
+                        data: dataWithReferral as `0x${string}`,
+                        value: params.value,
+                    })
+                    
+                    // Add 10% buffer to the estimated gas
+                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.1));
+                    
+                    // Use sendTransaction for full control over transaction data
+                    return wagmiSendTransaction.sendTransactionAsync({
+                        to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
+                        data: dataWithReferral as `0x${string}`,
+                        value: params.value,
+                        gas: gasWithBuffer,
+                    });
+                } catch (error) {
+                    // If gas estimation fails, fallback to default behavior
+                    return wagmiSendTransaction.sendTransactionAsync({
+                        to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
+                        data: dataWithReferral as `0x${string}`,
+                        value: params.value,
+                    });
+                }
             }
 
             const { onBlockConfirmation, blockConfirmations } = {
