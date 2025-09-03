@@ -60,7 +60,7 @@ const UserOpenNotSubmitted = ({
         contractName: "EngagementRewards",
         functionName: "userRegistrations",
         args: [chainsToContracts[chain?.id]["Certifier"].address, address],
-    })?.data[0]
+    }).data
     : 0;
 
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
@@ -82,7 +82,7 @@ const UserOpenNotSubmitted = ({
         
         try {
             let signature = "0x";
-            if (inviter && chain.id === 42220 && isRegisteredOnEngagementRewards==0)
+            if (inviter && chain.id === 42220 && isRegisteredOnEngagementRewards.data==0)
                 signature = await engagementRewards?.signClaim(
                     chainsToContracts[chain?.id]["Certifier"].address,
                     inviter || ZERO_ADDRESS,
