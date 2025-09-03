@@ -4,15 +4,15 @@ import { Title } from "~~/components";
 import React, { useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
 import { IndexSelector } from "../../components/IndexSelector";
-import { useAccount } from "wagmi";
 import { ExamCard, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { SUPPORTED_NETWORKS } from "~~/constants";
 import { Box } from "@chakra-ui/react";
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 
 const SearchExamsPage: React.FC = () => {
-    const { address, chain } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
     const [searchTerm, setSearchTerm] = useState("");
     const [showMyExams, setShowMyExams] = useState(false);
     const [page, setPage] = useState<number>(1);
