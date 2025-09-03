@@ -8,10 +8,12 @@ export const examStage = (
     address: any,
     exam: Exam | undefined,
     userCanClaimReward: boolean,
+    chain: any,
     id: bigint
 ) => {
-    const lastSubmitterAddressCookie = getLastSubmitterAddressCookieName(address, id);
-    
+    const lastSubmitterAddressCookieName = getLastSubmitterAddressCookieName(chain, id);
+    const lastSubmitterAddressCookie = Cookies.get(lastSubmitterAddressCookieName);
+
     if (address === exam?.certifier) {
         // Open
         if (examStatus === "Open") return ExamStage.Certifier_Open
@@ -24,7 +26,7 @@ export const examStage = (
     } else {
         // Open
         if (examStatus === "Open") {
-            if ((userStatus === "Not Submitted") && !Cookies.get(lastSubmitterAddressCookie)) return ExamStage.User_Open_NotSubmitted;
+            if ((userStatus === "Not Submitted") && !lastSubmitterAddressCookie) return ExamStage.User_Open_NotSubmitted;
             else return ExamStage.User_Open_Submitted;
         }
         // Under Correction

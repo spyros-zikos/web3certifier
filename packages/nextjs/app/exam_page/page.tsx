@@ -79,7 +79,7 @@ const ExamPage = () => {
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
         const userCanClaimReward = !userHasClaimedReward && hasReward;
-        return examStage(examStatus, userStatus, address, exam, userCanClaimReward, id);
+        return examStage(examStatus, userStatus, address, exam, userCanClaimReward, chain, id);
     }
 
     // If user is connected, check that he's on supported network
