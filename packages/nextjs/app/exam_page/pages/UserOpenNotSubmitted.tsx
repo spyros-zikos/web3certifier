@@ -66,7 +66,6 @@ const UserOpenNotSubmitted = ({
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
-    // const canClaimEngagementRewards = true;
 
     const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
