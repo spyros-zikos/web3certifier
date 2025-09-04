@@ -55,7 +55,7 @@ const UserOpenNotSubmitted = ({
         args: [BigInt(exam ? exam.price.toString() : 0)],
     }).data;
 
-    // the [0] field is the isRegistered field which is a uint32 timestamp
+    // the [0] field is the isRegistered field which is a uint32 timestamp of the time the user first claimed
     const isRegisteredOnEngagementRewards = chain?.id === 42220 ? wagmiReadFromContract({
         contractName: "EngagementRewards",
         functionName: "userRegistrations",
@@ -65,6 +65,8 @@ const UserOpenNotSubmitted = ({
 
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
     const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
+    const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
+    // const canClaimEngagementRewards = true;
 
     const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
@@ -82,7 +84,7 @@ const UserOpenNotSubmitted = ({
         
         try {
             let signature = "0x";
-            if (inviter && chain.id === 42220 && isRegisteredOnEngagementRewards.data==0)
+            if (canClaimEngagementRewards)
                 signature = await engagementRewards?.signClaim(
                     chainsToContracts[chain?.id]["Certifier"].address,
                     inviter || ZERO_ADDRESS,
@@ -201,8 +203,10 @@ const UserOpenNotSubmitted = ({
             <MessageForUser 
                 message={
                     <div>
-                        The system uses cookies to store your password.
-                        This means that you can claim your certificate only from this device.
+                        {canClaimEngagementRewards && <Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you submit your answers to this exam!</Box>}
+                        <br />
+                        <Box color="lighterLighterBlack">Note: The system uses cookies to store your password.
+                        This means that you can claim your certificate only from this device.</Box>
                         {needsVerification ? <VerifyAccountMessage /> : ""}
                     </div>
                 }
