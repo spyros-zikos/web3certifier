@@ -74,7 +74,7 @@ const UserOpenNotSubmitted = ({
             Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
             Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
         }
-    })
+    }, [submitAnswersSuccess]);
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
@@ -92,9 +92,14 @@ const UserOpenNotSubmitted = ({
             console.log("id, hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
                 id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
                 
-            // set cookie
             console.log(userPassword);
-            
+
+            // testnet is very slow and the success varible does not work properly. so you dont do that:
+            if (chain.id === 11155111) {
+                Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
+                Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
+            }
+
             if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
                 handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature);
         } catch (error) {
