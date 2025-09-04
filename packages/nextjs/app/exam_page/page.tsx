@@ -111,6 +111,12 @@ const ExamPage = () => {
             {/* Manage Rewards */}
             { address === exam?.certifier && <ManageRewardsLink id={exam?.id || BigInt(0)} /> }
 
+            {/* Invite Link */}
+            <Box fontSize="sm" mb="16" border="2px" borderStyle="solid" borderColor="lightGreen" rounded="lg" p="4">
+                <Box>Use this link to invite people and get 3k G$ tokens for every user that submits using this link!</Box>
+                <Box textDecoration="underline" color="green">https://web3certifier.com/exam_page?id=${id}&inviter=${address}</Box>
+            </Box>
+
             {/* Image, Name, Description */}
             <ImageNameDescription exam={exam} />
 
