@@ -134,7 +134,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Cancelled_ClaimRefund ?
             <UserCancelledClaimRefund id={id} exam={exam} />
             : getExamStage() === ExamStage.User_Cancelled_NoRefund ?
-            <StaticExamPage exam={exam} message="The exam has been cancelled!" />  
+            <StaticExamPage exam={exam} message={isConnected ? "The exam has been cancelled!" : "Connect your wallet to claim your refund!"} />  
             // Corrected
             : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
             <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
@@ -145,7 +145,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Corrected_Failed ?
             <StaticExamPage exam={exam} message={exam ? <div> You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div> : <div>Loading...</div>} />
             : getExamStage() === ExamStage.User_Corrected_NotSubmitted ?
-            <StaticExamPage exam={exam} message="This exam has ended. You did not participate!" />
+            <StaticExamPage exam={exam} message={isConnected ? "This exam has ended. You did not participate!" : "Connect your wallet to claim your certificate!"} />
 
             ////// Certifier //////
             // Open
