@@ -15,6 +15,10 @@ import TextArea from "./_components/TextArea";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { ProgressBar, IndexSelector } from '~~/components';
+import { FileUpload } from "@chakra-ui/react"
+import { HiUpload } from "react-icons/hi"
+import { FileAcceptDetails } from "@zag-js/file-upload";
+import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
 
 
 const CreateExam = () => {
@@ -115,6 +119,47 @@ const CreateExam = () => {
             console.log("Exam data saved to DB successfully.");
         }
     }, [success]);
+
+    const handleFileAccept = async (details: FileAcceptDetails) => {
+        const file = details.files[0];
+        const listWithFileLines = (await file.text())?.split("\n");
+        setQuestionNumber(1);
+        
+        const tempQuestionsWithAnswers: QuestionWithAnswers[] = [];
+        try {
+            if (listWithFileLines)
+                for (let i = 0; i < listWithFileLines.length; i++) {
+                    if (i % 6 === 0)
+                        tempQuestionsWithAnswers.push({question: listWithFileLines[i], answer1: listWithFileLines[i + 1], answer2: listWithFileLines[i + 2], answer3: listWithFileLines[i + 3], answer4: listWithFileLines[i + 4]});
+                }
+                setQuestionsWithAnswers(tempQuestionsWithAnswers);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const downloadQuestionsTemplate = () => {
+        downloadListAsTxt(
+            [
+                "How much is 2 + 2?",
+                "2",
+                "3",
+                "4",
+                "5",
+                " ",
+                "What is the capital of France?",
+                "Paris",
+                "London",
+                "Berlin",
+                "Rome",
+                " ",
+                "Who is the president of the United States?",
+                "Joe Biden",
+                "Donald Trump",
+                "Barack Obama",
+                "George Washington",
+            ], "questions");
+    }
 
     const onDrop = useCallback(
         async (acceptedFiles: File[]) => {
@@ -354,6 +399,22 @@ const CreateExam = () => {
                 }}>
                     Remove Question
                 </Button>
+
+                {/* Upload txt file with questions */}
+                <Box mt="8">
+                    Alternatively, you can upload a text file with the questions. It should follow <Box display="inline" textDecoration="underline" cursor="pointer" onClick={downloadQuestionsTemplate}>this</Box> template.
+                </Box>
+                <FileUpload.Root accept={["text/plain"]} onFileAccept={handleFileAccept} mt="2">
+                    <FileUpload.HiddenInput />
+                    <FileUpload.Trigger asChild>
+                        <Box display="flex" alignItems="center" gap="2" border="1px solid" borderColor="lighterLighterBlack" px="4" py="2" mt="2" cursor="pointer">
+                            <HiUpload />
+                            Upload file
+                        </Box>
+                    </FileUpload.Trigger>
+                    {/* <FileUpload.List /> */}
+                </FileUpload.Root>
+                
 
                 <Text borderTop="1px solid" mt="8" borderColor="lighterLighterBlack"></Text>
                 
