@@ -6,7 +6,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useAccount } from "wagmi";
 import { ZERO_ADDRESS } from "thirdweb";
 import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
-import { downloadListAsTxt } from "../helperFunctions/downloadListAsTxt";
+import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
 
 const DownloadButton = ({onClick}: {onClick: any}) => {
     return <Box position="absolute" top="1" right="2">
