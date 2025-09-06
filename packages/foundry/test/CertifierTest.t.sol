@@ -127,7 +127,8 @@ contract CertifierTest is Test {
             REWARD_INITIAL_AMOUNT, // initialRewardAmount,
             5, // rewardAmountPerPerson,
             1, // rewardAmountPerCorrectAnswer,
-            address(token) // tokenAddress
+            address(token), // tokenAddress
+            address(0) // customReward
         );
         vm.stopPrank();
 

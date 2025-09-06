@@ -22,7 +22,8 @@ contract DeployReward is Script {
             1, // uint256 rewardAmountPerPerson,
             1, // uint256 rewardAmountPerCorrectAnswer,
             0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address tokenAddress,
-            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62 // address owner
+            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address owner
+            address(0) // address customReward
         ));
         vm.stopBroadcast();
         console.log("Reward Contract deployed at: ", reward);
