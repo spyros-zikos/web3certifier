@@ -4,7 +4,7 @@ import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { Button, Input, Text, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useAccount } from "wagmi";
-import { chainsToContracts } from '~~/constants';
+import { chainsToContracts, ZERO_ADDRESS } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
@@ -18,6 +18,7 @@ const CreateReward = ({id}: {id: bigint}) => {
     const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
     const goodDollarToken = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
     const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? goodDollarToken : "");
+    const [customRewardAddress, setCustomRewardAddress] = useState<string>(ZERO_ADDRESS);
     const rewardFactoryAddress = chainsToContracts[chain?chain?.id:11155111]["RewardFactory"].address;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -66,7 +67,8 @@ const CreateReward = ({id}: {id: bigint}) => {
                 BigInt(scaledInitialRewardAmount),
                 BigInt(scaledRewardAmountPerPerson),
                 BigInt(scaledRewardAmountPerCorrectAnswer),
-                tokenAddress
+                tokenAddress,
+                customRewardAddress
             ],
         });
     }
@@ -99,6 +101,15 @@ const CreateReward = ({id}: {id: bigint}) => {
                     }}
                 /></>
                 : <Box>Reward users with G$ tokens!</Box>}
+                <label className={`${labelMarginAndPadding}`}>Custom Reward Address</label>
+                <Input
+                    value={customRewardAddress}
+                    type="text"
+                    placeholder="Custom Reward Address"
+                    onChange={(e: any) => {
+                        setCustomRewardAddress(e.target.value);
+                    }}
+                />
                 <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
                 <Input
                     value={initialRewardAmount}
