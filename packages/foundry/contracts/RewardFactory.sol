@@ -40,7 +40,8 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
         uint256 initialRewardAmount,
         uint256 rewardAmountPerPerson,
         uint256 rewardAmountPerCorrectAnswer,
-        address tokenAddress
+        address tokenAddress,
+        address customReward
     ) external returns (address) {
         if (s_examIdToReward[examId] != address(0)) revert RewardFactory__RewardAlreadyExists(examId);
         address examCertifier = ICertifier(i_certifierContractAddress).getExam(examId).certifier;
@@ -54,7 +55,8 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
             rewardAmountPerPerson,
             rewardAmountPerCorrectAnswer,
             tokenAddress,
-            msg.sender
+            msg.sender,
+            customReward
         ));
         IERC20(tokenAddress).transferFrom(msg.sender, reward, initialRewardAmount);
         s_rewards.push(reward);

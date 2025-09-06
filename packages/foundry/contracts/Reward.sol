@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ICertifier } from "./interfaces/ICertifier.sol";
+import { ICustomReward } from "./interfaces/ICustomReward.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Reward is Ownable {
@@ -18,6 +19,7 @@ contract Reward is Ownable {
     //////////////////////////////////////////////////////////////*/
     error Reward__UserAlreadyClaimed(address user);
     error Reward__UserDidNotSucceed(address user);
+    error Reward__FailedCustomEligibilityCriteria(address user, uint256 examId);
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -30,6 +32,7 @@ contract Reward is Ownable {
     uint256 private immutable i_examId;
     address private immutable i_tokenAddress;
     address private immutable i_factory;
+    address private immutable i_customReward;
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -42,6 +45,7 @@ contract Reward is Ownable {
      * @param rewardAmountPerPerson Reward amount per person
      * @param tokenAddress Token address
      * @param owner Address of the owner
+     * @param customReward Address of the custom reward contract
      */
     constructor(
         address certifier,
@@ -50,7 +54,8 @@ contract Reward is Ownable {
         uint256 rewardAmountPerPerson,
         uint256 rewardAmountPerCorrectAnswer,
         address tokenAddress,
-        address owner
+        address owner,
+        address customReward
     ) Ownable(owner) {
         i_certifierContractAddress = certifier;
         i_examId = examId;
@@ -58,6 +63,7 @@ contract Reward is Ownable {
         s_rewardAmountPerCorrectAnswer = rewardAmountPerCorrectAnswer;
         i_tokenAddress = tokenAddress;
         i_factory = msg.sender;
+        i_customReward = customReward;
         emit Reward__NewReward(certifier, examId, initialRewardAmount, rewardAmountPerPerson, tokenAddress, i_factory);
     }
     /*//////////////////////////////////////////////////////////////
@@ -76,6 +82,10 @@ contract Reward is Ownable {
         if (s_userHasClaimed[msg.sender]) revert Reward__UserAlreadyClaimed(msg.sender);
         // check if the user has claimed the NFT certificate, if not he is not allowed to claim the reward
         if (!getUserHasSucceeded(msg.sender)) revert Reward__UserDidNotSucceed(msg.sender);
+        // check if the user has passed the custom reward eligibility criteria
+        if (i_customReward != address(0))
+            if (!ICustomReward(i_customReward).isEligible(msg.sender, i_examId))
+                revert Reward__FailedCustomEligibilityCriteria(msg.sender, i_examId);
 
         s_userHasClaimed[msg.sender] = true;
         s_usersThatClaimed.push(msg.sender);
@@ -96,13 +106,18 @@ contract Reward is Ownable {
     // Getter functions
 
     function getRewardAmountForUser(address user) public view returns (uint256) {
+        // default reward amount
         uint256 rewardAmount = s_rewardAmountPerPerson;
-        if (s_rewardAmountPerCorrectAnswer != 0) {
-            uint256 numberOfCorrectAnswers = ICertifier(i_certifierContractAddress).getUserScore(i_examId, user);
-            uint256 baseScore = ICertifier(i_certifierContractAddress).getExam(i_examId).baseScore;
-            rewardAmount += s_rewardAmountPerCorrectAnswer * (numberOfCorrectAnswers-baseScore+1);
-        }
-        return rewardAmount;
+        uint256 numberOfCorrectAnswers = ICertifier(i_certifierContractAddress).getUserScore(i_examId, user);
+        if (s_rewardAmountPerCorrectAnswer != 0)
+            rewardAmount += s_rewardAmountPerCorrectAnswer * numberOfCorrectAnswers;
+
+        // custom reward amount
+        uint256 customRewardAmount = 0;
+        if (i_customReward != address(0))
+            customRewardAmount = ICustomReward(i_customReward).getCustomRewardAmountForUser(msg.sender, i_examId, numberOfCorrectAnswers, s_rewardAmountPerPerson, s_rewardAmountPerCorrectAnswer);
+
+        return customRewardAmount != 0 ? customRewardAmount : rewardAmount;
     }
 
     function getUserHasSucceeded(address user) public view returns (bool) {
