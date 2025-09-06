@@ -34,12 +34,12 @@ export default function RewardSetUp() {
         </Section>
 
         <Section title="Reward Amount Per Correct Answer">
-          The amount of tokens that each user that passes the exam will get for each extra correct
+          The amount of tokens that each user that passes the exam will get for each correct
           answer they have. Example: Exam with 11 questions has a base of 6 and{" "}
           <Code>Reward amount per correct answer</Code> is set to 10. A user that passes the exam
-          with 8 correct answers will have 2 extra correct answers and so will get 20 tokens as
-          a reward. If the <Code>Reward amount per person</Code> field is set to 50 then this user
-          will get 50+20=70 tokens in total.
+          with 8 correct answers will get 80 tokens as
+          a reward. If the <Code>Reward amount per person</Code> field is set to 20 then this user
+          will get 80+20=100 tokens in total.
         </Section>
         
       </VStack>
