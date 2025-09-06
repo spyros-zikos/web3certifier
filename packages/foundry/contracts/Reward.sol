@@ -156,6 +156,10 @@ contract Reward is Ownable {
         return i_factory;
     }
 
+    function getCustomReward() external view returns (address) {
+        return i_customReward;
+    }
+
     // Setter functions
 
     function setRewardAmountPerPerson(uint256 rewardAmountPerPerson) external onlyOwner {
