@@ -101,16 +101,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     }}
                 /></>
                 : <Box>Reward users with G$ tokens!</Box>}
-                <label className={`${labelMarginAndPadding}`}>Custom Reward Address</label>
-                <Input
-                    value={customRewardAddress}
-                    type="text"
-                    placeholder="Custom Reward Address"
-                    onChange={(e: any) => {
-                        setCustomRewardAddress(e.target.value);
-                    }}
-                />
-                <label className={`${labelMarginAndPadding}`}>Reward Amount</label>
+                <label className={`${labelMarginAndPadding}`}>Total Reward Amount</label>
                 <Input
                     value={initialRewardAmount}
                     type="number"
@@ -136,6 +127,15 @@ const CreateReward = ({id}: {id: bigint}) => {
                     placeholder="Reward Amount Per Correct Answer"
                     onChange={(e: any) => {
                         setRewardAmountPerCorrectAnswer(e.target.value);
+                    }}
+                />
+                <label className={`${labelMarginAndPadding}`}>Custom Reward Address</label>
+                <Input
+                    value={customRewardAddress}
+                    type="text"
+                    placeholder="Custom Reward Address"
+                    onChange={(e: any) => {
+                        setCustomRewardAddress(e.target.value);
                     }}
                 />
                 <div className="mt-8 block">{""}</div>
