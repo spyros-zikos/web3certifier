@@ -1,7 +1,7 @@
 import { Box, Button } from '@chakra-ui/react';
 import React, { useState } from 'react'
 
-const InviteLinkMessage = ({ id, address }: { id: BigInt, address: string }) => {
+const InviteLinkMessage = ({ id, address }: { id: bigint, address: string }) => {
     const [inviterLinkCopyButtonText, setInviterLinkCopyButtonText] = useState("Copy");
 
     return (
