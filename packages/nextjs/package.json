@@ -21,6 +21,7 @@
     "@divvi/referral-sdk": "^2.3.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@goodsdks/citizen-sdk": "^1.2.0",
     "@goodsdks/engagement-sdk": "^1.0.1",
     "@heroicons/react": "^2.0.11",
     "@rainbow-me/rainbowkit": "2.1.2",

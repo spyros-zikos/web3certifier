@@ -11,6 +11,8 @@ import { chainsToContracts, cookieExpirationTime, getLastSubmitterAddressCookieN
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
+import { IdentitySDK } from '@goodsdks/citizen-sdk';
+import { usePublicClient, useWalletClient } from "wagmi";
 
 
 const UserOpenNotSubmitted = ({
@@ -26,6 +28,9 @@ const UserOpenNotSubmitted = ({
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
     const searchParams = useSearchParams();
     const inviter = searchParams.get("inviter");
+    // For identity sdk
+    const publicClient = usePublicClient();
+    const { data: walletClient } = useWalletClient();
 
     const passwordCookie = getPasswordCookieName(chain, id, address);
     const startTimeCookie = getStartTimeCookieName(chain, id);
@@ -108,13 +113,31 @@ const UserOpenNotSubmitted = ({
         }
     }
 
+    const handleVerifyClick = async () => {
+        try {
+            if (!publicClient || !walletClient) {
+                console.error("Clients not available");
+                return;
+            }
+            const identitySDK = await IdentitySDK.init({
+                publicClient: publicClient,
+                walletClient: walletClient,
+                env: "production" // or "staging" or "development"
+            });
+            
+            const fvLink = await identitySDK.generateFVLink(false, window.location.href);
+            window.open(fvLink);
+        } catch (error) {
+            console.error("Failed to generate FV link:", error);
+        }
+    };
+
     const VerifyAccountMessage = () => {
         return <div>
-            {"\n"}You need to verify your account.{"\n"}
-            Click on the &quot;CLAIM NOW&quot; button&nbsp;
-            <a className="text-base-100" target="_blank" rel="noopener noreferrer" href='https://gooddapp.org/#/claim'>
-                here
-            </a>.
+            {"\n"}To prevent multiple submissions from the same person, please&nbsp;
+            <Box display="inline" onClick={handleVerifyClick} fontStyle="italic" textDecoration="underline" cursor="pointer">
+                verify that this account belongs to a unique person!
+            </Box>
         </div>
     }
 

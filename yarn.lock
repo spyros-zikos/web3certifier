@@ -1894,6 +1894,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@goodsdks/citizen-sdk@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@goodsdks/citizen-sdk@npm:1.2.0"
+  dependencies:
+    lz-string: ^1.5.0
+    tsup: ^8.4.0
+  peerDependencies:
+    viem: "*"
+    wagmi: "*"
+  checksum: dbb3e87613f274e49550200282cd3c4abbeb85bc987f3d57cdbb5e275ba3a87f658f59d1c45006a1cfa649d668849b6e78d1904bf32d2ab7a95e61605558f25f
+  languageName: node
+  linkType: hard
+
 "@goodsdks/engagement-sdk@npm:^1.0.1":
   version: 1.0.1
   resolution: "@goodsdks/engagement-sdk@npm:1.0.1"
@@ -3959,6 +3972,7 @@ __metadata:
     "@divvi/referral-sdk": ^2.3.0
     "@emotion/react": ^11.14.0
     "@emotion/styled": ^11.14.1
+    "@goodsdks/citizen-sdk": ^1.2.0
     "@goodsdks/engagement-sdk": ^1.0.1
     "@heroicons/react": ^2.0.11
     "@rainbow-me/rainbowkit": 2.1.2
@@ -12250,6 +12264,15 @@ eslint-config-next@next-14:
   languageName: node
   linkType: hard
 
+"lz-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "lz-string@npm:1.5.0"
+  bin:
+    lz-string: bin/bin.js
+  checksum: 1ee98b4580246fd90dd54da6e346fb1caefcf05f677c686d9af237a157fdea3fd7c83a4bc58f858cd5b10a34d27afe0fdcbd0505a47e0590726a873dc8b8f65d
+  languageName: node
+  linkType: hard
+
 "magic-bytes.js@npm:^1.10.0":
   version: 1.10.0
   resolution: "magic-bytes.js@npm:1.10.0"
@@ -16069,7 +16092,7 @@ eslint-config-next@next-14:
   languageName: node
   linkType: hard
 
-"tsup@npm:^8.3.5":
+"tsup@npm:^8.3.5, tsup@npm:^8.4.0":
   version: 8.5.0
   resolution: "tsup@npm:8.5.0"
   dependencies:
