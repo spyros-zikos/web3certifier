@@ -224,8 +224,8 @@ const UserOpenNotSubmitted = ({
             <MessageForUser 
                 message={
                     <div>
-                        {canClaimEngagementRewards && <Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you submit your answers to this exam!</Box>}
-                        <br />
+                        {canClaimEngagementRewards && <><Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you submit your answers to this exam!</Box><br /></>}
+                        
                         <Box color="lighterLighterBlack">Note: The system uses cookies to store your password.
                         This means that you can claim your certificate only from this device.</Box>
                         {needsVerification ? <VerifyAccountMessage /> : ""}
