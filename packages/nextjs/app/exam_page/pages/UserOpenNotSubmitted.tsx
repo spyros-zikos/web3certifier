@@ -136,8 +136,7 @@ const UserOpenNotSubmitted = ({
         return <div>
             {"\n"}To prevent multiple submissions from the same person, please&nbsp;
             <Box display="inline" onClick={handleVerifyClick} fontStyle="italic" textDecoration="underline" cursor="pointer">
-                verify that this account belongs to a unique person!
-            </Box>
+                verify that this account belongs to a unique person</Box> in order to be able to submit!
         </div>
     }
 
