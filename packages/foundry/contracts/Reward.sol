@@ -117,7 +117,7 @@ contract Reward is Ownable {
         if (i_customReward != address(0))
             customRewardAmount = ICustomReward(i_customReward).getCustomRewardAmountForUser(msg.sender, numberOfCorrectAnswers, s_rewardAmountPerPerson, s_rewardAmountPerCorrectAnswer);
 
-        return customRewardAmount != 0 ? customRewardAmount : rewardAmount;
+        return (customRewardAmount != 0) ? customRewardAmount : rewardAmount;
     }
 
     function getUserHasSucceeded(address user) public view returns (bool) {
