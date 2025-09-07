@@ -5,16 +5,14 @@ interface ICustomReward {
     /**
      * This function returns whether the user is eligible for the reward
      * @param user The address of the user
-     * @param examId The id of the exam
      * @return Whether the user is eligible for the reward
      */
-    function isEligible(address user, uint256 examId) external view returns (bool);
+    function isEligible(address user) external view returns (bool);
 
     /**
      * This function returns the amount of tokens that this user should get
      * If this returns 0, the default reward amount will be used
      * @param user The address of the user
-     * @param examId The id of the exam
      * @param numberOfCorrectAnswers The number of correct answers of the user
      * @param s_rewardAmountPerPerson The reward amount per person
      * @param s_rewardAmountPerCorrectAnswer The reward amount per correct answer
@@ -22,7 +20,6 @@ interface ICustomReward {
      */
     function getCustomRewardAmountForUser(
         address user,
-        uint256 examId,
         uint256 numberOfCorrectAnswers,
         uint256 s_rewardAmountPerPerson,
         uint256 s_rewardAmountPerCorrectAnswer
