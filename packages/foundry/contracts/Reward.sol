@@ -175,6 +175,12 @@ contract Reward is Ownable {
             s_rewardAmountPerCorrectAnswer
         );
     }
+
+    function getUserCanClaim(address user) external view returns (bool) {
+        bool customEligibility = true;
+        if (i_customReward != address(0)) customEligibility = getCustomEligibility(user);
+        return !s_userHasClaimed[user] && getUserHasSucceeded(user) && customEligibility;
+    }
     
     // Setter functions
 
