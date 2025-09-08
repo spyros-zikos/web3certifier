@@ -2339,7 +2339,7 @@ const deployedContracts = {
   },
   42161: {
     RewardFactory: {
-      address: "0x1a26fc4d6aff1b624f3b85b0274ae6251923bc56",
+      address: "0x8af37015d4dd1c117f431e6d3d7dca8830a78990",
       abi: [
         {
           type: "constructor",
@@ -2771,25 +2771,12 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   42220: {
     RewardFactory: {
-      address: "0x715f65b4fa9ff2702245a80a4dcf3f4422b518e6",
+      address: "0x72bcbddf52089e8d71286e6b4dd58d69be1e4cc2",
       abi: [
         {
           type: "constructor",
@@ -3221,25 +3208,12 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   11155111: {
     RewardFactory: {
-      address: "0x58c2b83a226ef60b665cbc2bdb26a78c26d42744",
+      address: "0x1321e2b5eea67f19755584c973e5ca255b0706c3",
       abi: [
         {
           type: "constructor",
@@ -3671,20 +3645,7 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
 } as const;
