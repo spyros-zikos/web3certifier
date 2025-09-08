@@ -84,7 +84,7 @@ contract Reward is Ownable {
         if (!getUserHasSucceeded(msg.sender)) revert Reward__UserDidNotSucceed(msg.sender);
         // check if the user has passed the custom reward eligibility criteria
         if (i_customReward != address(0))
-            if (!ICustomReward(i_customReward).isEligible(msg.sender))
+            if (!getCustomEligibility(msg.sender))
                 revert Reward__FailedCustomEligibilityCriteria(msg.sender, i_examId);
 
         s_userHasClaimed[msg.sender] = true;
@@ -115,7 +115,7 @@ contract Reward is Ownable {
         // custom reward amount
         uint256 customRewardAmount = 0;
         if (i_customReward != address(0))
-            customRewardAmount = ICustomReward(i_customReward).getCustomRewardAmountForUser(msg.sender, numberOfCorrectAnswers, s_rewardAmountPerPerson, s_rewardAmountPerCorrectAnswer);
+            customRewardAmount = getCustomRewardAmount(user, numberOfCorrectAnswers);
 
         return (customRewardAmount != 0) ? customRewardAmount : rewardAmount;
     }
@@ -160,6 +160,22 @@ contract Reward is Ownable {
         return i_customReward;
     }
 
+    function getCustomEligibility(address user) public view returns (bool) {
+        return ICustomReward(i_customReward).isEligible(user);
+    }
+
+    function getCustomRewardAmount(
+        address user,
+        uint256 numberOfCorrectAnswers
+    ) public view returns (uint256) {
+        return ICustomReward(i_customReward).getCustomRewardAmountForUser(
+            user,
+            numberOfCorrectAnswers,
+            s_rewardAmountPerPerson,
+            s_rewardAmountPerCorrectAnswer
+        );
+    }
+    
     // Setter functions
 
     function setRewardAmountPerPerson(uint256 rewardAmountPerPerson) external onlyOwner {
