@@ -18,7 +18,6 @@ const CreateReward = ({id}: {id: bigint}) => {
     const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
     const goodDollarToken = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
     const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? goodDollarToken : "");
-    const [customRewardAddress, setCustomRewardAddress] = useState<string>(ZERO_ADDRESS);
     const rewardFactoryAddress = chainsToContracts[chain?chain?.id:11155111]["RewardFactory"].address;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -68,13 +67,13 @@ const CreateReward = ({id}: {id: bigint}) => {
                 BigInt(scaledRewardAmountPerPerson),
                 BigInt(scaledRewardAmountPerCorrectAnswer),
                 tokenAddress,
-                customRewardAddress
+                ZERO_ADDRESS, // customRewardAddress
             ],
         });
     }
 
     const requiredDetailsAreFilled = () => {
-        return tokenAddress && rewardAmountPerPerson;
+        return tokenAddress;
     }
 
     const labelMarginAndPadding = 'm-2 mt-4 block';
@@ -110,7 +109,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setInitialRewardAmount(e.target.value);
                     }}
                 />
-                <label className={`${labelMarginAndPadding}`}>Reward Amount Per Person *</label>
+                <label className={`${labelMarginAndPadding}`}>Reward Amount Per Person</label>
                 <Input
                     value={rewardAmountPerPerson}
                     type="number"
@@ -127,15 +126,6 @@ const CreateReward = ({id}: {id: bigint}) => {
                     placeholder="Reward Amount Per Correct Answer"
                     onChange={(e: any) => {
                         setRewardAmountPerCorrectAnswer(e.target.value);
-                    }}
-                />
-                <label className={`${labelMarginAndPadding}`}>Custom Reward Address</label>
-                <Input
-                    value={customRewardAddress}
-                    type="text"
-                    placeholder="Custom Reward Address"
-                    onChange={(e: any) => {
-                        setCustomRewardAddress(e.target.value);
                     }}
                 />
                 <div className="mt-8 block">{""}</div>
