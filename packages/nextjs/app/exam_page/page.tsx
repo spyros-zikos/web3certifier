@@ -65,6 +65,12 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
+    const userCanClaim = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUserCanClaim",
+        args: [address],
+    }).data;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -136,8 +142,10 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Cancelled_NoRefund ?
             <StaticExamPage exam={exam} message={isConnected ? "The exam has been cancelled!" : "Connect your wallet to claim your refund!"} />  
             // Corrected
-            : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
+            : (getExamStage() === ExamStage.User_Corrected_ClaimCertificate) && userCanClaim ?
             <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
+            : (getExamStage() === ExamStage.User_Corrected_ClaimCertificate) && !userCanClaim ?
+            <StaticExamPage exam={exam} message="You do not satisfy the custom eligibility criteria!" />  
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
             <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} />
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
