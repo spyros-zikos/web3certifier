@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useSearchParams } from "next/navigation";
 import {ZERO_ADDRESS} from "~~/constants";
-import {CreateReward, ManageReward, ClaimReward, RewardDoesNotExist, AlreadyClaimed, CannotClaim} from "./pages"
+import {CreateReward, ManageReward, ClaimReward, RewardDoesNotExist, AlreadyClaimed, CannotClaim, NotCustomEligible} from "./pages"
 
 const Page = () => {
     const { address } = useAccount();
@@ -41,6 +41,13 @@ const Page = () => {
         args: [address],
     }).data;
 
+    const userCanClaim = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUserCanClaim",
+        args: [address],
+    }).data;
+
     if (exam?.certifier === address)
         if (rewardAddress === ZERO_ADDRESS)
             return <CreateReward id={id} />
@@ -49,8 +56,10 @@ const Page = () => {
     else
         if (rewardAddress === ZERO_ADDRESS)
             return <RewardDoesNotExist id={id} />
-        else if (!userHasClaimed && userHasSucceeded)
+        else if (!userHasClaimed && userHasSucceeded && userCanClaim)
             return <ClaimReward id={id} />
+        else if (!userHasClaimed && userHasSucceeded && !userCanClaim)
+            return <NotCustomEligible id={id} />
         else if (userHasClaimed)
             return <AlreadyClaimed id={id} />
         else if (!userHasSucceeded)
