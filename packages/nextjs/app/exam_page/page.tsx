@@ -65,10 +65,10 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
-    const userCanClaim = wagmiReadFromContract({
+    const userSatisfiesCustomEligibilityCriteria = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getUserCanClaim",
+        functionName: "userSatisfiesCustomEligibilityCriteria",
         args: [address],
     }).data;
 
@@ -142,12 +142,12 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Cancelled_NoRefund ?
             <StaticExamPage exam={exam} message={isConnected ? "The exam has been cancelled!" : "Connect your wallet to claim your refund!"} />  
             // Corrected
-            : (getExamStage() === ExamStage.User_Corrected_ClaimCertificate) && userCanClaim ?
+            : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
             <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
-            : (getExamStage() === ExamStage.User_Corrected_ClaimCertificate) && !userCanClaim ?
-            <StaticExamPage exam={exam} message="You do not satisfy the custom eligibility criteria!" />  
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && userSatisfiesCustomEligibilityCriteria ?
             <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && !userSatisfiesCustomEligibilityCriteria ?
+            <StaticExamPage exam={exam} message="You do not satisfy the custom eligibility criteria to claim the reward!" />
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
             <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully!" />
             : getExamStage() === ExamStage.User_Corrected_Failed ?

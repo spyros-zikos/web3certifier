@@ -41,10 +41,10 @@ const Page = () => {
         args: [address],
     }).data;
 
-    const userCanClaim = wagmiReadFromContract({
+    const userSatisfiesCustomEligibilityCriteria = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getUserCanClaim",
+        functionName: "userSatisfiesCustomEligibilityCriteria",
         args: [address],
     }).data;
 
@@ -56,9 +56,9 @@ const Page = () => {
     else
         if (rewardAddress === ZERO_ADDRESS)
             return <RewardDoesNotExist id={id} />
-        else if (!userHasClaimed && userHasSucceeded && userCanClaim)
+        else if (!userHasClaimed && userHasSucceeded && userSatisfiesCustomEligibilityCriteria)
             return <ClaimReward id={id} />
-        else if (!userHasClaimed && userHasSucceeded && !userCanClaim)
+        else if (!userHasClaimed && userHasSucceeded && !userSatisfiesCustomEligibilityCriteria)
             return <NotCustomEligible id={id} />
         else if (userHasClaimed)
             return <AlreadyClaimed id={id} />

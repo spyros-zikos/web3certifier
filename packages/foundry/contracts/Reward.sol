@@ -176,6 +176,10 @@ contract Reward is Ownable {
         );
     }
 
+    function userSatisfiesCustomEligibilityCriteria(address user) external view returns (bool) {
+        return (i_customReward != address(0)) ? getCustomEligibility(user) : true;
+    }
+
     function getUserCanClaim(address user) external view returns (bool) {
         bool customEligibility = true;
         if (i_customReward != address(0)) customEligibility = getCustomEligibility(user);
