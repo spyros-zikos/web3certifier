@@ -171,7 +171,7 @@ const ExamPage = () => {
             }
 
             {/* Invite Link */}
-            { isConnected && chain.id === 42220 && 
+            { isConnected && chain.id === 42220 && getExamStatusStr(examStatusNum) === "Open" &&
                 <InviteLinkMessage id={id} address={address} />
             }
         </ResponsivePageWrapper>
