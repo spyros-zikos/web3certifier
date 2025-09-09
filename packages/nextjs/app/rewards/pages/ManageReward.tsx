@@ -9,9 +9,10 @@ import { useAccount } from "wagmi";
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import RewardInfo from '../_components/RewardInfo';
 import SubHeading from '../_components/SubHeading';
+import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
 
 const ManageReward = ({id}: {id: bigint}) => {
-    const { address } = useAccount();
+    const { address, chain } = useAccount();
 
     const [fundAmount, setFundAmount] = useState<bigint>(BigInt(0));
     const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<bigint>(BigInt(0));
@@ -159,6 +160,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                 <Button disabled={!fundAmount} onClick={handleFundExam} className="block mt-5 bg-base-100" >
                     Fund Reward
                 </Button>
+                {chain?.id === 42220 && <BuyGoodDollarTokensMessage />}
 
                 {/* SET REWARD AMOUNT PER PERSON */}
                 <SubHeading><><div>Set Reward Amount</div><div>{"\n"}Per Person</div></></SubHeading>
@@ -197,7 +199,6 @@ const ManageReward = ({id}: {id: bigint}) => {
                 <Button onClick={handleRemoveReward} className="block mt-5 bg-base-100" >
                     Delete Reward
                 </Button> 
-
             </div>
         </PageWrapper>
     );

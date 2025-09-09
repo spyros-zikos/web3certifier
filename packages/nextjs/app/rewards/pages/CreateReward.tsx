@@ -9,6 +9,7 @@ import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { Box } from '@chakra-ui/react';
+import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -109,6 +110,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setInitialRewardAmount(e.target.value);
                     }}
                 />
+                {chain?.id === 42220 && <BuyGoodDollarTokensMessage />}
                 <label className={`${labelMarginAndPadding}`}>Reward Amount Per Person</label>
                 <Input
                     value={rewardAmountPerPerson}
@@ -133,7 +135,6 @@ const CreateReward = ({id}: {id: bigint}) => {
                 <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="block mt-3 bg-base-100" >
                     Create Reward
                 </Button>
-
             </div>
         </PageWrapper>
     );
