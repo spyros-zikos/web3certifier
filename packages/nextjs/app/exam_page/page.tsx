@@ -114,8 +114,8 @@ const ExamPage = () => {
 
     return (
         <ResponsivePageWrapper>
-            {/* Manage Rewards */}
-            { address === exam?.certifier && <ManageRewardsLink id={exam?.id || BigInt(0)} /> }
+            {/* Set-up/Manage Rewards */}
+            { address === exam?.certifier && <ManageRewardsLink id={exam?.id || BigInt(0)} rewardAddress={rewardAddress} /> }
 
             {/* Image, Name, Description */}
             <ImageNameDescription exam={exam} />
