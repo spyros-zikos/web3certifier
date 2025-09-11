@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { Box } from '@chakra-ui/react';
 import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
-import { DocsPage } from "../../docs/page";
+import { DocsPage } from '~~/types/DocsPage';
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();

@@ -7,13 +7,8 @@ import SettingUpRewards from './_components/SettingUpRewards';
 import CustomRewards from './_components/CustomRewards';
 import VideoTutorials from './_components/VideoTutorials';
 import { useSearchParams } from 'next/navigation';
+import { DocsPage } from '~~/types/DocsPage';
 
-export enum DocsPage {
-    CreatingExams = "creating_exams",
-    SettingUpRewards = "setting_up_rewards",
-    CustomRewards = "custom_rewards",
-    VideoTutorials = "video_tutorials",
-}
 
 const Page = () => {
     const searchParams = useSearchParams();

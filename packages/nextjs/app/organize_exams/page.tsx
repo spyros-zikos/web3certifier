@@ -19,7 +19,7 @@ import { FileUpload } from "@chakra-ui/react"
 import { HiUpload } from "react-icons/hi"
 import { FileAcceptDetails } from "@zag-js/file-upload";
 import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
-import { DocsPage } from "../docs/page";
+import { DocsPage } from '~~/types/DocsPage';
 
 
 const CreateExam = () => {

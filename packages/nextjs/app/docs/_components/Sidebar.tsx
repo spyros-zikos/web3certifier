@@ -1,6 +1,6 @@
 import React from 'react';
 import { BookOpenIcon, CogIcon, CodeBracketIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
-import { DocsPage } from '../page';
+import { DocsPage } from '~~/types/DocsPage';
 import { Box } from '@chakra-ui/react';
 
 const Sidebar = () => {
