@@ -1,6 +1,6 @@
 import React from 'react';
 import { BookOpenIcon, CogIcon, CodeBracketIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
-import { Page } from '../page';
+import { DocsPage } from '../page';
 import { Box } from '@chakra-ui/react';
 
 const Sidebar = () => {
@@ -10,25 +10,25 @@ const Sidebar = () => {
             <nav>
                 <ul className="space-y-4">
                 <li>
-                    <div onClick={() => window.location.href = `/docs?page=${Page.CreatingExams}`} className="flex items-center hover:cursor-pointer">
+                    <div onClick={() => window.location.href = `/docs?page=${DocsPage.CreatingExams}`} className="flex items-center hover:cursor-pointer">
                         <BookOpenIcon className="w-5 h-5 mr-2" />
                         Creating Exams
                     </div>
                 </li>
                 <li>
-                    <div onClick={() => window.location.href = `/docs?page=${Page.SettingUpRewards}`} className="flex items-center hover:cursor-pointer">
+                    <div onClick={() => window.location.href = `/docs?page=${DocsPage.SettingUpRewards}`} className="flex items-center hover:cursor-pointer">
                         <CogIcon className="w-5 h-5 mr-2" />
                         Setting Up Rewards
                     </div>
                 </li>
                 <li>
-                    <div onClick={() => window.location.href = `/docs?page=${Page.CustomRewards}`} className="flex items-center hover:cursor-pointer">
+                    <div onClick={() => window.location.href = `/docs?page=${DocsPage.CustomRewards}`} className="flex items-center hover:cursor-pointer">
                         <CodeBracketIcon className="w-5 h-5 mr-2" />
                         Custom Rewards
                     </div>
                 </li>
                 <li>
-                    <div onClick={() => window.location.href = `/docs?page=${Page.VideoTutorials}`} className="flex items-center hover:cursor-pointer">
+                    <div onClick={() => window.location.href = `/docs?page=${DocsPage.VideoTutorials}`} className="flex items-center hover:cursor-pointer">
                         <VideoCameraIcon className="w-5 h-5 mr-2" />
                         Video Tutorials
                     </div>

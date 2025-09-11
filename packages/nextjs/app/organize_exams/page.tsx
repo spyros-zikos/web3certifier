@@ -19,7 +19,7 @@ import { FileUpload } from "@chakra-ui/react"
 import { HiUpload } from "react-icons/hi"
 import { FileAcceptDetails } from "@zag-js/file-upload";
 import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
-import { Page } from "../docs/page";
+import { DocsPage } from "../docs/page";
 
 
 const CreateExam = () => {
@@ -184,7 +184,7 @@ const CreateExam = () => {
                         Create Exams
                     </Box>
                     <Spacer />
-                    <Link href={`/docs?page=${Page.CreatingExams}`}>
+                    <Link href={`/docs?page=${DocsPage.CreatingExams}`}>
                         <Button className="bg-base-100 text-sm" onClick={undefined}>
                             Documentation
                         </Button>
