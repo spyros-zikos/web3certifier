@@ -3,13 +3,6 @@ pragma solidity ^0.8.24;
 
 interface ICustomReward {
     /**
-     * This function returns whether the user is eligible for the reward
-     * @param user The address of the user
-     * @return Whether the user is eligible for the reward
-     */
-    function isEligible(address user) external view returns (bool);
-
-    /**
      * This function returns the amount of tokens that this user should get
      * If this returns 0, the default reward amount will be used
      * @param user The address of the user

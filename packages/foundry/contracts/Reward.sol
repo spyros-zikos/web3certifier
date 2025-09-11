@@ -19,7 +19,6 @@ contract Reward is Ownable {
     //////////////////////////////////////////////////////////////*/
     error Reward__UserAlreadyClaimed(address user);
     error Reward__UserDidNotSucceed(address user);
-    error Reward__FailedCustomEligibilityCriteria(address user, uint256 examId);
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -82,10 +81,6 @@ contract Reward is Ownable {
         if (s_userHasClaimed[msg.sender]) revert Reward__UserAlreadyClaimed(msg.sender);
         // check if the user has claimed the NFT certificate, if not he is not allowed to claim the reward
         if (!getUserHasSucceeded(msg.sender)) revert Reward__UserDidNotSucceed(msg.sender);
-        // check if the user has passed the custom reward eligibility criteria
-        if (i_customReward != address(0))
-            if (!getCustomEligibility(msg.sender))
-                revert Reward__FailedCustomEligibilityCriteria(msg.sender, i_examId);
 
         s_userHasClaimed[msg.sender] = true;
         s_usersThatClaimed.push(msg.sender);
@@ -113,11 +108,10 @@ contract Reward is Ownable {
             rewardAmount += s_rewardAmountPerCorrectAnswer * numberOfCorrectAnswers;
 
         // custom reward amount
-        uint256 customRewardAmount = 0;
         if (i_customReward != address(0))
-            customRewardAmount = getCustomRewardAmount(user, numberOfCorrectAnswers);
+            return getCustomRewardAmount(user, numberOfCorrectAnswers);
 
-        return (customRewardAmount != 0) ? customRewardAmount : rewardAmount;
+        return rewardAmount;
     }
 
     function getUserHasSucceeded(address user) public view returns (bool) {
@@ -160,10 +154,6 @@ contract Reward is Ownable {
         return i_customReward;
     }
 
-    function getCustomEligibility(address user) public view returns (bool) {
-        return ICustomReward(i_customReward).isEligible(user);
-    }
-
     function getCustomRewardAmount(
         address user,
         uint256 numberOfCorrectAnswers
@@ -174,16 +164,6 @@ contract Reward is Ownable {
             s_rewardAmountPerPerson,
             s_rewardAmountPerCorrectAnswer
         );
-    }
-
-    function userSatisfiesCustomEligibilityCriteria(address user) external view returns (bool) {
-        return (i_customReward != address(0)) ? getCustomEligibility(user) : true;
-    }
-
-    function getUserCanClaim(address user) external view returns (bool) {
-        bool customEligibility = true;
-        if (i_customReward != address(0)) customEligibility = getCustomEligibility(user);
-        return !s_userHasClaimed[user] && getUserHasSucceeded(user) && customEligibility;
     }
     
     // Setter functions
