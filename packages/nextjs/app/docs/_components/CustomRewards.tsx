@@ -26,6 +26,7 @@ const CustomRewards: React.FC = () => {
         </li>
       </ol>
       <pre className="bg-gray-200 p-4 rounded mt-4">
+        {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
         <code>// Placeholder code example</code>
       </pre>
     </div>
