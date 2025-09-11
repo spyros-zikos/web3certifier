@@ -25,6 +25,12 @@ const UserCorrectedSucceededClaimReward = ({
         functionName: "decimals",
     }).data;
 
+    const tokenSymbol: string  = wagmiReadFromContract({
+        contractName: "ERC20",
+        contractAddress: tokenAddress,
+        functionName: "symbol",
+    }).data;
+
     const { writeContractAsync: claimReward } = wagmiWriteToContract();
     const onClickClaimRewardButton = () => {
         handleClaimReward(claimReward, rewardAddress)
@@ -46,7 +52,7 @@ const UserCorrectedSucceededClaimReward = ({
             />
 
             <MessageForUser 
-                message={"You claim " + scaledRewardAmountForUser + " successfully! Claim your reward now!"}
+                message={"You claim can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!"}
             />
 
             <ClaimButton text="Claim Reward" onClick={onClickClaimRewardButton}/>
