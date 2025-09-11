@@ -15,7 +15,7 @@ export enum Page {
     VideoTutorials = "video_tutorials",
 }
 
-const DocsPage: React.FC = () => {
+const DocsPage = () => {
     const searchParams = useSearchParams();
     const page = searchParams.get("page") || Page.CreatingExams;
 
