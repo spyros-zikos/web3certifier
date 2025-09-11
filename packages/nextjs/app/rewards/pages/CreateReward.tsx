@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
 import { Box } from '@chakra-ui/react';
 import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
+import { Page } from "../../docs/page";
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useAccount();
@@ -83,7 +84,7 @@ const CreateReward = ({id}: {id: bigint}) => {
         <PageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
-                <Link className="mb-8 block" href="/docs?page=setting_up_rewards" target="_blank" rel="noopener noreferrer">
+                <Link className="mb-8 block" href={`/docs?page=${Page.SettingUpRewards}`} target="_blank" rel="noopener noreferrer">
                     <Button className="bg-base-100 w-[75%]" onClick={undefined}>
                         <BookOpenIcon className="h-5 w-5 mr-2 inline" />
                         Documentation 
