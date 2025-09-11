@@ -153,7 +153,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
             <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount !== BigInt(0)) && (rewardAmount <= totalRewardAmount) ?
-            <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} />
+            <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} rewardAmount={rewardAmount} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount === BigInt(0)) ?
             <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully! Unfortunately, your reward is zero. Either the certifier has not set a reward amount or you dont qualify for this reward." />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount > totalRewardAmount) ?
