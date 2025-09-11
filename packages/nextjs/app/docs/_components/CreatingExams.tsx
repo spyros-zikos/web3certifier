@@ -1,21 +1,14 @@
 'use client';
 import React from "react";
-import {
-  Box,
-  Heading,
-  VStack,
-  Container,
-  Code,
-} from "@chakra-ui/react";
+import { Box, Heading, VStack, Code } from "@chakra-ui/react";
 import { Button } from "~~/components";
 import Link from "next/link";
-import { Section } from "../_components/Section";
+import { Section } from "./Section";
 
 export default function ExamDocsPage() {
   return (
-    <Container maxW="4xl" py={10}>
       <VStack align="start" gap={6}>
-        <Heading size="xl">📚 How to Make an Exam</Heading>
+        <Heading fontSize="2xl" fontWeight="bold">📚 How to Make an Exam</Heading>
 
         <Section title="Image">
           Upload a square image via drag-and-drop or file selection. This image will appear on the
@@ -75,6 +68,5 @@ export default function ExamDocsPage() {
         </Link>
         
       </VStack>
-    </Container>
   );
 }

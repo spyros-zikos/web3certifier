@@ -158,7 +158,9 @@ const CreateExam = () => {
                 "Donald Trump",
                 "Barack Obama",
                 "George Washington",
-            ], "questions");
+            ],
+            "questions"
+        );
     }
 
     const onDrop = useCallback(
@@ -181,7 +183,7 @@ const CreateExam = () => {
                         Create Exams
                     </Box>
                     <Spacer />
-                    <Link href="/docs/ExamCreation">
+                    <Link href="/docs?page=creating_exams">
                         <Button className="bg-base-100 text-sm" onClick={undefined}>
                             Documentation
                         </Button>
