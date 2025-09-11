@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useSearchParams } from "next/navigation";
 import {ZERO_ADDRESS} from "~~/constants";
-import {CreateReward, ManageReward, ClaimReward, RewardDoesNotExist, AlreadyClaimed, CannotClaim, NotCustomEligible} from "./pages"
+import {CreateReward, ManageReward, ClaimReward, RewardDoesNotExist, AlreadyClaimed, CannotClaim, RewardIsZero, RewardBalanceNotEnough} from "./pages"
 
 const Page = () => {
     const { address } = useAccount();
@@ -41,11 +41,17 @@ const Page = () => {
         args: [address],
     }).data;
 
-    const userSatisfiesCustomEligibilityCriteria = wagmiReadFromContract({
+    const rewardAmount: bigint  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "userSatisfiesCustomEligibilityCriteria",
+        functionName: "getRewardAmountForUser",
         args: [address],
+    }).data;
+
+    const totalRewardAmount: bigint  = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getBalance",
     }).data;
 
     if (exam?.certifier === address)
@@ -56,14 +62,16 @@ const Page = () => {
     else
         if (rewardAddress === ZERO_ADDRESS)
             return <RewardDoesNotExist id={id} />
-        else if (!userHasClaimed && userHasSucceeded && userSatisfiesCustomEligibilityCriteria)
+        else if (!userHasClaimed && userHasSucceeded && rewardAmount !== BigInt(0) && totalRewardAmount >= rewardAmount)
             return <ClaimReward id={id} />
-        else if (!userHasClaimed && userHasSucceeded && !userSatisfiesCustomEligibilityCriteria)
-            return <NotCustomEligible id={id} />
+        else if (!userHasClaimed && userHasSucceeded && rewardAmount === BigInt(0))
+            return <RewardIsZero id={id} />
         else if (userHasClaimed)
             return <AlreadyClaimed id={id} />
         else if (!userHasSucceeded)
             return <CannotClaim id={id} />
+        else if (totalRewardAmount < rewardAmount)
+            return <RewardBalanceNotEnough id={id} />
 
 }
 

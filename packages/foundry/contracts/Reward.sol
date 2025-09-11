@@ -165,6 +165,10 @@ contract Reward is Ownable {
             s_rewardAmountPerCorrectAnswer
         );
     }
+
+    function getBalance() external view returns (uint256) {
+        return IERC20(i_tokenAddress).balanceOf(address(this));
+    }
     
     // Setter functions
 

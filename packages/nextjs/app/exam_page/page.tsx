@@ -65,12 +65,20 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
-    const userSatisfiesCustomEligibilityCriteria = wagmiReadFromContract({
+
+    const rewardAmount: bigint  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "userSatisfiesCustomEligibilityCriteria",
+        functionName: "getRewardAmountForUser",
         args: [address],
     }).data;
+
+    const totalRewardAmount: bigint  = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getBalance",
+    }).data;
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -144,10 +152,12 @@ const ExamPage = () => {
             // Corrected
             : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
             <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && userSatisfiesCustomEligibilityCriteria ?
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount !== BigInt(0)) && (rewardAmount <= totalRewardAmount) ?
             <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} />
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && !userSatisfiesCustomEligibilityCriteria ?
-            <StaticExamPage exam={exam} message="You do not satisfy the custom eligibility criteria to claim the reward!" />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount === BigInt(0)) ?
+            <StaticExamPage exam={exam} message="Your reward is zero. Either the certifier has not set a reward amount or you dont qualify for this reward." />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount > totalRewardAmount) ?
+            <StaticExamPage exam={exam} message="The reward pool does not have enough tokens to reward you." />
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
             <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully!" />
             : getExamStage() === ExamStage.User_Corrected_Failed ?

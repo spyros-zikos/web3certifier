@@ -2789,7 +2789,7 @@ const deployedContracts = {
   },
   42220: {
     RewardFactory: {
-      address: "0xffd1089d8ac996dbf68262f53bb2cc4bad5f3aa2",
+      address: "0x2be46e1d21e95e043abbdf74b45927c0c0888d8b",
       abi: [
         {
           type: "constructor",
@@ -3239,7 +3239,7 @@ const deployedContracts = {
   },
   11155111: {
     RewardFactory: {
-      address: "0xc067e3f42ee340d7f6ec064359448af785b6637a",
+      address: "0x715f65b4fa9ff2702245a80a4dcf3f4422b518e6",
       abi: [
         {
           type: "constructor",
