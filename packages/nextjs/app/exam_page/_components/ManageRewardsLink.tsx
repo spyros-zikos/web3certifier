@@ -9,7 +9,7 @@ const ManageRewardsLink = ({id, rewardAddress}: {id: bigint, rewardAddress: stri
             <Button className="bg-base-100" onClick={() => {
                 // do nothing
             }}>
-                { rewardAddress === ZERO_ADDRESS ? <>Set-up Rewards -&gt;</> : <>Manage Rewards -&gt;</> }
+                { rewardAddress === ZERO_ADDRESS ? <>Set Up Rewards -&gt;</> : <>Manage Rewards -&gt;</> }
             </Button>
         </Link>
     )
