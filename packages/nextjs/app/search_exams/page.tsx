@@ -88,6 +88,7 @@ const SearchExamsPage: React.FC = () => {
                     type="checkbox"
                     onChange={(e: any) => { setShowMyExams(e.target.checked); }}
                 />
+                <Box color="lighterLighterBlack" pb="3px" ml="8" onClick={() => document.location.href = "/exam_page/?id=" + (lastExamId-BigInt(1))}>Go to latest exam</Box>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 space-14">
                 {(examsIdsOfPage)?.map((id, i) => (
