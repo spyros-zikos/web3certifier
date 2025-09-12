@@ -1,9 +1,17 @@
 import { Box, Button } from '@chakra-ui/react';
 import React, { useState } from 'react'
+import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 
 const InviteLinkMessage = ({ id, address }: { id: bigint, address: string }) => {
     const [inviterLinkCopyButtonText, setInviterLinkCopyButtonText] = useState("Copy");
 
+    const isVerifiedOnCelo: boolean = wagmiReadFromContract({
+        functionName: "getIsVerifiedOnCelo",
+        args: [address],
+    }).data;
+
+    if (!isVerifiedOnCelo) return null;
+    
     return (
         <Box fontSize="sm" mt="8" border="2px" borderStyle="solid" borderColor="lightGreen" rounded="lg" p="4" bg="green.50">
             <Box fontWeight="bold" mb="2" color="green">🎯 Earn 3,000 G$ Tokens!</Box>
