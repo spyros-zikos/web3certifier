@@ -106,7 +106,7 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             name="Token Address"
                             value={tokenAddress ?
                             <div className="inline-block">
-                                <Address address={tokenAddress} className={"text-bold"} disableAddressLink={true} />
+                                <Address address={tokenAddress} className={"text-bold"} disableAddressLink={false} />
                             </div>
                             : <>unknown</>}
                         />
@@ -114,7 +114,7 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             name="Reward Address"
                             value={tokenAddress ?
                             <div className="inline-block">
-                                <Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
+                                <Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
                             </div>
                             :<>unknown</>}
                         />
@@ -123,7 +123,7 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             name="Custom Reward Logic"
                             value={customRewardAddress ?
                             <div className="inline-block">
-                                <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
+                                <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
                             </div>
                             :<>unknown</>}
                         />

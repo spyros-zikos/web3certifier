@@ -23,7 +23,7 @@ const ExamInfoDropDown = ({status, exam}: {status: number | undefined, exam: Exa
                     <ExamDetail name="Price" value={exam?'$'+parseFloat(exam!.price!.toString()) / 1e18 : 0} />
                     <ExamDetail name="Base Score" value={exam?.baseScore.toString()} />
                     <ExamDetail name="Submissions" value={exam?.numberOfSubmissions.toString()+' of ' + (exam?.maxSubmissions == BigInt(0) ? "Unlimited" : exam?.maxSubmissions.toString())} />
-                    <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={true} />} />
+                    <ExamDetail name="Certifier" value={<Address address={exam?.certifier} className={"text-bold"} disableAddressLink={false} />} />
                 </Accordion.ItemBody>
             </Accordion.ItemContent>
         </Accordion.Item>
