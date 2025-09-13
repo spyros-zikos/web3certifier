@@ -21,7 +21,7 @@ export default function ExamDocsPage() {
         </Section>
 
         <Section title="Description">
-          Input the exam description. This field supports newlines for better readability.
+          Input the exam description. This field supports newlines for better readability. Make sure you include information about the total reward amount and how they will be distributed!
         </Section>
 
         <Section title="End time">
