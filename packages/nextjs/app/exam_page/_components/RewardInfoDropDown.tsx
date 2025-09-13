@@ -60,6 +60,12 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
         contractAddress: tokenAddress,
         functionName: "symbol",
     }).data;
+
+    const customRewardAddress = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getCustomReward",
+    }).data;
     
     if (rewardAddress === ZERO_ADDRESS)
         return <></>;
@@ -88,10 +94,12 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             name="Reward Amount Per Person"
                             value={(scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
                         />
+                        {scaledRewardAmountPerCorrectAnswer ? 
                         <ExamDetail
                             name="Reward Amount Per Correct Answer"
                             value={(scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
-                        />
+                        /> 
+                        : <></>}
                         <ExamDetail name="Token Name" value={tokenName?tokenName.toString():"unknown"} />
                         <ExamDetail name="Token Symbol" value={tokenSymbol?tokenSymbol.toString():"unknown"} />
                         <ExamDetail
@@ -110,6 +118,16 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             </div>
                             :<>unknown</>}
                         />
+                        {customRewardAddress !== ZERO_ADDRESS ?
+                        <ExamDetail
+                            name="Custom Reward Logic"
+                            value={customRewardAddress ?
+                            <div className="inline-block">
+                                <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
+                            </div>
+                            :<>unknown</>}
+                        />
+                    : <></>}
                     </Accordion.ItemBody>
                 </Accordion.ItemContent>
             </Accordion.Item>
