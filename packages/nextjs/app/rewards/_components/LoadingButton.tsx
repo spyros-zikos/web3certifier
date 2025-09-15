@@ -18,7 +18,7 @@ export const LoadingButton = ({
         onClick={onClick}
         disabled={disabled || loading}
         className={`
-            card w-full mt-4 transition-all duration-200
+            card w-full mt-8 transition-all duration-200
             hover:scale-105 active:scale-95
             shadow-md hover:shadow-lg
         `}

@@ -23,12 +23,12 @@ export const ActionCard = ({
 
     return (
         <div className={`
-            card border-2 ${borderColors[variant]} ${bgColors[variant]}
+            border-2 rounded-lg ${borderColors[variant]} ${bgColors[variant]}
             shadow-lg hover:shadow-xl transition-all duration-300
             backdrop-blur-sm mt-8
         `}>
-            <div className="card-body p-6">
-                <h3 className="card-title text-lg font-bold mb-2">{title}</h3>
+            <div className="p-6">
+                <h3 className="text-lg font-bold mb-2">{title}</h3>
                 {description && (
                     <p className="text-sm text-base-content/70 mb-4">{description}</p>
                 )}

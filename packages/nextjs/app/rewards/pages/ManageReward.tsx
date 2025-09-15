@@ -197,15 +197,15 @@ const ManageReward = ({id}: {id: bigint}) => {
                 title="💰 Fund Reward"
                 description="Add tokens to the reward pool for exam participants"
             >
-                    <label className="label">
-                        <span className="label-text font-medium">Amount to Fund</span>
-                    </label>
-                    <Input
-                        value={fundAmount}
-                        type="number"
-                        placeholder="Enter amount..."
-                        onChange={(e: any) => setFundAmount(e.target.value)}
-                    />
+                <label>
+                    <span className="label-text font-medium">Amount to Fund</span>
+                </label>
+                <Input
+                    value={fundAmount}
+                    type="number"
+                    placeholder="Enter amount..."
+                    onChange={(e: any) => setFundAmount(e.target.value)}
+                />
                 <LoadingButton
                     onClick={handleFundExam}
                     disabled={!fundAmount}
@@ -216,11 +216,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                         💎 Fund Reward Pool
                     </span>
                 </LoadingButton>
-                {chain?.id === 42220 && (
-                    <Box mt="4" bg="darkGreen" border="2px" borderColor="lightGreen" p="4" rounded="md">
-                        <BuyGoodDollarTokensMessage />
-                    </Box>
-                )}
+                {chain?.id === 42220 && <BuyGoodDollarTokensMessage />}
             </ActionCard>
 
             {/* Set Reward Per Person */}
@@ -228,15 +224,15 @@ const ManageReward = ({id}: {id: bigint}) => {
                 title="👤 Reward Per Person"
                 description="Set the base reward amount each participant receives"
             >
-                    <label className="label">
-                        <span className="label-text font-medium">Amount Per Person</span>
-                    </label>
-                    <Input
-                        value={rewardAmountPerPerson}
-                        type="number"
-                        placeholder="Enter amount..."
-                        onChange={(e: any) => setRewardAmountPerPerson(e.target.value)}
-                    />
+                <label className="label">
+                    <span className="label-text font-medium">Amount Per Person</span>
+                </label>
+                <Input
+                    value={rewardAmountPerPerson}
+                    type="number"
+                    placeholder="Enter amount..."
+                    onChange={(e: any) => setRewardAmountPerPerson(e.target.value)}
+                />
                 <LoadingButton
                     onClick={handleSetRewardAmountPerPerson}
                     disabled={!rewardAmountPerPerson}
@@ -254,15 +250,15 @@ const ManageReward = ({id}: {id: bigint}) => {
                 title="✅ Reward Per Correct Answer"
                 description="Set bonus reward for each correct answer given"
             >
-                    <label className="label">
-                        <span className="label-text font-medium">Amount Per Correct Answer</span>
-                    </label>
-                    <Input
-                        value={rewardAmountPerCorrectAnswer}
-                        type="number"
-                        placeholder="Enter amount..."
-                        onChange={(e: any) => setRewardAmountPerCorrectAnswer(e.target.value)}
-                    />
+                <label className="label">
+                    <span className="label-text font-medium">Amount Per Correct Answer</span>
+                </label>
+                <Input
+                    value={rewardAmountPerCorrectAnswer}
+                    type="number"
+                    placeholder="Enter amount..."
+                    onChange={(e: any) => setRewardAmountPerCorrectAnswer(e.target.value)}
+                />
                 <LoadingButton
                     onClick={handleSetRewardAmountPerCorrectAnswer}
                     disabled={!rewardAmountPerCorrectAnswer}
