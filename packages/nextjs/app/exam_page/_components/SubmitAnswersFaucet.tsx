@@ -29,7 +29,8 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
 
     return (
         <Box 
-            className="mt-8 ml-[25%] w-[50%]"
+            className="mt-2 ml-[50%] w-[50%]"
+            textDecoration={status === initialStatus ? "underline" : "none"}
             display="flex"
             justifyContent="center"
             color="lighterLighterBlack"

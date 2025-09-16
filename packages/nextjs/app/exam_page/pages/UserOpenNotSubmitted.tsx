@@ -221,6 +221,10 @@ const UserOpenNotSubmitted = ({
                 previousEnabled={false}
             />: <></>}
 
+            {!needsVerification && !userHasAlreadyClaimedFaucetFunds 
+            && questionNumber === (exam?.questions.length || 1) 
+            && <SubmitAnswersFaucet id={id} user={address} chainId={chain?.id}/>}
+
             <MessageForUser 
                 message={
                     <div>
@@ -232,9 +236,6 @@ const UserOpenNotSubmitted = ({
                     </div>
                 }
             />
-
-            {!needsVerification && !userHasAlreadyClaimedFaucetFunds && <SubmitAnswersFaucet id={id} user={address} chainId={chain?.id}/>}
-            
         </>
     );
 }
