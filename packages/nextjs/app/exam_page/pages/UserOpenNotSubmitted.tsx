@@ -233,7 +233,7 @@ const UserOpenNotSubmitted = ({
                 }
             />
 
-            {!needsVerification && !userHasAlreadyClaimedFaucetFunds && <SubmitAnswersFaucet id={id} user={address} chainId={chain?.id}/>}
+            {!needsVerification && !userHasAlreadyClaimedFaucetFunds && !Cookies.get(lastSubmitterAddressCookie) && <SubmitAnswersFaucet id={id} user={address} chainId={chain?.id}/>}
             
         </>
     );
