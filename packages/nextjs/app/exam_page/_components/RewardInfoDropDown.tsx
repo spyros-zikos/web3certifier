@@ -118,14 +118,15 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             </div>
                             :<>unknown</>}
                         />
-                        {customRewardAddress !== ZERO_ADDRESS ?
+                        {/* Check if custom reward address is undefined because it does not exist in previous exams */}
+                        {customRewardAddress && customRewardAddress !== ZERO_ADDRESS ?
                         <ExamDetail
                             name="Custom Reward Logic"
-                            value={customRewardAddress ?
-                            <div className="inline-block">
-                                <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
-                            </div>
-                            :<>unknown</>}
+                            value={
+                                <div className="inline-block">
+                                    <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
+                                </div>
+                            }
                         />
                     : <></>}
                     </Accordion.ItemBody>
