@@ -2,13 +2,13 @@ import React from 'react'
 import { Button, PageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { useAccount } from "wagmi";
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import RewardInfo from '../_components/RewardInfo';
 import SubHeading from '../_components/SubHeading';
+import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
 
 const ClaimReward = ({id}: {id: bigint}) => {
-    const { address } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
 
     /*//////////////////////////////////////////////////////////////
                            READ FROM CONTRACT
@@ -73,7 +73,7 @@ const ClaimReward = ({id}: {id: bigint}) => {
             <Button onClick={handleClaim} className="block mt-5 bg-base-100 w-full h-[70px] text-xl font-bold" >
                 Claim
             </Button>
-            <RewardInfo id={id}/>
+            <RewardInfo id={id} chain={chain}/>
             </div>
             
         </PageWrapper>

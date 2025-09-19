@@ -1,13 +1,14 @@
 "use client";
 
-import { useAccount } from "wagmi";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useSearchParams } from "next/navigation";
-import {ZERO_ADDRESS} from "~~/constants";
-import {CreateReward, ManageReward, ClaimReward, RewardDoesNotExist, AlreadyClaimed, CannotClaim, RewardIsZero, RewardBalanceNotEnough} from "./pages"
+import { ZERO_ADDRESS } from "~~/constants";
+import { CreateReward, ManageReward, ClaimReward } from "./pages"
+import ErrorPage from "./pages/ErrorPage";
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 const Page = () => {
-    const { address } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
 
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
@@ -61,18 +62,17 @@ const Page = () => {
             return <ManageReward id={id} />
     else
         if (rewardAddress === ZERO_ADDRESS)
-            return <RewardDoesNotExist id={id} />
+            return <ErrorPage id={id} chain={chain} message="This reward does not exist!" />
         else if (!userHasClaimed && userHasSucceeded && rewardAmount !== BigInt(0) && totalRewardAmount >= rewardAmount)
             return <ClaimReward id={id} />
         else if (!userHasClaimed && userHasSucceeded && rewardAmount === BigInt(0))
-            return <RewardIsZero id={id} />
+            return <ErrorPage id={id} chain={chain} message="Your reward is zero. Either the certifier has not set a reward amount or you dont qualify for this reward." />
         else if (userHasClaimed)
-            return <AlreadyClaimed id={id} />
+            return <ErrorPage id={id} chain={chain} message="You already claimed this reward!" />
         else if (!userHasSucceeded)
-            return <CannotClaim id={id} />
+            return <ErrorPage id={id} chain={chain} message="Wait for the exam to end, claim the NFT certificate and claim this reward!" />
         else if (totalRewardAmount < rewardAmount)
-            return <RewardBalanceNotEnough id={id} />
-
+            return <ErrorPage id={id} chain={chain} message="The reward pool does not have enough tokens to reward you." />
 }
 
 export default Page;
