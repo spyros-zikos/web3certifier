@@ -3,8 +3,7 @@
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { useSearchParams } from "next/navigation";
 import { ZERO_ADDRESS } from "~~/constants";
-import { CreateReward, ManageReward, ClaimReward } from "./pages"
-import ErrorPage from "./pages/ErrorPage";
+import { CreateReward, ManageReward, ClaimReward, ErrorPage } from "./pages"
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 const Page = () => {
