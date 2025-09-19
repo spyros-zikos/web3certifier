@@ -1,28 +1,30 @@
-import React from 'react'
-import { useState } from "react";
+import React, { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Button, Input, Text, PageWrapper, ResponsivePageWrapper } from "~~/components";
+import { Button, Input, Text, ResponsivePageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
-import { useAccount } from "wagmi";
-import { chainsToContracts, ZERO_ADDRESS } from '~~/constants';
+import { chainsToContracts, CUSTOM_REWARDS, CustomReward, ZERO_ADDRESS } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
-import { Box, Heading } from '@chakra-ui/react';
+import { Box, Heading, Menu, Portal } from '@chakra-ui/react';
 import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
 import { DocsPage } from '~~/types/DocsPage';
 import { ActionCard } from '../_components/ActionCard';
-import { LoadingButton } from '../_components/LoadingButton';
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
+import { custom } from "viem";
 
 const CreateReward = ({id}: {id: bigint}) => {
-    const { address, chain } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
+
+    const GOOD_DOLLAR_TOKEN = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
 
     const [initialRewardAmount, setInitialRewardAmount] = useState<number>(0);
     const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<number>(0);
     const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
-    const goodDollarToken = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
-    const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? goodDollarToken : "");
-    const rewardFactoryAddress = chainsToContracts[chain?chain?.id:11155111]["RewardFactory"].address;
+    const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? GOOD_DOLLAR_TOKEN : "");
+    const [customReward, setCustomReward] = useState<CustomReward>(CUSTOM_REWARDS[chain.id][0]);  // index 0 has default
+
+    const rewardFactoryAddress = chainsToContracts[chain.id]["RewardFactory"].address;
 
     const allowance: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
@@ -71,7 +73,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                 BigInt(scaledRewardAmountPerPerson),
                 BigInt(scaledRewardAmountPerCorrectAnswer),
                 tokenAddress,
-                ZERO_ADDRESS, // customRewardAddress
+                customReward?.address || ZERO_ADDRESS
             ],
         });
     }
@@ -80,7 +82,7 @@ const CreateReward = ({id}: {id: bigint}) => {
         return tokenAddress;
     }
 
-    const labelMarginAndPadding = 'mb-2 mt-4 block';
+    const labelMarginAndPadding = 'mb-2 mt-8 block';
 
     return (
         <ResponsivePageWrapper>
@@ -138,7 +140,37 @@ const CreateReward = ({id}: {id: bigint}) => {
                             setRewardAmountPerCorrectAnswer(e.target.value);
                         }}
                     />
-                    <div className="mt-8 block">{""}</div>
+                    <label className={`${labelMarginAndPadding}`}>Custom Reward</label>
+                    <Menu.Root>
+      <Menu.Trigger>
+        <Button className="mt-0" onClick={() => {
+            // do nothing
+        }}>
+            {customReward.name}
+        </Button>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content maxH="120px" minW="10rem" bgColor="lighterBlack">
+            <Menu.RadioItemGroup
+              value={customReward.name}
+              onValueChange={(e) => setCustomReward(CUSTOM_REWARDS[chain.id].filter((reward) => reward.name === e.value)[0])}
+            >
+              {CUSTOM_REWARDS[chain.id].map((reward) => (
+                <Menu.RadioItem key={reward.name} value={reward.name} color="neutral">
+                  {reward.name}
+                  <Menu.ItemIndicator />
+                </Menu.RadioItem>
+              ))}
+            </Menu.RadioItemGroup>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
+
+                    <Box>{customReward.description}</Box>
+
+                    <div className="mt-12 block">{""}</div>
                     {!requiredDetailsAreFilled() && <Text mt="2" ml="2" color="red" display="block">* Fields are required</Text>}
                     <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="block mt-3 bg-base-100" >
                         Create Reward

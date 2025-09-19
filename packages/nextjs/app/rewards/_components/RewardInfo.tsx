@@ -1,11 +1,12 @@
 import React from 'react'
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import SubHeading from './SubHeading';
-import { ZERO_ADDRESS } from '~~/constants';
+import { CUSTOM_REWARDS, ZERO_ADDRESS } from '~~/constants';
 import { Address } from '~~/components/scaffold-eth';
+import { Box } from '@chakra-ui/react';
 
 
-const RewardInfo = ({id}: {id: bigint}) => {
+const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
 
     /*//////////////////////////////////////////////////////////////
                            READ FROM CONTRACT
@@ -60,8 +61,14 @@ const RewardInfo = ({id}: {id: bigint}) => {
         functionName: "symbol",
     }).data;
 
-    const labelMarginAndPadding = 'ml-2 mt-4 block';
-    const labelMarginAndPaddingForOneLiners = 'ml-2 mt-2 block';
+    const customRewardAddress = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getCustomReward",
+    }).data;
+
+    const labelMarginAndPadding = 'mt-4 block';
+    const labelMarginAndPaddingForOneLiners = 'mt-2 block';
     
     if (rewardAddress === ZERO_ADDRESS)
         return <></>;
@@ -74,19 +81,19 @@ const RewardInfo = ({id}: {id: bigint}) => {
         <div className="max-w-[300px] wrap">
             <SubHeading>Reward Info</SubHeading>
             <div className={`${labelMarginAndPadding}`}>Available Reward Amount</div>
-            <div className={'ml-2'}>
+            <div>
                 {scaledBalance?scaledBalance.toString():"0"} {}
                 {tokenSymbol?tokenSymbol.toString():"unknown"}
             </div>
             
             <div className={`${labelMarginAndPadding}`}>Reward Amount Per Person</div>
-            <div className={'ml-2'}>
+            <div>
                 {scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toString():"0"} {}
                 {tokenSymbol?tokenSymbol.toString():"unknown"}
             </div>
 
             <div className={`${labelMarginAndPadding}`}>Reward Amount Per Correct Answer</div>
-            <div className={'ml-2'}>
+            <div>
                 {scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toString():"0"} {}
                 {tokenSymbol?tokenSymbol.toString():"unknown"}
             </div>
@@ -110,6 +117,24 @@ const RewardInfo = ({id}: {id: bigint}) => {
                 </div>
                 :<>unknown</>
             }</div>
+
+            {customRewardAddress && customRewardAddress !== ZERO_ADDRESS && 
+            <div className={`${labelMarginAndPaddingForOneLiners}`}>Custom Reward Address: {
+                customRewardAddress
+                ? <div className="inline-block">
+                    <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
+                </div>
+                :<>unknown</>
+            }</div>}
+
+            {/* Description */}
+            <Box className="mt-8">
+                {
+                chain && CUSTOM_REWARDS[chain.id]
+                    .filter((customReward: any) => customReward.address === (customRewardAddress||ZERO_ADDRESS))[0]
+                    .description
+                }
+            </Box>
         </div>
     );
 }

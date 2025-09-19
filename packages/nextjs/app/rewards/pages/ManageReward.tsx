@@ -3,19 +3,18 @@
 import React from 'react'
 import { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Button, Input, PageWrapper, ResponsivePageWrapper } from "~~/components";
+import { Input, ResponsivePageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
-import { useAccount } from "wagmi";
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import RewardInfo from '../_components/RewardInfo';
-import SubHeading from '../_components/SubHeading';
 import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
 import { Box } from '@chakra-ui/react';
 import { ActionCard } from '../_components/ActionCard';
 import { LoadingButton } from '../_components/LoadingButton';
+import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
 
 const ManageReward = ({id}: {id: bigint}) => {
-    const { address, chain } = useAccount();
+    const { address, chain } = useNonUndefinedAccount();
 
     const [fundAmount, setFundAmount] = useState<bigint>(BigInt(0));
     const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<bigint>(BigInt(0));
@@ -189,7 +188,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             </TitleWithLinkToExamPage>
             {/* REWARD INFO */}
             <Box className="mb-8">
-                <RewardInfo id={id}/>
+                <RewardInfo id={id} chain={chain}/>
             </Box>
 
             {/* Fund Reward */}
