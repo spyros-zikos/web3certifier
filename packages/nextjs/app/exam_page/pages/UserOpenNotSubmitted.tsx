@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { IdentitySDK } from '@goodsdks/citizen-sdk';
 import { usePublicClient, useWalletClient } from "wagmi";
+import Link from "next/link";
 
 
 const UserOpenNotSubmitted = ({
@@ -134,9 +135,17 @@ const UserOpenNotSubmitted = ({
 
     const VerifyAccountMessage = () => {
         return <div>
-            {"\n"}To prevent multiple submissions from the same person, please&nbsp;
-            <Box display="inline" onClick={handleVerifyClick} fontStyle="italic" textDecoration="underline" cursor="pointer">
-                verify that this account belongs to a unique person</Box> in order to be able to submit!
+            {"\n"}To prevent multiple submissions from the same person, please use a GoodDollar verified account.<br />
+            You can either&nbsp;
+                <Box display="inline" onClick={handleVerifyClick} fontStyle="italic" textDecoration="underline" cursor="pointer">
+                    verify that this account belongs to a unique person
+                </Box>
+                &nbsp;or&nbsp;
+                <Box display="inline" fontStyle="italic" textDecoration="underline" cursor="pointer">
+                    <Link href="https://goodwallet.xyz" target="_blank">
+                    create a new verified account
+                    </Link>
+                </Box>.
         </div>
     }
 
