@@ -14,6 +14,7 @@ import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, InviteLinkMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
+import Link from "next/link";
 
 
 const ExamPage = () => {
@@ -140,7 +141,13 @@ const ExamPage = () => {
             getExamStage() === ExamStage.User_Open_NotSubmitted ?
             <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} userStatus={userStatusNum} />
             : getExamStage() === ExamStage.User_Open_Submitted ?
-            <StaticExamPage exam={exam} message="Your answers are submitted!" />
+            <StaticExamPage exam={exam} message={
+                <>
+                    <Box display="inline">Your answers are submitted! Join our </Box>
+                    <Box display="inline" textDecoration={"underline"}><Link href="https://discord.gg/4rXWFNGmDJ">Discord server</Link></Box>
+                    <Box display="inline"> to get notified when you can claim your reward!</Box>
+                </>}
+            />
             // Under Correction
             : getExamStage() === ExamStage.User_UnderCorrection ?
             <StaticExamPage exam={exam} message="This exam is being corrected by the certifier!" />

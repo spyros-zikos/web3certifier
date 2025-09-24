@@ -7,13 +7,14 @@ import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { chainsToContracts, cookieExpirationTime, getLastSubmitterAddressCookieName, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { IdentitySDK } from '@goodsdks/citizen-sdk';
 import { usePublicClient, useWalletClient } from "wagmi";
 import Link from "next/link";
+import { getUserStatusStr } from "~~/utils/StatusStr";
 
 
 const UserOpenNotSubmitted = ({
@@ -27,6 +28,8 @@ const UserOpenNotSubmitted = ({
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
+    const [timeNow, setTimeNow] = useState(Date.now());  // to check if page needs reload every 1 second
+    
     const searchParams = useSearchParams();
     const inviter = searchParams.get("inviter");
     // For identity sdk
@@ -35,9 +38,6 @@ const UserOpenNotSubmitted = ({
 
     const passwordCookie = getPasswordCookieName(chain, id, address);
     const startTimeCookie = getStartTimeCookieName(chain, id);
-    // if the last address is not undefined
-    // then someone already submitted from the browser successfully
-    const lastSubmitterAddressCookie = getLastSubmitterAddressCookieName(chain, id);
 
     // Faucet
     useEffect(() => {
@@ -77,10 +77,14 @@ const UserOpenNotSubmitted = ({
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
 
     useEffect(() => {
-        if (submitAnswersSuccess) {
-            Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
-        }
-    }, [submitAnswersSuccess]);
+        const interval = setInterval(() => {
+            setTimeNow(Date.now());
+            if (getUserStatusStr(userStatus) == "Submitted")
+                window.location.reload();
+        }, 1000); // update every second
+        
+        return () => clearInterval(interval); // cleanup
+    }, []);
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
@@ -99,11 +103,6 @@ const UserOpenNotSubmitted = ({
                 id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);
                 
             console.log(userPassword);
-
-            // testnet is very slow and the success varible does not work properly. so you dont do that:
-            if (chain.id === 11155111) {
-                Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
-            }
 
             // store the password cookie on every click to avoid stupid tx errors
             Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
@@ -227,7 +226,7 @@ const UserOpenNotSubmitted = ({
                 index={questionNumber}
                 firstIndex={1}
                 lastIndex={exam?.questions ? exam?.questions.length : 1}
-                submitButtonOnClick={userStatus === 0 && !Cookies.get(lastSubmitterAddressCookie) ? onClickSubmitAnswersButton : undefined}
+                submitButtonOnClick={onClickSubmitAnswersButton}
                 previousEnabled={false}
             />: <></>}
 
