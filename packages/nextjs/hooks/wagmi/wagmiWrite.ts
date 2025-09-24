@@ -102,9 +102,9 @@ export function wagmiWriteToContract() {
                 chainId,
             })
             
-            params.onSuccess ? params.onSuccess() : window.location.reload();
-            // new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
             setSuccess(true);
+            new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
+            params.onSuccess ? params.onSuccess() : window.location.reload();
             return writeTxResult;
         } catch (error) {
             console.log("user denied transaction", error);

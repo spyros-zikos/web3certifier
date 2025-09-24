@@ -79,14 +79,13 @@ const UserOpenNotSubmitted = ({
     useEffect(() => {
         if (submitAnswersSuccess) {
             Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
-            Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
         }
     }, [submitAnswersSuccess]);
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
         const validUntilBlock = (currentBlock || 1000000000n) + 50n // Valid for 10 blocks
-        
+
         try {
             let signature = "0x";
             if (canClaimEngagementRewards)
@@ -104,8 +103,10 @@ const UserOpenNotSubmitted = ({
             // testnet is very slow and the success varible does not work properly. so you dont do that:
             if (chain.id === 11155111) {
                 Cookies.set(lastSubmitterAddressCookie || "", address || "", { expires: cookieExpirationTime });
-                Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
             }
+
+            // store the password cookie on every click to avoid stupid tx errors
+            Cookies.set(passwordCookie || "", userPassword || "", { expires: cookieExpirationTime });
 
             if (hashedAnswerToSubmit && exam && (exam.price > 0 ? examPriceInEth : true) && answers.length === exam?.questions?.length)
                 handleSubmitAnswers(submitAnswers, id, hashedAnswerToSubmit, examPriceInEth!, inviter || ZERO_ADDRESS, validUntilBlock, signature);
