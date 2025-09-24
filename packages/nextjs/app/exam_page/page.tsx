@@ -168,7 +168,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
             <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully!" />
             : getExamStage() === ExamStage.User_Corrected_Failed ?
-            <StaticExamPage exam={exam} message={exam ? <div> You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div> : <div>Loading...</div>} />
+            <StaticExamPage exam={exam} message={exam ? <div>You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div> : <div>Loading...</div>} />
             : getExamStage() === ExamStage.User_Corrected_NotSubmitted ?
             <StaticExamPage exam={exam} message={isConnected ? "This exam has ended. You did not participate!" : "Connect your wallet to claim your certificate!"} />
 

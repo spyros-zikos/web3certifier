@@ -1,7 +1,11 @@
 import { Box, Text, Flex } from '@chakra-ui/react'
 import React from 'react'
-import { answersSeparator } from "~~/constants";
+import { answersSeparator, getPasswordCookieName } from "~~/constants";
 import { ProgressBar } from '~~/components';
+import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
+import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
+import Cookies from 'js-cookie';
+import { getAnswersAsNumberArrayFromString, getVariablesFromPasswordCookie } from '../helperFunctions/PasswordManagement';
 
 
 const Question = ({
@@ -11,6 +15,26 @@ const Question = ({
     }) => {
     const [question, answer1, answer2, answer3, answer4] = exam?.questions[questionNumber-1].split(answersSeparator) || ["", "", "", "", ""];
     
+    const { address, chain, isConnected } = useNonUndefinedAccount();
+
+    // Get getUserStringAnswer
+    const getUserStringAnswer: string | undefined = wagmiReadFromContract({
+        functionName: "getUserStringAnswer",
+        args: [exam?.id, address],
+    }).data;
+    const answersArrayFromContract = getUserStringAnswer ? getAnswersAsNumberArrayFromString(getUserStringAnswer) : [];
+
+    // if they dont exist try cookie
+    const passwordCookie = Cookies.get(getPasswordCookieName(chain, exam ? exam.id : BigInt(0), address));
+    const [_, userAnswersString, __] = getVariablesFromPasswordCookie(passwordCookie || "", address, "no hash");
+    const answersArrayFromCookie = getAnswersAsNumberArrayFromString(userAnswersString);
+
+    // User Answers to show
+    const userAnswersToDisplay = answersArrayFromContract.length > 0 ? answersArrayFromContract : answersArrayFromCookie;
+
+    // Get correct answers
+    const correctAnswersToDisplay = exam?.answers || [];
+
     function isChecked(inputId: string): boolean {
         return (document.getElementById(inputId)! as HTMLInputElement)?.checked
     }
@@ -21,6 +45,37 @@ const Question = ({
         setAnswers([
             ...answers!.slice(0, questionNumber-1), BigInt(answerId), ...answers!.slice(questionNumber),
         ]);
+    }
+
+    // if user can submit or correct, show the answers that he selects
+    // else show the correct answers and the answers that the user submitted
+    function getBorderSizeAndColor(answerNumberForQuestion: number, questionNumber: number) {
+        // if users can submit or correct
+        if (showAnswers) {
+            if (isChecked(`answer${answerNumberForQuestion}-${questionNumber}`))
+                return { border: "3px solid", color: "green" }
+            return { border: "1px solid", color: "lighterLighterBlack" }
+        }
+
+        // correct answers
+        const correctAnswerForQuestion = Number(correctAnswersToDisplay[questionNumber-1]);
+        if ((correctAnswersToDisplay.length === exam?.questions.length) &&
+            (answerNumberForQuestion === correctAnswerForQuestion))
+        {
+            return { border: "3px solid", color: "green" }
+        }
+
+        // wrong user answers
+        const userAnswersForQuestion = userAnswersToDisplay[questionNumber-1];
+        if ((userAnswersToDisplay.length === exam?.questions.length) && 
+            (answerNumberForQuestion === userAnswersForQuestion) &&
+            userAnswersForQuestion !== correctAnswerForQuestion)
+        {
+            return { border: "3px solid", color: "red" }
+        }
+
+        return { border: "1px solid", color: "lighterLighterBlack" }
+
     }
 
     return (
@@ -34,10 +89,10 @@ const Question = ({
             <Text fontWeight={"semibold"} whiteSpace={"pre-wrap"} fontSize={"xl"} mt="2" mb="10">{question}</Text>
             <Text mt="4">
                 <Text
-                    border={isChecked(`answer1-${questionNumber}`) ? "3px solid" : "1px solid"}
+                    border={getBorderSizeAndColor(1, questionNumber).border}
+                    borderColor={getBorderSizeAndColor(1, questionNumber).color}
                     borderRadius={"lg"}
-                    borderColor={isChecked(`answer1-${questionNumber}`) ? "green" : "lighterLighterBlack"}
-                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                    p="3" mr="5" mt="4" _hover={ correctAnswersToDisplay.length === 0 ? { border: "1px solid", borderColor: "green" } : {}}
                     onClick={() => handleSelectAnswer(1, questionNumber)}
                 >
                     <Flex align="flex-start">
@@ -46,10 +101,10 @@ const Question = ({
                     </Flex>
                 </Text>
                 <Text
-                    border={isChecked(`answer2-${questionNumber}`) ? "3px solid" : "1px solid"}
+                    border={getBorderSizeAndColor(2, questionNumber).border}
+                    borderColor={getBorderSizeAndColor(2, questionNumber).color}
                     borderRadius={"lg"}
-                    borderColor={isChecked(`answer2-${questionNumber}`) ? "green" : "lighterLighterBlack"}
-                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                    p="3" mr="5" mt="4" _hover={ correctAnswersToDisplay.length === 0 ? { border: "1px solid", borderColor: "green" } : {}}
                     onClick={() => handleSelectAnswer(2, questionNumber)}
                 >
                     <Flex align="flex-start">
@@ -58,10 +113,10 @@ const Question = ({
                     </Flex>
                 </Text>
                 <Text
-                    border={isChecked(`answer3-${questionNumber}`) ? "3px solid" : "1px solid"}
+                    border={getBorderSizeAndColor(3, questionNumber).border}
+                    borderColor={getBorderSizeAndColor(3, questionNumber).color}
                     borderRadius={"lg"}
-                    borderColor={isChecked(`answer3-${questionNumber}`) ? "green" : "lighterLighterBlack"}
-                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                    p="3" mr="5" mt="4" _hover={ correctAnswersToDisplay.length === 0 ? { border: "1px solid", borderColor: "green" } : {}}
                     onClick={() => handleSelectAnswer(3, questionNumber)}
                 >
                     <Flex align="flex-start">
@@ -70,10 +125,10 @@ const Question = ({
                     </Flex>
                 </Text>
                 <Text
-                    border={isChecked(`answer4-${questionNumber}`) ? "3px solid" : "1px solid"}
+                    border={getBorderSizeAndColor(4, questionNumber).border}
+                    borderColor={getBorderSizeAndColor(4, questionNumber).color}
                     borderRadius={"lg"}
-                    borderColor={isChecked(`answer4-${questionNumber}`) ? "green" : "lighterLighterBlack"}
-                    p="3" mr="5" mt="4" _hover={{ borderColor: "green" }}
+                    p="3" mr="5" mt="4" _hover={ correctAnswersToDisplay.length === 0 ? { border: "1px solid", borderColor: "green" } : {}}
                     onClick={() => handleSelectAnswer(4, questionNumber)}
                 >
                     <Flex align="flex-start">

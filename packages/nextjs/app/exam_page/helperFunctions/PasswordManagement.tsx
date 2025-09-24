@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Web3 } from "web3";
 
 export const keyLength = 10;
 
 
-export function getHashedAnswerAndMessageWithCookies(
-    answers: bigint[], randomKey: number, address?: string
+export function getHashAndPassword(
+    answers: bigint[], address?: string
 ): [
     hashedAnswer: string|undefined, userPassword: string
 ] {
+    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
+    
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
 
     // Get answers as string
@@ -22,7 +25,7 @@ export function getHashedAnswerAndMessageWithCookies(
 }
 
 // Retrieve password
-export function getVariablesFromCookies(
+export function getVariablesFromPasswordCookie(
     password: string, address?: string, userHashedSubmittedAnswer?: string
 ): [
     key: number, answers: string, passwordHashGood: boolean
@@ -42,6 +45,14 @@ export function getVariablesFromCookies(
     return [key, answers, passwordHashGood]
 }
 
+
+export function getAnswersAsNumberArrayFromString(answersString: string) {
+    const answersArray = [];
+    for (let i = 0; i < answersString.length; i++) {
+        answersArray.push(parseInt(answersString[i]));
+    }
+    return answersArray;
+}
 
 function getAnswersAsString(answersArray: any) {
     let result = '';

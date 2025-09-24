@@ -4,9 +4,10 @@ import { handleClaimCertificate } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ClaimButton, ClaimCertificateFaucet } from "../_components";
 import Cookies from 'js-cookie';
-import { getVariablesFromCookies } from "../helperFunctions/PasswordManagement";
+import { getVariablesFromPasswordCookie } from "../helperFunctions/PasswordManagement";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Box } from "@chakra-ui/react";
+import { getPasswordCookieName } from "~~/constants";
 
 const UserCorrectedClaimCertificate = ({
     id, exam, address, chain
@@ -21,8 +22,8 @@ const UserCorrectedClaimCertificate = ({
         args: [address, id],
     }).data;
     
-    const passwordCookie = Cookies.get(`w3c.${chain?.id}.${id}.${address}`);
-    const [key, userAnswers, passwordHashGood] = getVariablesFromCookies(passwordCookie || "", address, userHashedAnswer);
+    const passwordCookie = Cookies.get(getPasswordCookieName(chain, id, address));
+    const [key, userAnswers, passwordHashGood] = getVariablesFromPasswordCookie(passwordCookie || "", address, userHashedAnswer);
 
     const { writeContractAsync: claimCertificate } = wagmiWriteToContract();
     const onClickClaimCertificateButton = () => {

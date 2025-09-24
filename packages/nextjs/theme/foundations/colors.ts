@@ -11,6 +11,7 @@ const colors = {
     accent: { value: "#84cc16" }, // green
     neutral: { value: "#F9FBFF" }, // white
     green: { value: "#84cc16" }, // base-100
+    red: { value: "#FF0000" },
     lightGreen: { value: "#84cc16" },
     black: { value: "#18181B" }, // base-200
     lighterBlack: { value: "#1F2937" },

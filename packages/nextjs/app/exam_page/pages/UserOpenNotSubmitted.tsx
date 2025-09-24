@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { IndexSelector } from "~~/components/IndexSelector";
-import { getHashedAnswerAndMessageWithCookies, keyLength } from "../helperFunctions/PasswordManagement";
+import { getHashAndPassword } from "../helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
 import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
@@ -24,11 +24,10 @@ const UserOpenNotSubmitted = ({
 }) => {
     const [questionNumber, setQuestionNumber] = useState<number>(0);
     const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
-    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
-    const [timeNow, setTimeNow] = useState(Date.now());  // to check if page needs reload every 1 second
+    const [_, setTimeNow] = useState(Date.now());  // to check if page needs reload every 1 second
     
     const searchParams = useSearchParams();
     const inviter = searchParams.get("inviter");
@@ -70,7 +69,7 @@ const UserOpenNotSubmitted = ({
     : 0;
 
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-    const [hashedAnswerToSubmit, userPassword] = getHashedAnswerAndMessageWithCookies(answers, randomKey, address);
+    const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, address);
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
 
     const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
