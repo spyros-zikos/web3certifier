@@ -105,7 +105,7 @@ const CreateExam = () => {
             }
             const newExamId = lastExamId;
             console.log("Creating exam with id:", newExamId.toString());
-            fetch('/api/certifier/create_exam/store_timers', {
+            fetch('/api/create_exam_page/store_timers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

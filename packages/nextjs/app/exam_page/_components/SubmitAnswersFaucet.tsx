@@ -12,7 +12,7 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
             return;
         }
 
-        const response = await fetch(`/api/user/submit_answers/faucet/claim/`, {
+        const response = await fetch(`/api/exam_page/user/submit_answers/faucet/claim/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

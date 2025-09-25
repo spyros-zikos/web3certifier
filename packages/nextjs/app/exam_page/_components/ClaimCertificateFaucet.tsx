@@ -12,7 +12,7 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
             return;
         }
 
-        const response = await fetch(`/api/user/claim_certificate/faucet/claim/`, {
+        const response = await fetch(`/api/exam_page/user/claim_certificate/faucet/claim/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

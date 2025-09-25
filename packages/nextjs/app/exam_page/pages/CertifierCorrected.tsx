@@ -68,21 +68,21 @@ const CertifierCorrected = ({
 
     // avg score
     useEffect(() => {
-        fetch("api/certifier/stats/avgScore/?examId=" + id + "&chainId=" + chain?.id)
+        fetch("api/exam_page/certifier/stats/avgScore/?examId=" + id + "&chainId=" + chain?.id)
         .then(response => response.json())
         .then(data => setAvgScore(data.toFixed(2)));
     }, [id, chain]);
 
     // avg success score
     useEffect(() => {
-        fetch("api/certifier/stats/avgSuccessScore/?examId=" + id + "&chainId=" + chain?.id)
+        fetch("api/exam_page/certifier/stats/avgSuccessScore/?examId=" + id + "&chainId=" + chain?.id)
         .then(response => response.json())
         .then(data => setAvgSuccessScore(data.toFixed(2)));
     }, [id, chain]);
 
     // avg fail score
     useEffect(() => {
-        fetch("api/certifier/stats/avgFailScore/?examId=" + id + "&chainId=" + chain?.id)
+        fetch("api/exam_page/certifier/stats/avgFailScore/?examId=" + id + "&chainId=" + chain?.id)
         .then(response => response.json())
         .then(data => setAvgFailScore(data.toFixed(2)));
     }, [id, chain]);

@@ -41,7 +41,7 @@ const UserOpenNotSubmitted = ({
     // Faucet
     useEffect(() => {
         // call the api api/user/claim_certificate/faucet/user_has_claimed
-        fetch(`/api/user/submit_answers/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
+        fetch(`/api/exam_page/user/submit_answers/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
         .then(response => response.json())
         .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
     }, [address, id, chain?.id])
