@@ -57,6 +57,9 @@ const Question = ({
             return { border: "1px solid", color: "lighterLighterBlack" }
         }
 
+        if (exam?.answers.length === 0)
+            return { border: "1px solid", color: "lighterLighterBlack" }
+
         // correct answers
         const correctAnswerForQuestion = Number(correctAnswersToDisplay[questionNumber-1]);
         if ((correctAnswersToDisplay.length === exam?.questions.length) &&
