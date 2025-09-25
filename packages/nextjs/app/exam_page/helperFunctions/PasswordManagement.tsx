@@ -1,16 +1,13 @@
-import { useState } from "react";
 import { Web3 } from "web3";
 
 export const keyLength = 10;
 
 
 export function getHashAndPassword(
-    answers: bigint[], address?: string
+    answers: bigint[], randomKey: number, address?: string
 ): [
     hashedAnswer: string|undefined, userPassword: string
 ] {
-    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
-    
     const web3 = window.ethereum ? new Web3(window.ethereum) : new Web3();
 
     // Get answers as string

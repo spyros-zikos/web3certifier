@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { IndexSelector } from "~~/components/IndexSelector";
-import { getHashAndPassword } from "../helperFunctions/PasswordManagement";
+import { getHashAndPassword, keyLength } from "../helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
 import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
@@ -69,7 +69,8 @@ const UserOpenNotSubmitted = ({
     : 0;
 
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-    const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, address);
+    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
+    const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
 
     const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
