@@ -7,7 +7,7 @@ import { handleSubmitAnswers } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
 import { Box } from "@chakra-ui/react";
-import { chainsToContracts, cookieExpirationTime, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
@@ -241,7 +241,7 @@ const UserOpenNotSubmitted = ({
                         
                         <Box color="lighterLighterBlack">Note: The system uses cookies to store your password.
                         This means that you can claim your certificate only from this device.</Box>
-                        {needsVerification ? <VerifyAccountMessage /> : ""}
+                        {needsVerification && (address !== DEFAULT_USER_ADDRESS) ? <VerifyAccountMessage /> : ""}
                     </div>
                 }
             />
