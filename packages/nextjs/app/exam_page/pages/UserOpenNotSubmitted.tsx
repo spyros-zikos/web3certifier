@@ -69,7 +69,7 @@ const UserOpenNotSubmitted = ({
     : 0;
 
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
-    const [randomKey, _] = useState(Math.floor((10**keyLength) * Math.random()));
+    const [randomKey, __] = useState(Math.floor((10**keyLength) * Math.random()));
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
 
