@@ -22,7 +22,7 @@ const SearchExamsPage: React.FC = () => {
     const showList = {
         [SUPPORTED_NETWORKS.sepolia]: [],
         [SUPPORTED_NETWORKS.arbitrum]: [],
-        [SUPPORTED_NETWORKS.celo]: [21n, 24n, 25n, 28n, 39n]
+        [SUPPORTED_NETWORKS.celo]: [21n, 24n, 25n, 28n, 39n, 46n]
     };
 
     /*//////////////////////////////////////////////////////////////
