@@ -67,8 +67,8 @@ export function wagmiWriteToContract() {
                         value: params.value,
                     })
                     
-                    // Add 10% buffer to the estimated gas
-                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.1));
+                    // Add 15% buffer to the estimated gas
+                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.15));
                     
                     // Use sendTransaction for full control over transaction data
                     return wagmiSendTransaction.sendTransactionAsync({
