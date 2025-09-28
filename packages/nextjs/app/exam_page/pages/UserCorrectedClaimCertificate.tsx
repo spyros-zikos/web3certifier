@@ -32,7 +32,7 @@ const UserCorrectedClaimCertificate = ({
     }
 
     useEffect(() => {
-        // call the api api/user/claim_certificate/faucet/user_has_claimed
+        // call the user_has_claimed api for the faucet
         fetch(`/api/exam_page/user/claim_certificate/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
         .then(response => response.json())
         .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
