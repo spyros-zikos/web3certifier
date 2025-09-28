@@ -4,7 +4,7 @@ import { Button } from "~~/components";
 
 const ExamStartWarningBox = ({onClickStart}: {onClickStart: any}) => {
     return (
-        <Box display={"flex"} flexDirection={"column"} justifyContent={"end"} alignItems={"center"} bg="primary" w="full" h="500px" border="2px" borderStyle="solid" borderColor="lightGreen">
+        <Box display={"flex"} flexDirection={"column"} justifyContent={"end"} alignItems={"center"} bg="primary" w="full" h="500px" border="2px" borderStyle="solid" borderColor="lightGreen" mt="8">
             <Button
                 className="bg-base-100 w-32 h-12 font-bold text-xl mb-24"
                 onClick={onClickStart}

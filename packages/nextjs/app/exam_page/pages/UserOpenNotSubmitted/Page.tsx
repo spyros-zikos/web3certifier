@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from "react"
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { IndexSelector } from "~~/components/IndexSelector";
-import { getHashAndPassword, keyLength } from "../helperFunctions/PasswordManagement";
+import { getHashAndPassword, keyLength } from "../../helperFunctions/PasswordManagement";
 import Cookies from 'js-cookie';
-import { handleSubmitAnswers } from "../helperFunctions/Handlers";
+import { handleSubmitAnswers } from "../../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
-import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../_components";
+import { Question, MessageForUser, ExamStartWarningBox, SubmitAnswersFaucet } from "../../_components";
 import { Box } from "@chakra-ui/react";
 import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
-import { IdentitySDK } from '@goodsdks/citizen-sdk';
 import { usePublicClient, useWalletClient } from "wagmi";
-import Link from "next/link";
 import { getUserStatusStr } from "~~/utils/StatusStr";
+import VerifyAccountMessage from "./components/VerifyAccountMessage";
 
 
-const UserOpenNotSubmitted = ({
+const Page = ({
     id, exam, address, chain, userStatus
 }: {
     id: bigint, exam: Exam | undefined, address: string | undefined, chain: any, userStatus: number
@@ -114,41 +113,6 @@ const UserOpenNotSubmitted = ({
         }
     }
 
-    const handleVerifyClick = async () => {
-        try {
-            if (!publicClient || !walletClient) {
-                console.error("Clients not available");
-                return;
-            }
-            const identitySDK = await IdentitySDK.init({
-                publicClient: publicClient,
-                walletClient: walletClient,
-                env: "production" // or "staging" or "development"
-            });
-            
-            const fvLink = await identitySDK.generateFVLink(false, window.location.href);
-            window.open(fvLink);
-        } catch (error) {
-            console.error("Failed to generate FV link:", error);
-        }
-    };
-
-    const VerifyAccountMessage = () => {
-        return <div>
-            {"\n"}To prevent multiple submissions from the same person, please use a GoodDollar verified account.<br />
-            You can either&nbsp;
-                <Box display="inline" onClick={handleVerifyClick} fontStyle="italic" textDecoration="underline" cursor="pointer">
-                    verify that this account belongs to a unique person
-                </Box>
-                &nbsp;or&nbsp;
-                <Box display="inline" fontStyle="italic" textDecoration="underline" cursor="pointer">
-                    <Link href="https://goodwallet.xyz" target="_blank">
-                    create a new verified account
-                    </Link>
-                </Box>.
-        </div>
-    }
-
     /// timer for each question ///
 
     const getCurrentTimestamp = () => {
@@ -167,7 +131,6 @@ const UserOpenNotSubmitted = ({
 
         const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
         if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
-        // console.log(getCurrentTimestamp() - startTime);
 
         // Also check if user has submitted
         (async () => {
@@ -241,7 +204,7 @@ const UserOpenNotSubmitted = ({
                         
                         <Box color="lighterLighterBlack">Note: The system uses cookies to store your password.
                         This means that you can claim your certificate only from this device.</Box>
-                        {needsVerification && (address !== DEFAULT_USER_ADDRESS) ? <VerifyAccountMessage /> : ""}
+                        {needsVerification && (address !== DEFAULT_USER_ADDRESS) ? <VerifyAccountMessage publicClient={publicClient} walletClient={walletClient}/> : ""}
                     </div>
                 }
             />
@@ -249,4 +212,4 @@ const UserOpenNotSubmitted = ({
     );
 }
 
-export default UserOpenNotSubmitted
+export default Page
