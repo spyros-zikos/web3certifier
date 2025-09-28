@@ -14,6 +14,7 @@ import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { getUserStatusStr } from "~~/utils/StatusStr";
 import VerifyAccountMessage from "./components/VerifyAccountMessage";
+import QuestionTimer from "./components/QuestionTimer";
 
 
 const Page = ({
@@ -179,10 +180,7 @@ const Page = ({
             }
 
             {/* Timer for each question */}
-            {startTime > 0 &&
-            <Box>Time left: &nbsp;
-                {Math.max(0, startTime + (questionNumber * timePerQuestion) - getCurrentTimestamp())}
-            </Box>}
+            <QuestionTimer startTime={startTime} questionNumber={questionNumber} timePerQuestion={timePerQuestion} currentTimestamp={getCurrentTimestamp()} />
 
             {questionNumber > 0 ? <IndexSelector
                 setIndex={handleNextQuestion}
