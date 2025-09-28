@@ -1,7 +1,7 @@
 "use client";
 
 import { Title } from "~~/components";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
 import { IndexSelector } from "../../components/IndexSelector";
 import { ExamCard, PageWrapper } from "~~/components";
@@ -16,14 +16,21 @@ const SearchExamsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showMyExams, setShowMyExams] = useState(false);
     const [page, setPage] = useState<number>(1);
+    const [featuredExamIds, setFeaturedExamIds] = useState<bigint[]>([]);
     // parameter
     const examsPerPage = 9;
-    // showList
-    const showList = {
-        [SUPPORTED_NETWORKS.sepolia]: [],
-        [SUPPORTED_NETWORKS.arbitrum]: [],
-        [SUPPORTED_NETWORKS.celo]: [21n, 24n, 25n, 28n, 39n, 46n]
-    };
+
+    useEffect(() => {
+        const fetchFeaturedExams = async () => {
+            await fetch("api/explore_page/featured_exams?chainId=" + chain?.id)
+            .then(response => response.json())
+            .then(data => setFeaturedExamIds(data.length > 0 ? data.split(",").map((id: string) => BigInt(id)) : []))
+            .catch(error => setFeaturedExamIds([]));
+        };
+        fetchFeaturedExams();
+    }, [chain?.id]);
+
+    console.log("featuredExamIds", featuredExamIds);
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -54,7 +61,7 @@ const SearchExamsPage: React.FC = () => {
     // If the showList is empty, show all the exams
     const allExamIds = [];
     for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > -1; i--) {
-        if (showList[chain?.id].length && !showList[chain?.id].includes(i)) continue
+        if (featuredExamIds.length && !featuredExamIds.includes(i)) continue
         allExamIds.push(BigInt(i));
     }
 

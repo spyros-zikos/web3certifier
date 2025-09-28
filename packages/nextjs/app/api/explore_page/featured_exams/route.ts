@@ -10,7 +10,7 @@ export async function GET(request: Request) {
         }
 
         const { db } = await connectToDatabase();
-        const collectionName = "exams_to_show";
+        const collectionName = "featured_exams";
         const examIdsRecord = await db.collection(collectionName).findOne({ chainId });
         const examIds = examIdsRecord ? examIdsRecord.examIds : [];
 
