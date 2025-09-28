@@ -121,8 +121,11 @@ const Page = ({
     }
     
     useEffect(() => {
+        // Check if user has reloaded the page after starting the exam
+        // If so, set the timer to the previous time
         if (startTime === 0) setStartTime(Number(Cookies.get(startTimeCookie)) || 0);
     
+        // Check if the time has ended for all questions
         const unboundQuestionNumber = Math.floor((getCurrentTimestamp() - startTime) / timePerQuestion) + 1;
         if (unboundQuestionNumber > (exam?.questions.length || 1)) {
             setTimeEnded(true);
@@ -130,10 +133,11 @@ const Page = ({
             setTimeEnded(false);
         }
 
+        // Check if the time has ended for the current question
         const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
         if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
 
-        // Also check if user has submitted
+        // Also check if user has submitted and reload the page
         (async () => {
             const userStatus = await wagmiReadFromContractAsync({
                 functionName: "getUserStatus",
