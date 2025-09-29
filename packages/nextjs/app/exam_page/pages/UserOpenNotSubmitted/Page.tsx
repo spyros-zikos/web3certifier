@@ -10,11 +10,13 @@ import { Box } from "@chakra-ui/react";
 import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
-import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { getUserStatusStr } from "~~/utils/StatusStr";
 import VerifyAccountMessage from "./components/VerifyAccountMessage";
 import QuestionTimer from "./components/QuestionTimer";
+import { periodicActions } from "./functions/periodicActions";
+import removeExcessTime from "./functions/removeExcessTime";
+import getCurrentTimestamp from "./functions/getCurrentTimestamp";
 
 
 const Page = ({
@@ -73,9 +75,7 @@ const Page = ({
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
 
-    const { writeContractAsync: submitAnswers, success: submitAnswersSuccess } = wagmiWriteToContract();
-    const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
-
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeNow(Date.now());
@@ -85,6 +85,9 @@ const Page = ({
         
         return () => clearInterval(interval); // cleanup
     }, []);
+    
+    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
@@ -113,55 +116,30 @@ const Page = ({
             console.log(error);
         }
     }
-
-    /// timer for each question ///
-
-    const getCurrentTimestamp = () => {
-        return Math.floor(Date.now()/1000);
-    }
     
     useEffect(() => {
-        // Check if user has reloaded the page after starting the exam
-        // If so, set the timer to the previous time
-        if (startTime === 0) setStartTime(Number(Cookies.get(startTimeCookie)) || 0);
-    
-        // Check if the time has ended for all questions
-        const unboundQuestionNumber = Math.floor((getCurrentTimestamp() - startTime) / timePerQuestion) + 1;
-        if (unboundQuestionNumber > (exam?.questions.length || 1)) {
-            setTimeEnded(true);
-        } else {
-            setTimeEnded(false);
-        }
-
-        // Check if the time has ended for the current question
-        const boundedQuestionNumber = Math.min(unboundQuestionNumber, exam?.questions.length || 1);
-        if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
-
-        // Also check if user has submitted and reload the page
-        (async () => {
-            const userStatus = await wagmiReadFromContractAsync({
-                functionName: "getUserStatus",
-                args: [address, BigInt(id)],
-                chainId: chain?.id
-            }) as any;
-            
-            if (userStatus !== 0) {
-                window.location.reload();
-            }
-        })();
+        periodicActions(
+            startTime,
+            setStartTime,
+            questionNumber,
+            setTimeEnded,
+            setQuestionNumber,
+            exam?.questions?.length,
+            startTimeCookie
+        );
     }, [getCurrentTimestamp()]);
 
     /// if a user clicks next before the timer of the question goes to 0, the remaining time must be discarded
     /// the way this is done is by making the startTime be sooner by the remaining time
-    const handleNextQuestion = (nextQuestionNumber: number) => {
-        // calculate remaining time
-        const timeRemainingForPreviousQuestion = Math.max(0, startTime + (questionNumber * timePerQuestion) - getCurrentTimestamp());
-        // new startTime
-        const newStartTime = startTime - timeRemainingForPreviousQuestion;
-        // update the variable startTime
-        setStartTime(newStartTime);
-        // update the cookie startTime
-        Cookies.set(startTimeCookie, newStartTime.toString(), { expires: cookieExpirationTime });
+    const onClickNextQuestion = (nextQuestionNumber: number) => {
+        // remove excess time
+        removeExcessTime(
+            startTime,
+            setStartTime,
+            questionNumber,
+            startTimeCookie
+        );
+
         // do the default action that changes the questionNumber
         setQuestionNumber(nextQuestionNumber);
     }
@@ -187,7 +165,7 @@ const Page = ({
             <QuestionTimer startTime={startTime} questionNumber={questionNumber} timePerQuestion={timePerQuestion} currentTimestamp={getCurrentTimestamp()} />
 
             {questionNumber > 0 ? <IndexSelector
-                setIndex={handleNextQuestion}
+                setIndex={onClickNextQuestion}
                 index={questionNumber}
                 firstIndex={1}
                 lastIndex={exam?.questions ? exam?.questions.length : 1}

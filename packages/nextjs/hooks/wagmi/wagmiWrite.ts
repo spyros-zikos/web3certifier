@@ -24,6 +24,12 @@ export function wagmiWriteToContract() {
     const { targetNetwork } = useTargetNetwork();
     const [isMining, setIsMining] = useState(false);
     const [success, setSuccess] = useState(false);
+
+    const actionsAfterTx = (onSuccess?: () => void) => {
+        setSuccess(true);
+        new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
+        onSuccess ? onSuccess() : window.location.reload();
+    };
     
     async function sendContractWriteAsyncTx(params: Params) {
         if (!chain?.id) {
@@ -58,6 +64,13 @@ export function wagmiWriteToContract() {
             // Append referral tag to the encoded data
             const dataWithReferral = `${encodedData}${referralTag}`;
 
+            const { onBlockConfirmation, blockConfirmations } = {
+                onBlockConfirmation: (res: any) => {
+                    console.log("block confirm", res);
+                },
+                blockConfirmations: 1
+            }
+
             async function writeWithParams() {
                 try {
                     // First estimate the gas needed
@@ -67,8 +80,8 @@ export function wagmiWriteToContract() {
                         value: params.value,
                     })
                     
-                    // Add 15% buffer to the estimated gas
-                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.15));
+                    // Add 10% buffer to the estimated gas
+                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.1));
                     
                     // Use sendTransaction for full control over transaction data
                     return wagmiSendTransaction.sendTransactionAsync({
@@ -79,6 +92,7 @@ export function wagmiWriteToContract() {
                     });
                 } catch (error) {
                     // If gas estimation fails, fallback to default behavior
+                    // this error pops up and needs to be handled externally
                     return wagmiSendTransaction.sendTransactionAsync({
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
@@ -87,27 +101,21 @@ export function wagmiWriteToContract() {
                 }
             }
 
-            const { onBlockConfirmation, blockConfirmations } = {
-                onBlockConfirmation: (res: any) => {
-                    console.log("block confirm", res);
-                },
-                blockConfirmations: 1
-            }
-            
-            const writeTxResult = await writeTx(writeWithParams, { blockConfirmations, onBlockConfirmation });
+            const writeTxHash = await writeTx(writeWithParams, { blockConfirmations, onBlockConfirmation });
 
             // Report to Divvi
-            await submitReferral({
-                txHash: writeTxResult!,
-                chainId,
-            })
+            await submitReferral({ txHash: writeTxHash!, chainId })
             
-            setSuccess(true);
-            new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
-            params.onSuccess ? params.onSuccess() : window.location.reload();
-            return writeTxResult;
-        } catch (error) {
-            console.log("user denied transaction", error);
+            actionsAfterTx(params.onSuccess);
+
+        } catch (error: any) {
+            if (error.toString().includes('-32019')) {
+                console.log("Block range error during gas estimation, but transaction may have succeeded");
+                actionsAfterTx(params.onSuccess);
+            }
+            else {
+                console.log("user denied transaction", error);
+            }
         } finally {
             setIsMining(false);
         }
