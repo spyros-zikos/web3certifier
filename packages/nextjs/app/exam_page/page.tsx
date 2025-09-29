@@ -178,7 +178,7 @@ const ExamPage = () => {
             <StaticExamPage exam={exam} message="This exam is ongoing! The certifier cannot submit." />
             // Under Correction
             : getExamStage() === ExamStage.Certifier_UnderCorrection ?
-            <CertifierUnderCorrection id={id} exam={exam} />
+            <CertifierUnderCorrection id={id} exam={exam} chain={chain} />
             // Cancelled
             : getExamStage() === ExamStage.Certifier_Cancelled ?
             <StaticExamPage exam={exam} message="The exam has been cancelled!" />

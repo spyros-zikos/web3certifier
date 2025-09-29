@@ -6,16 +6,17 @@ import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import Cookies from 'js-cookie';
 import { getAnswersAsNumberArrayFromString, getVariablesFromPasswordCookie } from '../helperFunctions/PasswordManagement';
+import { getUserAnswersFromLocalStorage, saveUserAnswersToLocalStorage } from '~~/utils/handleLocalStorage';
 
 
 const Question = ({
-        questionNumber, exam, showAnswers, answers, setAnswers
+        questionNumber, exam, showAnswers
     } : {
-        questionNumber: number, exam: Exam | undefined, showAnswers: boolean, answers?: bigint[], setAnswers?: any
+        questionNumber: number, exam: Exam | undefined, showAnswers: boolean
     }) => {
     const [question, answer1, answer2, answer3, answer4] = exam?.questions[questionNumber-1].split(answersSeparator) || ["", "", "", "", ""];
     
-    const { address, chain, isConnected } = useNonUndefinedAccount();
+    const { address, chain } = useNonUndefinedAccount();
 
     // Get getUserStringAnswer
     const getUserStringAnswer: string | undefined = wagmiReadFromContract({
@@ -41,10 +42,15 @@ const Question = ({
 
     function handleSelectAnswer(answerId: number, questionNumber: number) {
         if (!showAnswers) return;
+        // check the radio button
         (document.getElementById(`answer${answerId}-${questionNumber}`)! as HTMLInputElement).checked = true;
-        setAnswers([
-            ...answers!.slice(0, questionNumber-1), BigInt(answerId), ...answers!.slice(questionNumber),
-        ]);
+        // get previous answers from local memory
+        const answers = getUserAnswersFromLocalStorage(chain, exam);
+        // console.log("answers", answers);
+
+        const newAnswers = [...answers!.slice(0, questionNumber-1), answerId, ...answers!.slice(questionNumber)];
+        saveUserAnswersToLocalStorage(chain, exam, newAnswers);
+        // console.log("answers after", getUserAnswersFromLocalStorage(chain, exam));
     }
 
     // if user can submit or correct, show the answers that he selects
@@ -99,7 +105,7 @@ const Question = ({
                     onClick={() => handleSelectAnswer(1, questionNumber)}
                 >
                     <Flex align="flex-start">
-                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer1-${questionNumber}`} value="1" checked={answers![questionNumber-1] === BigInt(1)} />}
+                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer1-${questionNumber}`} value="1" checked={getUserAnswersFromLocalStorage(chain, exam)[questionNumber-1] === 1} />}
                         <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer1}</Text>
                     </Flex>
                 </Text>
@@ -111,7 +117,7 @@ const Question = ({
                     onClick={() => handleSelectAnswer(2, questionNumber)}
                 >
                     <Flex align="flex-start">
-                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer2-${questionNumber}`} value="2" checked={answers![questionNumber-1] === BigInt(2)} />}
+                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer2-${questionNumber}`} value="2" checked={getUserAnswersFromLocalStorage(chain, exam)[questionNumber-1] === 2} />}
                         <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer2}</Text>
                     </Flex>
                 </Text>
@@ -123,7 +129,7 @@ const Question = ({
                     onClick={() => handleSelectAnswer(3, questionNumber)}
                 >
                     <Flex align="flex-start">
-                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer3-${questionNumber}`} value="3" checked={answers![questionNumber-1] === BigInt(3)} />}
+                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer3-${questionNumber}`} value="3" checked={getUserAnswersFromLocalStorage(chain, exam)[questionNumber-1] === 3} />}
                         <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer3}</Text>
                     </Flex>
                 </Text>
@@ -135,7 +141,7 @@ const Question = ({
                     onClick={() => handleSelectAnswer(4, questionNumber)}
                 >
                     <Flex align="flex-start">
-                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer4-${questionNumber}`} value="4" checked={answers![questionNumber-1] === BigInt(4)} />}
+                        {showAnswers && <input className="mt-[11px] inline-block" type="radio" name={`question-${questionNumber}`} id={`answer4-${questionNumber}`} value="4" checked={getUserAnswersFromLocalStorage(chain, exam)[questionNumber-1] === 4} />}
                         <Text className="p-1 m-0 ml-2 pr-8 block-inline w-full">{answer4}</Text>
                     </Flex>
                 </Text>

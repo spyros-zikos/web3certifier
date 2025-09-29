@@ -103,8 +103,10 @@ export function wagmiWriteToContract() {
 
             const writeTxHash = await writeTx(writeWithParams, { blockConfirmations, onBlockConfirmation });
 
-            // Report to Divvi
-            await submitReferral({ txHash: writeTxHash!, chainId })
+            if (chainId === 42220) {
+                // Report to Divvi
+                await submitReferral({ txHash: writeTxHash!, chainId })
+            }
             
             actionsAfterTx(params.onSuccess);
 

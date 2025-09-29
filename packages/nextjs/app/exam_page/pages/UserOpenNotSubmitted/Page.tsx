@@ -18,6 +18,7 @@ import { periodicActions } from "./functions/periodicActions";
 import removeExcessTime from "./functions/removeExcessTime";
 import getCurrentTimestamp from "./functions/getCurrentTimestamp";
 import { notification } from "~~/utils/scaffold-eth";
+import { getUserAnswersFromLocalStorage } from "~~/utils/handleLocalStorage";
 
 
 const Page = ({
@@ -31,7 +32,7 @@ const Page = ({
     //////////////////////////////////////////////////////////////*/
 
     const [questionNumber, setQuestionNumber] = useState<number>(0);
-    const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
+    // const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
@@ -71,6 +72,9 @@ const Page = ({
     // Cookies
     const passwordCookie = getPasswordCookieName(chain, id, address);
     const startTimeCookie = getStartTimeCookieName(chain, id);
+    // answers
+    const answers = getUserAnswersFromLocalStorage(chain, exam);
+    console.log("answers", answers);
     // hash to submit and password to store in cookie
     const [randomKey, __] = useState(Math.floor((10**keyLength) * Math.random()));
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
@@ -153,19 +157,16 @@ const Page = ({
             {/* Questions */}
             {questionNumber > 0 ?
                 // if user has started the exam
-                <Question questionNumber={questionNumber} exam={exam} showAnswers={timeEnded ? false : true} answers={answers} setAnswers={setAnswers} />
+                <Question questionNumber={questionNumber} exam={exam} showAnswers={timeEnded ? false : true} />
                 :
                 // if user has not started the exam
                 <ExamStartWarningBox
                     onClickStart={
-                        isVerifiedOnCelo ?
                         () => {
                             const startTime = getCurrentTimestamp(); 
                             Cookies.set(startTimeCookie, startTime.toString(), { expires: cookieExpirationTime });
                             setQuestionNumber(1);
                         }
-                        :
-                        () => notification.error("GoodDollar verified account required!")
                     }
                 />
             }

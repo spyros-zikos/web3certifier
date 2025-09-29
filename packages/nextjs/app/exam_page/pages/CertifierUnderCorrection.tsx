@@ -3,25 +3,25 @@ import { IndexSelector } from "~~/components/IndexSelector";
 import { handleCorrectExam } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser } from "../_components";
-
+import { getUserAnswersFromLocalStorage } from "~~/utils/handleLocalStorage";
 
 const CertifierUnderCorrection = ({
-    id, exam
+    id, exam, chain
 }: {
-    id: bigint, exam: Exam | undefined
+    id: bigint, exam: Exam | undefined, chain: any
 }) => {
     const [questionNumber, setQuestionNumber] = useState<number>(1);
-    const [answers, setAnswers] = useState<bigint[]>([BigInt(0)]);
 
     const { writeContractAsync: correctExam } = wagmiWriteToContract();
     const onClickSubmitAnswersButton = () => {
-        handleCorrectExam(correctExam, id, answers.map(answer => answer.toString()).reduce((a, b) => a + b, ""))
+        const answers = getUserAnswersFromLocalStorage(chain, exam);
+        handleCorrectExam(correctExam, id, answers.map((answer: number) => answer.toString()).reduce((a: any, b: any) => a + b, ""))
     }
 
     return (
         <>
             {/* Questions */}
-            <Question questionNumber={questionNumber} exam={exam} showAnswers={true} answers={answers} setAnswers={setAnswers} />
+            <Question questionNumber={questionNumber} exam={exam} showAnswers={true} />
 
             <IndexSelector
                 setIndex={setQuestionNumber}
