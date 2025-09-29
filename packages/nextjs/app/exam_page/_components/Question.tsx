@@ -46,11 +46,9 @@ const Question = ({
         (document.getElementById(`answer${answerId}-${questionNumber}`)! as HTMLInputElement).checked = true;
         // get previous answers from local memory
         const answers = getUserAnswersFromLocalStorage(chain, exam);
-        // console.log("answers", answers);
 
         const newAnswers = [...answers!.slice(0, questionNumber-1), answerId, ...answers!.slice(questionNumber)];
         saveUserAnswersToLocalStorage(chain, exam, newAnswers);
-        // console.log("answers after", getUserAnswersFromLocalStorage(chain, exam));
     }
 
     // if user can submit or correct, show the answers that he selects

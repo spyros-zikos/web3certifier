@@ -72,9 +72,8 @@ const Page = ({
     // Cookies
     const passwordCookie = getPasswordCookieName(chain, id, address);
     const startTimeCookie = getStartTimeCookieName(chain, id);
-    // answers
+    // answers from local storage
     const answers = getUserAnswersFromLocalStorage(chain, exam);
-    console.log("answers", answers);
     // hash to submit and password to store in cookie
     const [randomKey, __] = useState(Math.floor((10**keyLength) * Math.random()));
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
