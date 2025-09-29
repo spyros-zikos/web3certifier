@@ -81,10 +81,9 @@ export function wagmiWriteToContract() {
                         value: params.value,
                         chainId: getChainFromChainNumber(chainId).id
                     })
-                    console.log("Estimated gas:", estimatedGas)
                     
-                    // Add 20% buffer to the estimated gas
-                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.2));
+                    // Add 50% buffer to the estimated gas
+                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.5));
                     
                     // Use sendTransaction for full control over transaction data
                     return wagmiSendTransaction.sendTransactionAsync({
@@ -92,6 +91,7 @@ export function wagmiWriteToContract() {
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
                         gas: gasWithBuffer,
+                        chainId: getChainFromChainNumber(chainId).id
                     });
                 } catch (error) {
                     // If gas estimation fails, fallback to default behavior
@@ -100,6 +100,7 @@ export function wagmiWriteToContract() {
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
+                        chainId: getChainFromChainNumber(chainId).id
                     });
                 }
             }
