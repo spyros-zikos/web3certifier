@@ -17,6 +17,7 @@ import QuestionTimer from "./components/QuestionTimer";
 import { periodicActions } from "./functions/periodicActions";
 import removeExcessTime from "./functions/removeExcessTime";
 import getCurrentTimestamp from "./functions/getCurrentTimestamp";
+import { notification } from "~~/utils/scaffold-eth";
 
 
 const Page = ({
@@ -153,11 +154,16 @@ const Page = ({
                 :
                 // if user has not started the exam
                 <ExamStartWarningBox
-                    onClickStart={() => {
-                        const startTime = getCurrentTimestamp(); 
-                        Cookies.set(startTimeCookie, startTime.toString(), { expires: cookieExpirationTime });
-                        setQuestionNumber(1);
-                    }}
+                    onClickStart={
+                        isVerifiedOnCelo ?
+                        () => {
+                            const startTime = getCurrentTimestamp(); 
+                            Cookies.set(startTimeCookie, startTime.toString(), { expires: cookieExpirationTime });
+                            setQuestionNumber(1);
+                        }
+                        :
+                        () => notification.error("GoodDollar verified account required!")
+                    }
                 />
             }
 
