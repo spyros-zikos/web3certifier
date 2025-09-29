@@ -139,7 +139,7 @@ const ExamPage = () => {
             { ////// User //////
             // Open
             getExamStage() === ExamStage.User_Open_NotSubmitted ?
-            <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} userStatus={userStatusNum} />
+            <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} />
             : getExamStage() === ExamStage.User_Open_Submitted ?
             <StaticExamPage exam={exam} message={
                 <>

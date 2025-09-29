@@ -21,33 +21,20 @@ import { notification } from "~~/utils/scaffold-eth";
 
 
 const Page = ({
-    id, exam, address, chain, userStatus
+    id, exam, address, chain
 }: {
-    id: bigint, exam: Exam | undefined, address: string | undefined, chain: any, userStatus: number
+    id: bigint, exam: Exam | undefined, address: string | undefined, chain: any
 }) => {
+
+    /*//////////////////////////////////////////////////////////////
+                               USE_STATE
+    //////////////////////////////////////////////////////////////*/
+
     const [questionNumber, setQuestionNumber] = useState<number>(0);
     const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
-    const [_, setTimeNow] = useState(Date.now());  // to check if page needs reload every 1 second
-    
-    const searchParams = useSearchParams();
-    const inviter = searchParams.get("inviter");
-    // For identity sdk
-    const publicClient = usePublicClient();
-    const { data: walletClient } = useWalletClient();
-
-    const passwordCookie = getPasswordCookieName(chain, id, address);
-    const startTimeCookie = getStartTimeCookieName(chain, id);
-
-    // Faucet
-    useEffect(() => {
-        // call the submit_answers faucet api
-        fetch(`/api/exam_page/user/submit_answers/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
-        .then(response => response.json())
-        .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
-    }, [address, id, chain?.id])
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -71,24 +58,58 @@ const Page = ({
     }).data
     : 0;
 
-    const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
+    /*//////////////////////////////////////////////////////////////
+                               VARIABLES
+    //////////////////////////////////////////////////////////////*/
+
+    // Get inviter address
+    const searchParams = useSearchParams();
+    const inviter = searchParams.get("inviter");
+    // For identity sdk
+    const publicClient = usePublicClient();
+    const { data: walletClient } = useWalletClient();
+    // Cookies
+    const passwordCookie = getPasswordCookieName(chain, id, address);
+    const startTimeCookie = getStartTimeCookieName(chain, id);
+    // hash to submit and password to store in cookie
     const [randomKey, __] = useState(Math.floor((10**keyLength) * Math.random()));
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
+    // identity verification
+    const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
+    // engagement rewards
     const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
-
-    
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTimeNow(Date.now());
-            if (getUserStatusStr(userStatus) == "Submitted")
-                window.location.reload();
-        }, 1000); // update every second
-        
-        return () => clearInterval(interval); // cleanup
-    }, []);
-    
-    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
+    // submit answers hook
+    const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+
+    /*//////////////////////////////////////////////////////////////
+                              USE_EFFECT
+    //////////////////////////////////////////////////////////////*/
+
+    // Check if user can claim from faucet
+    useEffect(() => {
+        // call the submit_answers faucet api
+        fetch(`/api/exam_page/user/submit_answers/faucet/user_has_claimed?chainId=${chain?.id}&examId=${id}&user=${address}`)
+        .then(response => response.json())
+        .then(data => setUserHasAlreadyClaimedFaucetFunds(data))
+    }, [address, id, chain?.id])
+
+    // Periodic actions that are time dependent
+    useEffect(() => {
+        periodicActions(
+            startTime,
+            setStartTime,
+            questionNumber,
+            setTimeEnded,
+            setQuestionNumber,
+            exam?.questions?.length,
+            startTimeCookie
+        );
+    }, [getCurrentTimestamp()]);
+
+    /*//////////////////////////////////////////////////////////////
+                               FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     const onClickSubmitAnswersButton = async () => {
         const currentBlock = await engagementRewards?.getCurrentBlockNumber();
@@ -117,30 +138,12 @@ const Page = ({
             console.log(error);
         }
     }
-    
-    useEffect(() => {
-        periodicActions(
-            startTime,
-            setStartTime,
-            questionNumber,
-            setTimeEnded,
-            setQuestionNumber,
-            exam?.questions?.length,
-            startTimeCookie
-        );
-    }, [getCurrentTimestamp()]);
 
     /// if a user clicks next before the timer of the question goes to 0, the remaining time must be discarded
     /// the way this is done is by making the startTime be sooner by the remaining time
     const onClickNextQuestion = (nextQuestionNumber: number) => {
         // remove excess time
-        removeExcessTime(
-            startTime,
-            setStartTime,
-            questionNumber,
-            startTimeCookie
-        );
-
+        removeExcessTime(startTime, setStartTime, questionNumber, startTimeCookie);
         // do the default action that changes the questionNumber
         setQuestionNumber(nextQuestionNumber);
     }
