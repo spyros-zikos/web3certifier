@@ -7,6 +7,7 @@ import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { encodeFunctionData } from 'viem'
 import { estimateGas } from '@wagmi/core'
 import { config } from "~~/utils/wagmi/config";
+import { getChainFromChainNumber } from "~~/utils/wagmi/getChainFromChainNumber";
 
 interface Params {
     contractName?: string;
@@ -78,6 +79,7 @@ export function wagmiWriteToContract() {
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
+                        chainId: getChainFromChainNumber(chainId).id
                     })
                     
                     // Add 10% buffer to the estimated gas
