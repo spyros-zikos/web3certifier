@@ -79,6 +79,7 @@ export function wagmiWriteToContract() {
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
+                        // blockTag: 'latest',
                         chainId: getChainFromChainNumber(chainId).id
                     })
                     
@@ -91,7 +92,7 @@ export function wagmiWriteToContract() {
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
                         gas: gasWithBuffer,
-                        chainId: getChainFromChainNumber(chainId).id
+                        // chainId: getChainFromChainNumber(chainId).id
                     });
                 } catch (error) {
                     // If gas estimation fails, fallback to default behavior
@@ -100,7 +101,8 @@ export function wagmiWriteToContract() {
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
-                        chainId: getChainFromChainNumber(chainId).id
+                        // chainId: getChainFromChainNumber(chainId).id,
+                        gas: BigInt(300000) // needs testing
                     });
                 }
             }
