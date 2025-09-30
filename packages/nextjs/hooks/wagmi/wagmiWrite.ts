@@ -102,7 +102,7 @@ export function wagmiWriteToContract() {
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
                         // chainId: getChainFromChainNumber(chainId).id,
-                        gas: BigInt(300000) // needs testing
+                        gas: BigInt(1000000) // needs testing
                     });
                 }
             }
