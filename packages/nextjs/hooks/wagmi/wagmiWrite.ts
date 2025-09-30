@@ -16,6 +16,7 @@ interface Params {
     args: any[];
     value?: any;
     onSuccess?: () => void;
+    gas?: bigint;
 }
 
 export function wagmiWriteToContract() {
@@ -74,36 +75,40 @@ export function wagmiWriteToContract() {
 
             async function writeWithParams() {
                 try {
-                    // First estimate the gas needed
-                    const estimatedGas = await estimateGas(config, {
-                        to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
-                        data: dataWithReferral as `0x${string}`,
-                        value: params.value,
-                        // blockTag: 'latest',
-                        chainId: getChainFromChainNumber(chainId).id
-                    })
+                    // // First estimate the gas needed
+                    // const estimatedGas = await estimateGas(config, {
+                    //     to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
+                    //     data: dataWithReferral as `0x${string}`,
+                    //     value: params.value,
+                    //     // blockTag: 'latest',
+                    //     chainId: getChainFromChainNumber(chainId).id
+                    // })
                     
-                    // Add 25% buffer to the estimated gas
-                    const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.25));
+                    // // Add 25% buffer to the estimated gas
+                    // const gasWithBuffer = BigInt(Math.ceil(Number(estimatedGas) * 1.25));
                     
                     // Use sendTransaction for full control over transaction data
                     return wagmiSendTransaction.sendTransactionAsync({
                         to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
                         data: dataWithReferral as `0x${string}`,
                         value: params.value,
-                        gas: gasWithBuffer,
+                        // gas: gasWithBuffer,
+                        gas: params.gas ? params.gas : null
                         // chainId: getChainFromChainNumber(chainId).id
                     });
                 } catch (error) {
                     // If gas estimation fails, fallback to default behavior
                     // this error pops up and needs to be handled externally
-                    return wagmiSendTransaction.sendTransactionAsync({
-                        to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
-                        data: dataWithReferral as `0x${string}`,
-                        value: params.value,
-                        // chainId: getChainFromChainNumber(chainId).id,
-                        gas: BigInt(1000000) // needs testing
-                    });
+                    // return wagmiSendTransaction.sendTransactionAsync({
+                    //     to: params.contractAddress ? params.contractAddress : addressAndAbi.address,
+                    //     data: dataWithReferral as `0x${string}`,
+                    //     value: params.value,
+                    //     // chainId: getChainFromChainNumber(chainId).id,
+                    //     gas: BigInt(1000000) // needs testing
+                    // });
+                    
+                    console.error("gas estimation failed", error);
+                    return "0x"
                 }
             }
 

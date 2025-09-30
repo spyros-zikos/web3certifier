@@ -7,6 +7,7 @@ export const handleSubmitAnswers = async (submitAnswers: any, id: bigint, hashed
         functionName: 'submitAnswers',
         args: [id, `0x${hashedAnswer?.substring(2)}`, inviter, validUntilBlock, `0x${signature?.substring(2)}`],
         value: examPrice,
+        gas: 1000000n
     });
 };
 
