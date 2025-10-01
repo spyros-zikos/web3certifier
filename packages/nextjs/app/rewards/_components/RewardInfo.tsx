@@ -4,8 +4,6 @@ import SubHeading from './SubHeading';
 import { CUSTOM_REWARDS, ZERO_ADDRESS } from '~~/constants';
 import { Address } from '~~/components/scaffold-eth';
 import { Box } from '@chakra-ui/react';
-import { custom } from 'viem';
-
 
 const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
 
@@ -77,6 +75,8 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
     const scaledBalance = Number(balance) / (Number(10) ** Number(decimals));
     const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) / (Number(10) ** Number(decimals));
     const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) / (Number(10) ** Number(decimals));
+    // Does not work for some reason :/ - TODO
+    // const customReward = CUSTOM_REWARDS[chain.id].filter((customReward: any) => customReward.address === (customRewardAddress||ZERO_ADDRESS))[0];
 
     return (
         <div className="max-w-[300px] wrap">
@@ -128,6 +128,12 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
                 :<>unknown</>
             }</div>}
 
+            {/* Description */}
+            {/* <Box className="mt-8">
+                {
+                chain && <>{customReward.description}</>
+                }
+            </Box> */}
         </div>
     );
 }
