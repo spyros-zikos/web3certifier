@@ -82,7 +82,7 @@ export async function POST(request: Request) {
         })
 
         // 5. Send funds to user
-        return await sendFundsToUser(chainId, user, insertionResult.insertedId.toString(), "0.00001", "0.01");
+        return await sendFundsToUser(chainId, user, insertionResult.insertedId.toString(), "0.00001", "0.026");
     }
     catch (error: any) {
         console.error("Failed to fund user:", error);
