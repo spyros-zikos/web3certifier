@@ -13,3 +13,4 @@ export { default as Confetti } from "./Confetti";
 export { default as ClaimCertificateFaucet } from "./ClaimCertificateFaucet";
 export { default as SubmitAnswersFaucet } from "./SubmitAnswersFaucet";
 export { default as InviteLinkMessage } from "./InviteLinkMessage";
+export { default as JoinDiscordMessage } from "./JoinDiscordMessage";

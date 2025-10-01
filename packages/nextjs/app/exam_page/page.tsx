@@ -11,7 +11,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { SUPPORTED_NETWORKS, ZERO_ADDRESS } from "~~/constants";
 import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
-import { DropDowns, ImageNameDescription, InviteLinkMessage, ManageRewardsLink, Timer } from "./_components";
+import { DropDowns, ImageNameDescription, InviteLinkMessage, JoinDiscordMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 import Link from "next/link";
@@ -143,9 +143,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Open_Submitted ?
             <StaticExamPage exam={exam} message={
                 <>
-                    <Box display="inline">Your answers are submitted! Join our </Box>
-                    <Box display="inline" textDecoration={"underline"}><Link href="https://discord.gg/4rXWFNGmDJ">Discord server</Link></Box>
-                    <Box display="inline"> to get notified when you can claim your reward!</Box>
+                    <Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage />
                 </>}
             />
             // Under Correction

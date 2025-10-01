@@ -10,6 +10,7 @@ export const grantReceiverAddress = "0x637365C8697C63186dC4759bd0F10af9B32D3c1A"
 export const getPasswordCookieName = (chain: any, id: bigint, address?: string) => `w3c.${chain?.id}.${id}.${address}`;
 export const getStartTimeCookieName = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.startTime`;
 export const getLocalStorageAnswersKey = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.answers`;
+export const DISCORD_INVITE_LINK = "https://discord.gg/4rXWFNGmDJ";
 
 export interface ContractsConfig {
     [chainId: number]: {
