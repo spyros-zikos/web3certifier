@@ -10,7 +10,7 @@ import { Box } from "@chakra-ui/react";
 import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getPasswordCookieName, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import { useEngagementRewards, DEV_REWARDS_CONTRACT, REWARDS_CONTRACT } from '@goodsdks/engagement-sdk'
 import { useSearchParams } from "next/navigation";
-import { usePublicClient, useWalletClient } from "wagmi";
+import { usePublicClient, useWalletClient, useBlockNumber } from "wagmi";
 import { getUserStatusStr } from "~~/utils/StatusStr";
 import VerifyAccountMessage from "./components/VerifyAccountMessage";
 import QuestionTimer from "./components/QuestionTimer";
@@ -84,6 +84,8 @@ const Page = ({
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
     // submit answers hook
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
+    // block number
+    const blockNumber = useBlockNumber({ watch: true, cacheTime: 1000, query: {refetchInterval: 1000, gcTime: 1000} });
 
     /*//////////////////////////////////////////////////////////////
                               USE_EFFECT
@@ -115,8 +117,8 @@ const Page = ({
     //////////////////////////////////////////////////////////////*/
 
     const onClickSubmitAnswersButton = async () => {
-        const currentBlock = await engagementRewards?.getCurrentBlockNumber();
-        const validUntilBlock = (currentBlock || 1000000000n) + 50n // Valid for 10 blocks
+        // const currentBlock = await engagementRewards?.getCurrentBlockNumber();
+        const validUntilBlock = (blockNumber.data || 1000000000n) + 50n // Valid for 10 blocks
 
         try {
             let signature = "0x";
