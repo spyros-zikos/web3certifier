@@ -8,7 +8,7 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
     const handleFaucet = async () => {
         if (!id) return;
         if ( !user || !chainId ) {
-            setStatus(403);
+            setStatus(406);
             return;
         }
 
@@ -42,7 +42,8 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
                 status === 200 ? <>Claimed funds successfully!</> :
                 status === 401 ? <>Not verified</> :
                 status === 402 ? <>Already claimed</> :
-                status === 403 ? <>Connect your wallet</> :
+                status === 403 ? <>Exam is not featured</> :
+                status === 406 ? <>Connect your wallet</> :
                 <>Faucet failed</>}
             </Box>
         </Box>

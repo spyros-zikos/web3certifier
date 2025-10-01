@@ -10,9 +10,7 @@ export async function GET(request: Request) {
         }
 
         const { db } = await connectToDatabase();
-        const collectionName = "featured_exams";
-        const examIdsRecord = await db.collection(collectionName).findOne({ chainId });
-        const examIds = examIdsRecord ? examIdsRecord.examIds : [];
+        const examIds = await getFeaturedExams(chainId, db);
 
         return new Response(JSON.stringify(examIds), {
             status: 200,
@@ -32,4 +30,11 @@ export async function GET(request: Request) {
             }
         );
     }
+}
+
+export async function getFeaturedExams(chainId: number, db: any) {
+    const collectionName = "featured_exams";
+    const examIdsRecord = await db.collection(collectionName).findOne({ chainId });
+    const examIds = examIdsRecord ? examIdsRecord.examIds : "";
+    return examIds;
 }

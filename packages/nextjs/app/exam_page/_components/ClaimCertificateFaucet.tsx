@@ -8,7 +8,7 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
     const handleFaucet = async () => {
         if (!id) return;
         if ( !user || !chainId ) {
-            setStatus(403);
+            setStatus(406);
             return;
         }
 
@@ -41,7 +41,8 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
                 status === 200 ? <>Claimed funds successfully!</> :
                 status === 401 ? <>Status is not submitted</> :
                 status === 402 ? <>Already claimed</> :
-                status === 403 ? <>Connect your wallet</> :
+                status === 403 ? <>Exam is not featured</> :
+                status === 406 ? <>Connect your wallet</> :
                 <>Faucet failed</>}
             </Box>
         </Box>

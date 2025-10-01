@@ -1,12 +1,14 @@
 // 1. Checks if exam exists and is open
 // 2. Checks if user is verified
 // 3. Checks if user has alreay claimed by checking the database
-// 4. Stores the address of the user in the database
-// 5. Sends funds to user
+// 4. Checks if the exam is featured
+// 5. Stores the address of the user in the database
+// 6. Sends funds to user
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "~~/services/mongodb";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { sendFundsToUser } from "../../../helpers";
+import { getFeaturedExams } from "~~/app/api/explore_page/featured_exams/route";
 
 interface IFaucetRequestBody {
     chainId: number;
@@ -74,14 +76,22 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: "User has already claimed faucet funds" }, { status: 402 });
         }
 
-        // 4. Insert the document into the 'submit_answers_faucet' collection
+        // 4. Check if the exam is featured
+        const featuredExamIds = await getFeaturedExams(chainId, db);
+        const featuredExamIdsArray = featuredExamIds.split(",");
+        const isFeatured = featuredExamIdsArray.includes(examId.toString());
+        if (!isFeatured) {
+            return NextResponse.json({ message: "Exam is not featured" }, { status: 403 });
+        }
+
+        // 5. Insert the document into the 'submit_answers_faucet' collection
         const insertionResult = await db.collection("submit_answers_faucet").insertOne({
             chainId,
             examId,
             user,
         })
 
-        // 5. Send funds to user
+        // 6. Send funds to user
         return await sendFundsToUser(chainId, user, insertionResult.insertedId.toString(), "0.00001", "0.026");
     }
     catch (error: any) {
