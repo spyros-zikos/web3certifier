@@ -1,4 +1,5 @@
 import { connectToDatabase } from "~~/services/mongodb";
+import { getFeaturedExams } from "./getFeaturedExams";
 
 export async function GET(request: Request) {
     try {
@@ -30,11 +31,4 @@ export async function GET(request: Request) {
             }
         );
     }
-}
-
-export async function getFeaturedExams(chainId: number, db: any) {
-    const collectionName = "featured_exams";
-    const examIdsRecord = await db.collection(collectionName).findOne({ chainId });
-    const examIds = examIdsRecord ? examIdsRecord.examIds : "";
-    return examIds;
 }

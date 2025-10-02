@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "~~/services/mongodb";
 import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import { sendFundsToUser } from "../../../helpers";
-import { getFeaturedExams } from "~~/app/api/explore_page/featured_exams/route";
+import { getFeaturedExams } from "~~/app/api/explore_page/featured_exams/getFeaturedExams";
 
 interface IFaucetRequestBody {
     chainId: number;
