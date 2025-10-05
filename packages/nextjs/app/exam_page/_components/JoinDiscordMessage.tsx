@@ -8,7 +8,7 @@ const JoinDiscordMessage = () => {
     <>
         <Box display="inline">Join our </Box>
         <Box display="inline" textDecoration={"underline"}><Link href={DISCORD_INVITE_LINK}>Discord server</Link></Box>
-        <Box display="inline"> to get notified when you can claim your reward and to notified for upcoming exams!</Box>
+        <Box display="inline"> to get notified when you can claim your reward and for upcoming exams!</Box>
     </>
   )
 }
