@@ -6,8 +6,8 @@ export const examStage = (
     address: any,
     exam: Exam | undefined,
     userCanClaimReward: boolean,
-    chain: any,
-    id: bigint
+    rewardAmount: bigint,
+    totalRewardAmount: bigint,
 ) => {
     if (address === exam?.certifier) {
         // Open
@@ -37,7 +37,12 @@ export const examStage = (
             if (userStatus === "Not Submitted") return ExamStage.User_Corrected_NotSubmitted;
             else {
                 if (userStatus === "Succeeded") {
-                    if (userCanClaimReward) return ExamStage.User_Corrected_SucceededClaimReward;
+                    if (userCanClaimReward) {
+                        if (rewardAmount === BigInt(0))
+                            return ExamStage.User_Corrected_SucceededClaimReward_ZeroReward;
+                        if (rewardAmount > totalRewardAmount) return ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens;
+                        return ExamStage.User_Corrected_SucceededClaimReward;
+                    }
                     return ExamStage.User_Corrected_SucceededNoReward;
                 }
                 if (userStatus === "Failed") return ExamStage.User_Corrected_Failed;

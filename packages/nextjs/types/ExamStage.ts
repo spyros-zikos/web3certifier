@@ -1,4 +1,3 @@
-
 export enum ExamStage {
     // --- Start --- 
     Certifier_Open,
@@ -18,6 +17,8 @@ export enum ExamStage {
     Certifier_Corrected,
     User_Corrected_ClaimCertificate, // submit
     User_Corrected_SucceededClaimReward, // submit
+    User_Corrected_SucceededClaimReward_ZeroReward,
+    User_Corrected_SucceededClaimReward_NotEnoughTokens,
     User_Corrected_SucceededNoReward, // for successful participants
     User_Corrected_Failed, // for failed participants
     User_Corrected_NotSubmitted, // for non-participants
