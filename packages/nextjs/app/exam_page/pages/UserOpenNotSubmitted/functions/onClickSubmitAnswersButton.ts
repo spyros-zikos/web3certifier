@@ -15,11 +15,11 @@ const onClickSubmitAnswersButton = async (
     examPriceInEth: bigint,
     submitAnswers: any
 ) => {
-
     // answers from local storage
     const answers: number[] = getUserAnswersFromLocalStorage(chain, exam);
+    // random key
     const randomKey = Math.floor((10**keyLength) * Math.random());
-    // hash to submit and password to store in cookie
+    // get hash to submit and password to store in cookie
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
 
     // const currentBlock = await engagementRewards?.getCurrentBlockNumber();

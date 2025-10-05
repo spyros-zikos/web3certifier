@@ -12,12 +12,9 @@ import { Box } from "@chakra-ui/react";
 import { VerifyAccountMessage, QuestionTimer, ExamStartWarningBox } from "./components";
 // functions
 import Cookies from 'js-cookie';
-import { getHashAndPassword, keyLength } from "../../helperFunctions/PasswordManagement";
-import { handleSubmitAnswers } from "../../helperFunctions/Handlers";
 import periodicActions from "./functions/periodicActions";
 import removeExcessTime from "./functions/removeExcessTime";
 import getCurrentTimestamp from "./functions/getCurrentTimestamp";
-import { getUserAnswersFromLocalStorage } from "~~/utils/handleLocalStorage";
 // constants
 import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import onClickSubmitAnswersButton from "./functions/onClickSubmitAnswersButton";
