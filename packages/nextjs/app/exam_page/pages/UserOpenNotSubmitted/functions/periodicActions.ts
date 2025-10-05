@@ -1,9 +1,8 @@
 import { timePerQuestion } from "~~/constants";
-import { wagmiReadFromContractAsync } from "~~/utils/wagmi/wagmiReadAsync";
 import Cookies from 'js-cookie';
 import getCurrentTimestamp from "./getCurrentTimestamp";
 
-export const periodicActions = (
+const periodicActions = (
     startTime: number,
     setStartTime: any,
     questionNumber: number,
@@ -27,17 +26,6 @@ export const periodicActions = (
     // Check if the time has ended for the current question
     const boundedQuestionNumber = Math.min(unboundQuestionNumber, questionsLength || 1);
     if (startTime > 0) setQuestionNumber(Math.max(boundedQuestionNumber, questionNumber));
-
-    // // Also check if user has submitted and reload the page
-    // (async () => {
-    //     const userStatus = await wagmiReadFromContractAsync({
-    //         functionName: "getUserStatus",
-    //         args: [address, BigInt(id)],
-    //         chainId: chain?.id
-    //     }) as any;
-        
-    //     if (userStatus !== 0) {
-    //         window.location.reload();
-    //     }
-    // })();
 }
+
+export default periodicActions

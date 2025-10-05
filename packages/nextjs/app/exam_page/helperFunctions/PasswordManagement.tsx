@@ -4,7 +4,7 @@ export const keyLength = 10;
 
 
 export function getHashAndPassword(
-    answers: bigint[], randomKey: number, address?: string
+    answers: number[], randomKey: number, address?: string
 ): [
     hashedAnswer: string|undefined, userPassword: string
 ] {

@@ -21,8 +21,8 @@ export const handleLocalStorage = {
 };
 
 export function getUserAnswersFromLocalStorage(chain: any, exam: any) {
-    const emptyAnswers = Array(exam?.questions.length).fill(0);
-    const answers = handleLocalStorage.load(getLocalStorageAnswersKey(chain, exam?.id || BigInt(-1)));
+    const emptyAnswers: number[] = Array(exam?.questions.length).fill(0);
+    const answers: number[] = handleLocalStorage.load(getLocalStorageAnswersKey(chain, exam?.id || BigInt(-1)));
     if (!answers) {
         handleLocalStorage.save(getLocalStorageAnswersKey(chain, exam?.id || BigInt(-1)), emptyAnswers);
         return emptyAnswers;
