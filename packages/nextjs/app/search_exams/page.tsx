@@ -66,15 +66,19 @@ const SearchExamsPage: React.FC = () => {
     }
 
     // exam ids to show
-    const examIdsToShow = showMyExams ? userAndCertifierExamIds || [] : allExamIds;
-
+    let examIdsToShow: bigint[] = [];
+    try{
+    examIdsToShow = showMyExams ? userAndCertifierExamIds || [] : allExamIds;
+    } catch (error) {
+        console.log(error);
+    }
     // last page
     const lastPage = examIdsToShow ? Math.ceil(examIdsToShow.length / examsPerPage) : 0;
 
     // exam ids of the page
     const startIndex = (page - 1) * examsPerPage;
     const endIndex = startIndex + examsPerPage;
-    const examsIdsOfPage = examIdsToShow ? examIdsToShow?.slice(startIndex, endIndex) : [];
+    const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
 
     if (!chain || !chain.id || !Object.values(SUPPORTED_NETWORKS).includes(chain?.id))
         return (
