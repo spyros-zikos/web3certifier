@@ -74,7 +74,7 @@ const SearchExamsPage: React.FC = () => {
     // exam ids of the page
     const startIndex = (page - 1) * examsPerPage;
     const endIndex = startIndex + examsPerPage;
-    const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
+    const examsIdsOfPage = examIdsToShow ? examIdsToShow?.slice(startIndex, endIndex) : [];
 
     if (!chain || !chain.id || !Object.values(SUPPORTED_NETWORKS).includes(chain?.id))
         return (
