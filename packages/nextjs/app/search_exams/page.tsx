@@ -60,7 +60,7 @@ const SearchExamsPage: React.FC = () => {
     // Get only the exams that are selected in the showList
     // If the showList is empty, show all the exams
     const allExamIds = [];
-    for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > -1; i--) {
+    for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > BigInt(-1); i--) {
         if (featuredExamIds.length && !featuredExamIds.includes(i)) continue
         allExamIds.push(BigInt(i));
     }
