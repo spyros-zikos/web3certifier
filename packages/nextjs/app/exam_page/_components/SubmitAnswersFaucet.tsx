@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Box } from '@chakra-ui/react'
+import FaucetButton from './FaucetButton';
 
 const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string | undefined}) => {
     const initialStatus = 1000;
     const [status, setStatus] = useState(initialStatus);
     
-    const handleFaucet = async () => {
+    const handleClaimFaucet = async () => {
         if (!id) return;
         if ( !user || !chainId ) {
             setStatus(406);
@@ -28,24 +29,20 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
     }
 
     return (
-        <Box 
-            className="mt-2 ml-[50%] w-[50%]"
-            textDecoration={status === initialStatus ? "underline" : "none"}
-            display="flex"
-            justifyContent="center"
-            color="lighterLighterBlack"
-            onClick={status === initialStatus ? handleFaucet : undefined}
-            cursor={status === initialStatus ? "pointer" : "default"}
-        >
-            <Box>
-                {status === initialStatus ? <>Get funds to cover gas fees</> :
-                status === 200 ? <>Claimed funds successfully!</> :
-                status === 401 ? <>Not verified</> :
-                status === 402 ? <>Already claimed</> :
-                status === 403 ? <>Exam is not featured</> :
-                status === 406 ? <>Connect your wallet</> :
-                <>Faucet failed</>}
-            </Box>
+        <Box display={"flex"} justifyContent="right">
+            <FaucetButton
+                message={
+                    status === initialStatus ? "Get funds to cover gas fees" :
+                    status === 200 ? "Claimed funds successfully!" :
+                    status === 401 ? "Not verified" :
+                    status === 402 ? "Already claimed" :
+                    status === 403 ? "Exam is not featured" :
+                    status === 406 ? "Connect your wallet" :
+                    "Faucet failed"
+                }
+                isInitialStatus={status===initialStatus}
+                handleClaimFaucet={handleClaimFaucet}
+            />
         </Box>
     )
 }
