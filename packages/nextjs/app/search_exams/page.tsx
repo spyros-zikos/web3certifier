@@ -75,10 +75,18 @@ const SearchExamsPage: React.FC = () => {
     // last page
     const lastPage = examIdsToShow ? Math.ceil(examIdsToShow.length / examsPerPage) : 0;
 
+    const customSliceFunction = (list: bigint[], startIndex: number, endIndex: number) => {
+        const slicedList = [];
+        for (let i = startIndex; i < endIndex; i++) {
+            if (!list[i]) continue
+            slicedList.push(list[i]);
+        }
+        return slicedList;
+    }
     // exam ids of the page
     const startIndex = (page - 1) * examsPerPage;
     const endIndex = startIndex + examsPerPage;
-    const examsIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
+    const examsIdsOfPage = customSliceFunction(examIdsToShow||[], startIndex, endIndex);
 
     if (!chain || !chain.id || !Object.values(SUPPORTED_NETWORKS).includes(chain?.id))
         return (
