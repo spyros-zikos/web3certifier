@@ -21,6 +21,7 @@ const InviteLinkMessage = ({ id, address }: { id: bigint, address: string }) => 
                     {inviterLinkCopyButtonText}
                 </Button>
             </Box>
+            <Box mt={2} fontSize="xs" color={"grey"}>Currectly tested that it works with MetaMask and GoodWallet. To work you need to submit both transactions and not wait between them because the signature will expire.</Box>
         </Box>
     )
 }
