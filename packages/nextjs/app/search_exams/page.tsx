@@ -17,6 +17,7 @@ const SearchExamsPage: React.FC = () => {
     const [showMyExams, setShowMyExams] = useState(false);
     const [page, setPage] = useState<number>(1);
     const [featuredExamIds, setFeaturedExamIds] = useState<bigint[]>([]);
+    const [apiFetched, setApiFetched] = useState<boolean>(false);
     // parameter
     const examsPerPage = 9;
 
@@ -24,7 +25,7 @@ const SearchExamsPage: React.FC = () => {
         const fetchFeaturedExams = async () => {
             await fetch("api/explore_page/featured_exams?chainId=" + chain?.id)
             .then(response => response.json())
-            .then(data => setFeaturedExamIds(data.length > 0 ? data.split(",").map((id: string) => BigInt(id)) : []))
+            .then(data => {setFeaturedExamIds(data.length > 0 ? data.split(",").map((id: string) => BigInt(id)) : []); setApiFetched(true);})
             .catch(error => setFeaturedExamIds([]));
         };
         fetchFeaturedExams();
@@ -57,36 +58,28 @@ const SearchExamsPage: React.FC = () => {
     // union of userExamIds and certifierExamIds
     const userAndCertifierExamIds: bigint[] = Array.from(new Set([...(userExamIds || []), ...(certifierExamIds || [])])).reverse();
 
-    // Get only the exams that are selected in the showList
-    // If the showList is empty, show all the exams
-    const allExamIds = [];
-    for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > BigInt(-1); i--) {
-        if (featuredExamIds.length && !featuredExamIds.includes(i)) continue
-        allExamIds.push(BigInt(i));
-    }
-
-    // exam ids to show
-    let examIdsToShow: bigint[] = [];
-    try{
-    examIdsToShow = showMyExams ? userAndCertifierExamIds || [] : allExamIds;
-    } catch (error) {
-        console.log(error);
-    }
-    // last page
-    const lastPage = examIdsToShow ? Math.ceil(examIdsToShow.length / examsPerPage) : 0;
-
-    const customSliceFunction = (list: bigint[], startIndex: number, endIndex: number) => {
-        const slicedList = [];
-        for (let i = startIndex; i < endIndex; i++) {
-            if (!list[i]) continue
-            slicedList.push(list[i]);
+    const getExamIdsOfPage = () => {
+        // Get only the exams that are selected in the showList
+        // If the showList is empty, show all the exams
+        const allExamIds = [];
+        for (let i = (lastExamId ? lastExamId - BigInt(1) : -BigInt(1)); i > BigInt(-1); i--) {
+            if (featuredExamIds.length && !featuredExamIds.includes(i)) continue
+            allExamIds.push(BigInt(i));
         }
-        return slicedList;
+        
+        // exam ids to show
+        const examIdsToShow: bigint[] = showMyExams ? userAndCertifierExamIds || [] : allExamIds;
+        
+        // last page
+        const lastPage = examIdsToShow ? Math.ceil(examIdsToShow.length / examsPerPage) : 0;
+        
+        // exam ids of the page
+        const startIndex = (page - 1) * examsPerPage;
+        const endIndex = startIndex + examsPerPage;
+        const examIdsOfPage = examIdsToShow?.slice(startIndex, endIndex);
+        return {examIdsOfPage, lastPage};
     }
-    // exam ids of the page
-    const startIndex = (page - 1) * examsPerPage;
-    const endIndex = startIndex + examsPerPage;
-    const examsIdsOfPage = customSliceFunction(examIdsToShow||[], startIndex, endIndex);
+    const {examIdsOfPage, lastPage} = apiFetched ? getExamIdsOfPage() : {examIdsOfPage: [], lastPage: 0};
 
     if (!chain || !chain.id || !Object.values(SUPPORTED_NETWORKS).includes(chain?.id))
         return (
@@ -110,12 +103,13 @@ const SearchExamsPage: React.FC = () => {
                 <Box color="lighterLighterBlack" pb="3px" ml="8" onClick={() => document.location.href = "/exam_page/?id=" + (lastExamId-BigInt(1))}>Go to latest exam</Box>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 space-14">
-                {(examsIdsOfPage)?.map((id, i) => (
+                {(examIdsOfPage)?.map((id, i) => (
                     <ExamCard key={i}
                         id={BigInt(id)}
                         searchTerm={searchTerm}
                     />
                 ))}
+                {!apiFetched && <span className="loading loading-spinner loading-lg block"></span>}
             </div>
             {lastPage > 1 && 
             <>
