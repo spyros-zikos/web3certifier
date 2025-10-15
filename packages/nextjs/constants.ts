@@ -53,6 +53,11 @@ export const CUSTOM_REWARDS: CustomRewards = {
             description: "Rewards only users that have staked any amount of G$ tokens on Ubeswap. Users get 'reward amount per person' amount of G$ tokens.",
             address: "0x431732EC61d57039943A2Fdd1Ed0994b107Bf75b",
         },
+        {
+            name: "Uniform Distribution",
+            description: "The total reward amount is split evenly between all users that submitted. However, only users that passed the exam can claim it. Therefore, the reward of users that failed will remain in the pool. The amount of G$ tokens that each user gets is calculated as: 'reward amount per person' / 'reward amount per correct answer'. You should set the 'reward amount per person' to the total reward amount and the 'reward amount per correct answer' to the number of submissions.",
+            address: "0xB7d216158DF57DC2CE8b49aB603B34645A9Abe86",
+        }
     ]
 }
 
