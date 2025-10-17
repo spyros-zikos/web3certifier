@@ -18,8 +18,8 @@ const Home = () => {
               Web3 Certifier rewards users for learning about decentralized protocols while helping organizations 
               efficiently acquire and educate new users through knowledge verification and on-chain activity tracking.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mt-8">
-              <a href="/search_exams">
+            <div className="flex flex-col sm:flex-row md:flex-row gap-6 justify-center justify-items-center mt-8">
+              <a href="/search_exams" className="flex justify-center">
                 <button className="group bg-base-100 hover:bg-base-content text-base-200 font-bold py-5 px-10 rounded-full text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3">
                   Start Learning & Earning
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
