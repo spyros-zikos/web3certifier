@@ -226,7 +226,7 @@ const Home = () => {
             <div className="inline-block bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20">
               <h4 className="text-2xl font-bold mb-3">Example: Reward Stakers More</h4>
               <p className="text-white/80 mb-4">
-                An organization can set: "Users with 100+ tokens staked get 10 tokens reward, users with 10-99 staked get 5 tokens, and new users get 2 tokens."
+                An organization can set: &quot;Users with 100+ tokens staked get 10 tokens reward, users with 10-99 staked get 5 tokens, and new users get 2 tokens.&quot;
               </p>
               <p className="text-sm text-white/60">
                 This ensures you&apos;re rewarding your most engaged community members while still attracting new users.
