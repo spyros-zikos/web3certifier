@@ -1,4 +1,7 @@
-export const defaultImage = "https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/Qme6b3de9ATPVjNh5mhFPwHgJUmqKz8vqYx2LPj6j3uQTY/KNOWLEDGE.png";
+export const defaultImage = "https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/QmcbPPCv9VMjXVYmbtyuhtLycfDLWbtosD2mAQJwXGJdGg/Web3%20Certifier%20(1).png";
+// proof of knowledge: https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/Qme6b3de9ATPVjNh5mhFPwHgJUmqKz8vqYx2LPj6j3uQTY/KNOWLEDGE.png
+// book logo: https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/QmUpLXQSTS4DCPwju6Rz8Cfv1pm4X4rzm2sbqZuJg4wLAL/logo_big.jpg
+// book with coin logo: https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/QmcbPPCv9VMjXVYmbtyuhtLycfDLWbtosD2mAQJwXGJdGg/Web3%20Certifier%20(1).png
 export const SUPPORTED_NETWORKS = { sepolia: 11155111, arbitrum: 42161, celo: 42220 };
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000002";
