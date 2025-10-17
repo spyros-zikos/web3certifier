@@ -116,7 +116,7 @@ const Home = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-secondary flex-shrink-0 mt-1" />
-                  <span className="text-base-200"><strong className="text-base-200">Custom reward structures</strong> based on user's on-chain metrics</span>
+                  <span className="text-base-200"><strong className="text-base-200">Custom reward structures</strong> based on user&apos;s on-chain metrics</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-secondary flex-shrink-0 mt-1" />
@@ -167,7 +167,7 @@ const Home = () => {
                 <Zap className="w-12 h-12 text-primary mb-4" />
                 <h3 className="text-2xl font-bold mb-3 text-base-200">Take Exam & Pass</h3>
                 <p className="text-base-200">
-                  Complete the exam by answering questions. Your on-chain activity may unlock bonus rewards based on the campaign's criteria.
+                  Complete the exam by answering questions. Your on-chain activity may unlock bonus rewards based on the campaign&apos;s criteria.
                 </p>
               </div>
             </div>
@@ -201,7 +201,7 @@ const Home = () => {
               <TrendingUp className="w-12 h-12 mb-4" />
               <h3 className="text-2xl font-bold mb-3">Activity-Based Rewards</h3>
               <p className="text-white/80">
-                Set rewards based on users' staking amounts, transaction volume, or any other on-chain metric relevant to your protocol.
+                Set rewards based on users&apos; staking amounts, transaction volume, or any other on-chain metric relevant to your protocol.
               </p>
             </div>
 
@@ -229,7 +229,7 @@ const Home = () => {
                 An organization can set: "Users with 100+ tokens staked get 10 tokens reward, users with 10-99 staked get 5 tokens, and new users get 2 tokens."
               </p>
               <p className="text-sm text-white/60">
-                This ensures you're rewarding your most engaged community members while still attracting new users.
+                This ensures you&apos;re rewarding your most engaged community members while still attracting new users.
               </p>
             </div>
           </div>
