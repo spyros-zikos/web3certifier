@@ -28,7 +28,7 @@ const VerifyAccountMessage = (
     { publicClient, walletClient }: { publicClient: any, walletClient: any }
 ) => {
     return <div>
-        {"\n"}To prevent multiple submissions from the same person, please use a GoodDollar verified account.<br />
+        To prevent multiple submissions from the same person, please use a GoodDollar verified account.<br />
         You can either&nbsp;
             <Box display="inline" onClick={() => handleVerifyClick(publicClient, walletClient)} fontStyle="italic" textDecoration="underline" cursor="pointer">
                 verify that this account belongs to a unique person
@@ -39,6 +39,7 @@ const VerifyAccountMessage = (
                 create a new verified account
                 </Link>
             </Box>.
+        {"\n\n"}
     </div>
 }
 

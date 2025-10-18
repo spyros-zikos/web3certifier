@@ -9,6 +9,8 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { Box } from "@chakra-ui/react";
 import { getPasswordCookieName } from "~~/constants";
 import Link from "next/link";
+import examStageMessageFunction from "../_components/examStageMessage";
+import { ExamStage } from "~~/types/ExamStage";
 
 const UserCorrectedClaimCertificate = ({
     id, exam, address, chain
@@ -51,7 +53,7 @@ const UserCorrectedClaimCertificate = ({
             />
 
             <MessageForUser
-                message={<div>{passwordHashGood? <><Box>Claim your certificate!</Box></> : <><Box display="inline">Cookie not found! Please use the browser that you used to submit the exam. If you are still having issues, get support at our </Box><Box display="inline" textDecoration={"underline"}><Link href="https://discord.gg/4rXWFNGmDJ">Discord server</Link></Box>.</>}</div>}
+                message={examStageMessageFunction(ExamStage.User_Corrected_ClaimCertificate)(passwordHashGood)}
             />
 
             {passwordHashGood && <ClaimButton text="Claim Certificate" onClick={onClickClaimCertificateButton}/>}

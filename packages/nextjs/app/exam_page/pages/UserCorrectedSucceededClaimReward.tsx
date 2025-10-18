@@ -4,6 +4,8 @@ import { handleClaimReward } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ClaimButton, Confetti } from "../_components";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { ExamStage } from "~~/types/ExamStage";
+import examStageMessageFunction from "../_components/examStageMessage";
 
 const UserCorrectedSucceededClaimReward = ({
     exam, rewardAddress, rewardAmount
@@ -52,7 +54,7 @@ const UserCorrectedSucceededClaimReward = ({
             />
 
             <MessageForUser 
-                message={"You claim can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!"}
+                message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward)(scaledRewardAmountForUser, tokenSymbol)}
             />
 
             <ClaimButton text="Claim Reward" onClick={onClickClaimRewardButton}/>

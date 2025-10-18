@@ -18,6 +18,8 @@ import getCurrentTimestamp from "./functions/getCurrentTimestamp";
 // constants
 import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
 import onClickSubmitAnswersButton from "./functions/onClickSubmitAnswersButton";
+import examStageMessageFunction from "../../_components/examStageMessage";
+import { ExamStage } from "~~/types/ExamStage";
 
 
 const Page = ({
@@ -165,13 +167,7 @@ const Page = ({
 
             <MessageForUser 
                 message={
-                    <div>
-                        {!needsVerification && canClaimEngagementRewards && <><Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you submit your answers to this exam!</Box><br /></>}
-                        
-                        <Box color="lighterLighterBlack">Note: The system uses cookies to store your password.
-                        This means that you can claim your certificate only from this device.</Box>
-                        {needsVerification && (address !== DEFAULT_USER_ADDRESS) ? <VerifyAccountMessage publicClient={publicClient} walletClient={walletClient}/> : ""}
-                    </div>
+                    examStageMessageFunction(ExamStage.User_Open_NotSubmitted)(needsVerification, canClaimEngagementRewards, address, publicClient, walletClient)
                 }
             />
         </>

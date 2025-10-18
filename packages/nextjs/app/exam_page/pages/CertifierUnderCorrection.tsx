@@ -4,6 +4,8 @@ import { handleCorrectExam } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser } from "../_components";
 import { getUserAnswersFromLocalStorage } from "~~/utils/handleLocalStorage";
+import examStageMessageFunction from "../_components/examStageMessage";
+import { ExamStage } from "~~/types/ExamStage";
 
 const CertifierUnderCorrection = ({
     id, exam, chain
@@ -32,7 +34,7 @@ const CertifierUnderCorrection = ({
             />
 
             <MessageForUser 
-                message="This exam needs correcting. Please provide the correct answers within the correction period of the exam."
+                message={examStageMessageFunction(ExamStage.Certifier_UnderCorrection)()}
             />
         </>
     );

@@ -14,6 +14,7 @@ import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, InviteLinkMessage, JoinDiscordMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
+import examStageMessageFunction from "./_components/examStageMessage";
 
 
 const ExamPage = () => {
@@ -64,7 +65,6 @@ const ExamPage = () => {
         functionName: "getUserHasClaimed",
         args: [address],
     }).data;
-
 
     const rewardAmount: bigint  = wagmiReadFromContract({
         contractName: "Reward",
@@ -140,47 +140,43 @@ const ExamPage = () => {
             getExamStage() === ExamStage.User_Open_NotSubmitted ?
                 <UserOpenNotSubmitted id={id} exam={exam} address={address} chain={chain} />
             : getExamStage() === ExamStage.User_Open_Submitted ?
-                <StaticExamPage exam={exam} message={
-                    <>
-                        <Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage />
-                    </>}
-                />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Open_Submitted)()} />
             // Under Correction
             : getExamStage() === ExamStage.User_UnderCorrection ?
-                <StaticExamPage exam={exam} message="This exam is being corrected by the certifier!" />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_UnderCorrection)()} />
             // Cancelled
             : getExamStage() === ExamStage.User_Cancelled_ClaimRefund ?
                 <UserCancelledClaimRefund id={id} exam={exam} />
             : getExamStage() === ExamStage.User_Cancelled_NoRefund ?
-                <StaticExamPage exam={exam} message={isConnected ? "The exam has been cancelled!" : "Connect your wallet to claim your refund!"} />  
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Cancelled_NoRefund)()} />  
             // Corrected
             : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
                 <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
 
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward && (rewardAmount !== BigInt(0)) && (rewardAmount <= totalRewardAmount) ?
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
                 <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} rewardAmount={rewardAmount} />
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_ZeroReward && (rewardAmount === BigInt(0)) ?
-                <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully! Unfortunately, you don't qualify for rewards." />
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens && (rewardAmount > totalRewardAmount) ?
-                <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully! Unfortunately, the reward pool does not have enough tokens to reward you." />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_ZeroReward ?
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_ZeroReward)()} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens ?
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)()} />
             
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
-                <StaticExamPage exam={exam} message="This exam has ended! You completed it successfully!" />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededNoReward)()} />
             : getExamStage() === ExamStage.User_Corrected_Failed ?
-                <StaticExamPage exam={exam} message={exam ? <div>You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div> : <div>Loading...</div>} />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_Failed)(exam, userScore, questionsAndPossibleAnswers)} />
             : getExamStage() === ExamStage.User_Corrected_NotSubmitted ?
-                <StaticExamPage exam={exam} message={isConnected ? "This exam has ended. You did not participate!" : "Connect your wallet to claim your certificate!"} />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_NotSubmitted)(isConnected)} />
 
             ////// Certifier //////
             // Open
             : getExamStage() === ExamStage.Certifier_Open ?
-                <StaticExamPage exam={exam} message="This exam is ongoing! The certifier cannot submit." />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.Certifier_Open)()} />
             // Under Correction
             : getExamStage() === ExamStage.Certifier_UnderCorrection ?
                 <CertifierUnderCorrection id={id} exam={exam} chain={chain} />
             // Cancelled
             : getExamStage() === ExamStage.Certifier_Cancelled ?
-                <StaticExamPage exam={exam} message="The exam has been cancelled!" />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.Certifier_Cancelled)()} />
             // Corrected
             : getExamStage() === ExamStage.Certifier_Corrected &&
                 <CertifierCorrected exam={exam} id={id} />

@@ -7,6 +7,8 @@ import { useAccount } from "wagmi";
 import { ZERO_ADDRESS } from "thirdweb";
 import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
 import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
+import examStageMessageFunction from "../_components/examStageMessage";
+import { ExamStage } from "~~/types/ExamStage";
 
 const DownloadButton = ({onClick}: {onClick: any}) => {
     return <Box position="absolute" top="1" right="2">
@@ -99,7 +101,7 @@ const CertifierCorrected = ({
                 lastIndex={exam?.questions ? exam?.questions.length : 1}
             />
 
-            <MessageForUser message={"This exam has ended!"} />
+            <MessageForUser message={examStageMessageFunction(ExamStage.Certifier_Corrected)()} />
 
             {/* Stats Table */}
             <Box w="100%" overflowX="auto" mt="8" borderRadius={"2xl"} border="2px solid" borderColor={"black"}>

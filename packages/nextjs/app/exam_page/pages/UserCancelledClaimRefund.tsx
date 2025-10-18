@@ -3,6 +3,8 @@ import { IndexSelector } from "~~/components/IndexSelector";
 import { handleRefundExam } from "../helperFunctions/Handlers";
 import { wagmiWriteToContract } from "~~/hooks/wagmi/wagmiWrite";
 import { Question, MessageForUser, ClaimButton } from "../_components";
+import { ExamStage } from "~~/types/ExamStage";
+import examStageMessageFunction from "../_components/examStageMessage";
 
 const UserCancelledClaimRefund = ({
     id, exam
@@ -29,7 +31,7 @@ const UserCancelledClaimRefund = ({
             />
 
             <MessageForUser 
-                message="You can claim your refund!"
+                message={examStageMessageFunction(ExamStage.User_Cancelled_ClaimRefund)()}
             />
 
             <ClaimButton text="Claim Refund" onClick={onClickClaimRefundButton}/>
