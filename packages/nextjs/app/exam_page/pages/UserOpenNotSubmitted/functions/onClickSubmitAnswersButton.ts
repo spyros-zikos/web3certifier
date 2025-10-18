@@ -23,7 +23,7 @@ const onClickSubmitAnswersButton = async (
     const [hashedAnswerToSubmit, userPassword] = getHashAndPassword(answers, randomKey, address);
 
     // const currentBlock = await engagementRewards?.getCurrentBlockNumber();
-    const validUntilBlock = (blockNumber.data || 1000000000n) + 50n // Valid for 10 blocks
+    const validUntilBlock = (blockNumber.data || 1000000000n) + 600n // Valid for 600 blocks
 
     try {
         let signature = "0x";
