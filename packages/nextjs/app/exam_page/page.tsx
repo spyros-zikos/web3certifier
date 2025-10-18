@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { PageWrapper, ResponsivePageWrapper, Title } from "~~/components";
 import { ExamStage } from "../../types/ExamStage";
 import { examStage } from "./helperFunctions/examStage";
@@ -14,7 +14,6 @@ import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, InviteLinkMessage, JoinDiscordMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
-import Link from "next/link";
 
 
 const ExamPage = () => {
