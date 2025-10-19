@@ -1,12 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import SubHeading from './SubHeading';
-import { CUSTOM_REWARDS, ZERO_ADDRESS } from '~~/constants';
+import { CustomReward, DEFAULT_CUSTOM_REWARD, ZERO_ADDRESS } from '~~/constants';
 import { Address } from '~~/components/scaffold-eth';
 import { Box } from '@chakra-ui/react';
 
 const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
+    const defaultCustomReward = DEFAULT_CUSTOM_REWARD[chain.id][0];
+    const [availableCustomRewards, setAvailableCustomRewards] = useState<CustomReward[]>([defaultCustomReward]);
 
+    // fetch
+    useEffect(() => {
+        fetch(`/api/reward_page/custom_rewards/?chainId=${chain.id}`)
+        .then(response => response.json())
+        .then(data => setAvailableCustomRewards([defaultCustomReward, ...data]));
+    }, []);
+    
     /*//////////////////////////////////////////////////////////////
                            READ FROM CONTRACT
     //////////////////////////////////////////////////////////////*/
@@ -76,7 +85,7 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
     const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) / (Number(10) ** Number(decimals));
     const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) / (Number(10) ** Number(decimals));
     // Does not work for some reason :/ - TODO
-    // const customReward = CUSTOM_REWARDS[chain.id].filter((customReward: any) => customReward.address === (customRewardAddress||ZERO_ADDRESS))[0];
+    const customReward = availableCustomRewards.filter((customReward: any) => customReward.address === (customRewardAddress||ZERO_ADDRESS))[0];
 
     return (
         <div className="max-w-[300px] wrap">
@@ -129,11 +138,11 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
             }</div>}
 
             {/* Description */}
-            {/* <Box className="mt-8">
+            <Box className="mt-8">
                 {
-                chain && <>{customReward.description}</>
+                chain && <>{customReward?.description}</>
                 }
-            </Box> */}
+            </Box>
         </div>
     );
 }
