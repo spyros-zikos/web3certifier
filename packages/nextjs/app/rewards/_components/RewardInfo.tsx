@@ -75,73 +75,71 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
         functionName: "getCustomReward",
     }).data;
 
-    const labelMarginAndPadding = 'mt-4 block';
-    const labelMarginAndPaddingForOneLiners = 'mt-2 block';
-    
     if (rewardAddress === ZERO_ADDRESS)
         return <></>;
 
     const scaledBalance = Number(balance) / (Number(10) ** Number(decimals));
     const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) / (Number(10) ** Number(decimals));
     const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) / (Number(10) ** Number(decimals));
-    // Does not work for some reason :/ - TODO
     const customReward = availableCustomRewards.filter((customReward: any) => customReward.address === (customRewardAddress||ZERO_ADDRESS))[0];
 
+    const RewardDetail = ({label, value}: {label: string, value: any}) => {
+        return (
+            <div className="m-0 py-2 flex justify-between border-b-2 border-base-100">
+                <div className="inline-block pr-2">
+                    {label}
+                </div>
+                <div className="inline-block">
+                    <div>
+                        {value}
+                    </div>
+                </div>
+            </div>
+        );
+    }
     return (
-        <div className="max-w-[300px] wrap">
+        <div className="max-w-[1000px] wrap">
             <SubHeading>Reward Info</SubHeading>
-            <div className={`${labelMarginAndPadding}`}>Available Reward Amount</div>
-            <div>
-                {scaledBalance?scaledBalance.toString():"0"} {}
-                {tokenSymbol?tokenSymbol.toString():"unknown"}
-            </div>
+            <div className="mt-12"></div>
             
-            <div className={`${labelMarginAndPadding}`}>Reward Amount Per Person</div>
-            <div>
-                {scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toString():"0"} {}
-                {tokenSymbol?tokenSymbol.toString():"unknown"}
-            </div>
+            {((scaledBalance !== undefined) && 
+            (scaledRewardAmountPerPerson !== undefined) && 
+            (scaledRewardAmountPerCorrectAnswer !== undefined) && 
+            tokenSymbol) ? 
+                <>
+                <RewardDetail label="Available Reward Amount"
+                    value={<div>{scaledBalance.toString()} {}
+                        {tokenSymbol.toString()}</div>} 
+                />
+                <RewardDetail label="Reward Amount Per Person"
+                    value={<div>{scaledRewardAmountPerPerson.toString()} {}
+                    {tokenSymbol.toString()}</div>} 
+                />
+                <RewardDetail label="Reward Amount Per Correct Answer"
+                    value={<div>{scaledRewardAmountPerCorrectAnswer.toString()} {}
+                    {tokenSymbol.toString()}</div>} 
+                />
+                </>
+                : <></>
+            }
 
-            <div className={`${labelMarginAndPadding}`}>Reward Amount Per Correct Answer</div>
-            <div>
-                {scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toString():"0"} {}
-                {tokenSymbol?tokenSymbol.toString():"unknown"}
-            </div>
+            {tokenName && <RewardDetail label="Token"
+                value={tokenName.toString() + " (" + tokenSymbol.toString() + ")"} 
+            />}
+            {tokenAddress && <RewardDetail label="Token Address"
+                value={<Address address={tokenAddress} className={"text-bold"} disableAddressLink={true} />}
+            />}
+            {tokenAddress && <RewardDetail label="Reward Address"
+                value={<Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />} 
+            />}
+            {customRewardAddress && <RewardDetail label="Custom Reward Address"
+                value={<Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />} 
+            />}
+            <RewardDetail label="Reward Name" value={customReward?.name} />
 
-            <div className={`${labelMarginAndPadding}`}>Token Name: {tokenName?tokenName.toString():"unknown"}</div>
-
-            <div className={`${labelMarginAndPaddingForOneLiners}`}>Token Symbol: {tokenSymbol?tokenSymbol.toString():"unknown"}</div>
-            
-            <div className={`${labelMarginAndPaddingForOneLiners}`}>Token Address: {
-                tokenAddress
-                ? <div className="inline-block">
-                    <Address address={tokenAddress} className={"text-bold"} disableAddressLink={true} />
-                </div>
-                : <>unknown</>
-            }</div>
-
-            <div className={`${labelMarginAndPaddingForOneLiners}`}>Reward Address: {
-                tokenAddress
-                ? <div className="inline-block">
-                    <Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
-                </div>
-                :<>unknown</>
-            }</div>
-
-            {customRewardAddress && customRewardAddress !== ZERO_ADDRESS && 
-            <div className={`${labelMarginAndPaddingForOneLiners}`}>Custom Reward Address: {
-                customRewardAddress
-                ? <div className="inline-block">
-                    <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />
-                </div>
-                :<>unknown</>
-            }</div>}
-
-            {/* Description */}
-            <Box className="mt-8">
-                {
-                chain && <>{customReward?.description}</>
-                }
+            {/* Reward Description */}
+            <Box className="pt-2 mb-16">
+                { chain && <>Reward Description:<br />{customReward?.description}</> }
             </Box>
         </div>
     );
