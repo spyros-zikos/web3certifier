@@ -11,7 +11,6 @@ import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessag
 import { DocsPage } from '~~/types/DocsPage';
 import { ActionCard } from '../_components/ActionCard';
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
-import { custom } from "viem";
 
 const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useNonUndefinedAccount();
