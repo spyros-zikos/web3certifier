@@ -94,14 +94,14 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             {/* {exam.description} */}
             <SimpleGrid columns={2} gap={0}>
                 <Box>
-                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Price</Text>
+                    <Text color="black" fontSize="12" p="0" m="0" mt="3">Questions</Text>
                 </Box>
                 <Box>
                     <Text color="black" fontSize="12" p="0" m="0" mt="3">Status</Text>
                 </Box>
 
                 <Box fontWeight="bold">
-                    ${parseFloat(exam.price.toString())/1e18}
+                    {exam.questions.length}
                 </Box>
                 <Box fontWeight="bold" w="120px">
                     {getExamStatusStr(status)}
