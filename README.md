@@ -54,3 +54,4 @@ Delete the `packages/the-graph` directory and go to <a href="https://thegraph.co
 NOTES  
 forge install openzeppelin/openzeppelin-contracts-upgradeable --no-commit
 forge install openzeppelin/openzeppelin-contracts@v5.3.0 --no-commit
+exam for reward testing: 67
