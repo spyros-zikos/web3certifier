@@ -11,7 +11,7 @@ import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { SUPPORTED_NETWORKS, ZERO_ADDRESS } from "~~/constants";
 import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
-import { DropDowns, ImageNameDescription, InviteLinkMessage, JoinDiscordMessage, ManageRewardsLink, Timer } from "./_components";
+import { DropDowns, ImageNameDescription, InviteLinkMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 import examStageMessageFunction from "./_components/examStageMessage";

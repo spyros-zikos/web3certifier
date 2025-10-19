@@ -3,14 +3,21 @@ import Link from 'next/link'
 import React from 'react'
 import { DISCORD_INVITE_LINK } from '~~/constants'
 
-const JoinDiscordMessage = () => {
-  return (
-    <>
-        <Box display="inline">Join our </Box>
-        <Box display="inline" textDecoration={"underline"}><Link href={DISCORD_INVITE_LINK}>Discord server</Link></Box>
-        <Box display="inline"> to get notified when you can claim your reward and for upcoming exams!</Box>
-    </>
-  )
+export const discordServerLink = 
+    <Box display="inline" textDecoration={"underline"}>
+        <Link href={DISCORD_INVITE_LINK} target="_blank">
+            Discord server
+        </Link>
+    </Box>
+
+const JoinDiscordMessage = ({mentionRewards = false}: {mentionRewards?: boolean}) => {
+    return (
+        <>
+            <Box display="inline">Join our </Box>
+            {discordServerLink}
+            <Box display="inline"> to get notified{mentionRewards && " when you can claim your rewards and"} when new exams are organized!</Box>
+        </>
+    )
 }
 
 export default JoinDiscordMessage

@@ -2,10 +2,9 @@
 
 import { Box } from "@chakra-ui/react";
 import { ExamStage } from "~~/types/ExamStage";
-import JoinDiscordMessage from "./JoinDiscordMessage";
+import JoinDiscordMessage, { discordServerLink } from "./JoinDiscordMessage";
 import { DEFAULT_USER_ADDRESS } from "~~/constants";
 import { VerifyAccountMessage } from "../pages/UserOpenNotSubmitted/components";
-import Link from "next/link";
 
 const examStageMessageFunction: any = (examStage: ExamStage) => {
     /// User ///
@@ -23,15 +22,15 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
             </div>
         );
     else if (examStage === ExamStage.User_Open_Submitted)
-        return () => (<> <Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage /> </>);
+        return () => (<> <Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage mentionRewards={true} /> </>);
     // Under Correction
     else if (examStage === ExamStage.User_UnderCorrection)
-        return () => "This exam is being corrected by the certifier!";
+        return () => <>This exam is being corrected by the certifier! <JoinDiscordMessage mentionRewards={true} /></>;
     // Cancelled
     else if (examStage === ExamStage.User_Cancelled_ClaimRefund)
         return () => "You can claim your refund!";
     else if (examStage === ExamStage.User_Cancelled_NoRefund)
-        return () => "The exam has been cancelled!";
+        return () => <>This exam has been cancelled! <JoinDiscordMessage /> </>;
     // Corrected
     else if (examStage === ExamStage.User_Corrected_ClaimCertificate)
         return (passwordHashGood: boolean) => (
@@ -41,34 +40,33 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
                     <Box display="inline">Cookie not found!
                         Please use the browser that you used to submit the exam.
                         If you are still having issues, get support at our </Box>
-                    <Box display="inline" textDecoration={"underline"}>
-                    <Link href="https://discord.gg/4rXWFNGmDJ">Discord server</Link></Box>.
+                    {discordServerLink}.
                 </>
         );
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward)
         return (scaledRewardAmountForUser: bigint, tokenSymbol: string) => "You claim can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!";
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_ZeroReward)
-        return () => "This exam has ended! You completed it successfully! Unfortunately, you don't qualify for rewards.";
+        return () => <>This exam has ended! You completed it successfully! Unfortunately, you don't qualify for rewards. <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)
-        return () => "This exam has ended! You completed it successfully! Unfortunately, the reward pool does not have enough tokens to reward you.";
+        return () => <>This exam has ended! You completed it successfully! Unfortunately, the reward pool does not have enough tokens to reward you. <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_SucceededNoReward)
-        return () => "This exam has ended! You completed it successfully!";
+        return () => <>This exam has ended! You completed it successfully! <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_Failed)
         return (exam: any, userScore: bigint | undefined, questionsAndPossibleAnswers: any) => {
             return (exam 
-                ? <div>You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass.</div>
-                : <div>Loading...</div>
+                ? <>You failed this exam! Your score was {userScore?.toString()}/{questionsAndPossibleAnswers?.length} {""} but you need at least {exam!.baseScore.toString()}/{questionsAndPossibleAnswers?.length} to pass. <JoinDiscordMessage /></>
+                : <>Loading...</>
             )
         };
     else if (examStage === ExamStage.User_Corrected_NotSubmitted)
-        return (isConnected: boolean) => (isConnected ? "This exam has ended. You did not participate!" : "Connect your wallet to claim your certificate!");
+        return (isConnected: boolean) => (isConnected ? <>This exam has ended. You did not participate! <JoinDiscordMessage /></> : "Connect your wallet to claim your certificate!");
     /// Certifier ///
     else if (examStage === ExamStage.Certifier_Open)
         return () => "This exam is ongoing! The certifier cannot submit.";
     else if (examStage === ExamStage.Certifier_UnderCorrection)
         return () => "This exam needs correcting. Please provide the correct answers within the correction period of the exam.";
     else if (examStage === ExamStage.Certifier_Cancelled)
-        return () => "The exam has been cancelled!";
+        return () => "This exam has been cancelled!";
     else if (examStage === ExamStage.Certifier_Corrected)
         return () => "This exam has ended!";
     return () => "Invalid Stage";
