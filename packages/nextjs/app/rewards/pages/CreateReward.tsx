@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { Button, Input, Text, ResponsivePageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
-import { chainsToContracts, CUSTOM_REWARDS, CustomReward, ZERO_ADDRESS } from '~~/constants';
+import { chainsToContracts, DEFAULT_CUSTOM_REWARD, CustomReward, ZERO_ADDRESS } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
@@ -16,15 +16,27 @@ const CreateReward = ({id}: {id: bigint}) => {
     const { address, chain } = useNonUndefinedAccount();
 
     const GOOD_DOLLAR_TOKEN = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
+    const defaultCustomReward = DEFAULT_CUSTOM_REWARD[chain.id][0];
 
     const [initialRewardAmount, setInitialRewardAmount] = useState<number>(0);
     const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<number>(0);
     const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<number>(0);
     const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? GOOD_DOLLAR_TOKEN : "");
-    const [customReward, setCustomReward] = useState<CustomReward>(CUSTOM_REWARDS[chain.id][0]);  // index 0 has default
+    const [customReward, setCustomReward] = useState<CustomReward>(defaultCustomReward);  // index 0 has default
+    const [availableCustomRewards, setAvailableCustomRewards] = useState<CustomReward[]>([defaultCustomReward]);
 
     const rewardFactoryAddress = chainsToContracts[chain.id]["RewardFactory"].address;
 
+    // fetch
+    useEffect(() => {
+        fetch(`/api/reward_page/custom_rewards/?chainId=${chain.id}`)
+        .then(response => response.json())
+        .then(data => setAvailableCustomRewards([defaultCustomReward, ...data]));
+    }, []);
+
+    /*//////////////////////////////////////////////////////////////
+                           READ FROM CONTRACT
+    //////////////////////////////////////////////////////////////*/
     const allowance: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
         contractAddress: tokenAddress,
@@ -142,7 +154,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     <label className={`${labelMarginAndPadding}`}>Custom Reward</label>
                     <Menu.Root>
       <Menu.Trigger>
-        <Button className="mt-0" onClick={() => {
+        <Button className="my-0" onClick={() => {
             // do nothing
         }}>
             {customReward.name}
@@ -153,9 +165,9 @@ const CreateReward = ({id}: {id: bigint}) => {
           <Menu.Content maxH="120px" minW="10rem" bgColor="lighterBlack">
             <Menu.RadioItemGroup
               value={customReward.name}
-              onValueChange={(e) => setCustomReward(CUSTOM_REWARDS[chain.id].filter((reward) => reward.name === e.value)[0])}
+              onValueChange={(e) => setCustomReward(availableCustomRewards.filter((reward) => reward.name === e.value)[0])}
             >
-              {CUSTOM_REWARDS[chain.id].map((reward) => (
+              {availableCustomRewards.map((reward) => (
                 <Menu.RadioItem key={reward.name} value={reward.name} color="neutral">
                   {reward.name}
                   <Menu.ItemIndicator />

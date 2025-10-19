@@ -34,32 +34,12 @@ export interface CustomRewards {
     [chainId: number]: CustomReward[]
 }
 
-export const CUSTOM_REWARDS: CustomRewards = {
+export const DEFAULT_CUSTOM_REWARD: CustomRewards = {
     [SUPPORTED_NETWORKS.celo]: [
         {
             name: "Default",
             description: "The amount of G$ tokens that each user gets is calculated as: 'reward amount per person' + 'reward amount per correct answer' * 'number of correct answers'.",
             address: ZERO_ADDRESS,
-        }, {
-            name: "FlowStateGoodDollarVoting",
-            description: "The amount of G$ tokens that each user gets is calculated as: 'number of correct answers' * 'number of votes that they have allocated in the second round of GoodDollar funding on FlowState' Maximum reward is 10k tokens.",
-            address: "0xa373Fb3331010930A3a6c3Bdc22247d98e73c327",
-        }, {
-            name: "GoodDollarClaims",
-            description: "The amount of G$ tokens that each user gets is calculated as: 1000 + 10 * 'number of correct answers' * 'number of times they have claimed UBI'. Maximum reward is 10k tokens.",
-            address: "0x0962abc5eab4efeeadd5e72ff5f2f0543344f7d1",
-        }, {
-            name: "Ubeswap G$ Staking",
-            description: "Rewards only users that have staked any amount of G$ tokens on Ubeswap. Users get 'reward amount per person' amount of G$ tokens.",
-            address: "0x431732EC61d57039943A2Fdd1Ed0994b107Bf75b",
-        }, {
-            name: "Uniform Distribution",
-            description: "The total reward amount is split evenly between all users that submitted. However, only users that passed the exam can claim it. Therefore, the reward of users that failed will remain in the pool. The amount of G$ tokens that each user gets is calculated as: 'reward amount per person' / 'reward amount per correct answer'. You should set the 'reward amount per person' to the total reward amount and the 'reward amount per correct answer' to the number of submissions.",
-            address: "0xB7d216158DF57DC2CE8b49aB603B34645A9Abe86",
-        }, {
-            name: "Hold G$, Uniform Distribution",
-            description: "Users have to hold 500 G$ tokens to be eligible for the reward. The total reward amount is split evenly between all users that submitted. However, only users that passed the exam can claim it. Therefore, the reward of users that failed will remain in the pool. The amount of G$ tokens that each user gets is calculated as: 'reward amount per person' / 'reward amount per correct answer'. You should set the 'reward amount per person' to the total reward amount and the 'reward amount per correct answer' to the number of submissions.",
-            address: "0xeD5D45e56b7f7388Fdc79B86731Cf381169B1E19",
         }
     ]
 }
