@@ -15,8 +15,7 @@ const Home = () => {
               The Permissionless Learn-to-Earn Platform
             </p>
             <p className="text-lg sm:text-xl max-w-4xl mx-auto mb-12 text-base-content/80 leading-relaxed">
-              Web3 Certifier rewards users for learning about decentralized protocols while helping organizations 
-              efficiently acquire and educate new users through knowledge verification and on-chain activity tracking.
+              Web3 Certifier is the permissionless learn-to-earn platform that enables Web3 protocols to efficiently reward users for their knowledge and on-chain activity.
             </p>
             <div className="flex flex-col sm:flex-row md:flex-row gap-6 justify-center justify-items-center mt-8">
               <a href="/search_exams" className="flex justify-center">
