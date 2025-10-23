@@ -278,7 +278,7 @@ const Home = () => {
       </div>
 
       {/* Tutorial Section */}
-      <div className="bg-primary py-20">
+      {/* <div className="bg-primary py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-base-content mb-4">See It In Action</h2>
@@ -296,7 +296,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Final CTA */}
       <div className="bg-base-200 text-white py-20">
