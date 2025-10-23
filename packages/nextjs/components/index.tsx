@@ -6,6 +6,7 @@ export { default as Title } from "./Title";
 export { default as Alert } from "./Alert";
 export { default as Card } from "./Card";
 export { default as ExamCard } from "./ExamCard";
+export { default as ButtonLink } from "./ButtonLink";
 // export { default as ImageWrapper } from "./ImageWrapper";
 export { EtherInput } from "./EtherInput";
 // export { default as Accordion } from "./Accordion";
