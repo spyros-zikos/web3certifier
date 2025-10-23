@@ -3,8 +3,8 @@ import NextLink from "next/link";
 import { Button, ButtonProps, Link as ChakraLink } from "@chakra-ui/react";
 
 interface ButtonLinkProps extends ButtonProps {
-  href: string;
-  isExternal?: boolean;
+    href: string;
+    isExternal?: boolean;
 }
 
 /**
@@ -15,24 +15,23 @@ interface ButtonLinkProps extends ButtonProps {
  * <ButtonLink href="https://chakra-ui.com" isExternal>Visit Chakra</ButtonLink>
  */
 export const ButtonLink = ({ href, isExternal, children, ...props }: ButtonLinkProps) => {
-  // External links (e.g., https://...) → regular anchor
-  if (isExternal || href.startsWith("http")) {
-    return (
-      <Button
-        as={ChakraLink}
-        href={href}
-        isExternal
-        {...props}
-      >
-        {children}
-      </Button>
-    );
-  }
+    // External links (e.g., https://...) → regular anchor
+    if (isExternal || href.startsWith("http")) {
+        return (
+            <a href={href} target="_blank" rel="noopener noreferrer">
+                <Button {...props}>
+                    {children}
+                </Button>
+            </a>
+        );
+    }
 
-  // Internal links → Next.js router
-  return (
-    <Button as={NextLink} href={href} {...props}>
-      {children}
-    </Button>
-  );
+    // Internal links → Next.js router
+    return (
+        <NextLink href={href}>
+            <Button {...props}>
+                {children}
+            </Button>
+        </NextLink>
+    );
 };
