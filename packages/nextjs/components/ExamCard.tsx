@@ -1,8 +1,7 @@
 import React from "react";
-import { Box, Float, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { Button, Card } from "~~/components";
 import { useRouter } from "next/navigation";
-import { Address } from "~~/components/scaffold-eth";
 import { defaultImage, ZERO_ADDRESS } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
