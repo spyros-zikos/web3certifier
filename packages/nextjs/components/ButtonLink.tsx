@@ -1,7 +1,8 @@
 import NextLink from "next/link";
-import { Button, ButtonProps } from "@chakra-ui/react";
+// import { ButtonProps } from "@chakra-ui/react";
+import Button, { MyButtonProps } from "./Button";
 
-interface ButtonLinkProps extends ButtonProps {
+interface ButtonLinkProps extends MyButtonProps {
     href: string;
     isExternal?: boolean;
 }

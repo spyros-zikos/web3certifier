@@ -1,11 +1,10 @@
 import React from "react";
 import { Box, SimpleGrid, Text } from "@chakra-ui/react";
-import { Button, Card } from "~~/components";
+import { ButtonLink, Card } from "~~/components";
 import { useRouter } from "next/navigation";
 import { defaultImage, ZERO_ADDRESS } from "~~/constants";
 import { getExamStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
-import Link from "next/link";
 
 interface CardProps {
     className?: string;
@@ -82,11 +81,11 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             className={`${className || ""}`}
             imageUrl={exam?.imageUrl || defaultImage}
             footer={
-                <Link className="w-full" href={`/exam_page?id=${id}`}>
-                    <Button className="w-full" onClick={undefined}>
+                <Box w="full">
+                    <ButtonLink w="full" href={`/exam_page?id=${id}`}>
                         Explore
-                    </Button>
-                </Link>
+                    </ButtonLink>
+                </Box>
             }
             compact={true}
         >
