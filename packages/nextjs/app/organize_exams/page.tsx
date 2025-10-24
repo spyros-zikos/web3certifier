@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { createRef, useCallback, useState } from "react";
-import { Button, Title, Input, ResponsivePageWrapper } from "~~/components";
+import { Button, Title, Input, ResponsivePageWrapper, ButtonLink } from "~~/components";
 import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon } from "@heroicons/react/24/outline";
@@ -184,11 +184,9 @@ const CreateExam = () => {
                         Create Exams
                     </Box>
                     <Spacer />
-                    <Link href={`/docs?page=${DocsPage.CreatingExams}`}>
-                        <Button className="bg-base-100 text-sm" onClick={undefined}>
-                            Documentation
-                        </Button>
-                    </Link>
+                    <ButtonLink href={`/docs?page=${DocsPage.CreatingExams}`} fontSize="sm">
+                        Documentation
+                    </ButtonLink>
                 </Flex>
             </Title>
 
@@ -383,7 +381,7 @@ const CreateExam = () => {
 
                 <Box mt="4"></Box>
 
-                <Button className="bg-base-100" onClick={() => {
+                <Button onClick={() => {
                     setQuestionNumber(questionsWithAnswers.length + 1);
                         // add empty question
                         setQuestionsWithAnswers([ ...questionsWithAnswers, emptyQuestionWithAnswers ]);
@@ -392,7 +390,7 @@ const CreateExam = () => {
                     >
                     Add Question
                 </Button>
-                <Button className="bg-base-100" onClick={() => {
+                <Button onClick={() => {
                     if (questionsWithAnswers.length > 1) {
                         if (questionNumber === questionsWithAnswers.length) {
                             setQuestionNumber(questionsWithAnswers.length - 1)
@@ -426,7 +424,7 @@ const CreateExam = () => {
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()} in ({chain?.id === 42220 ? "CELO" : "ETH"})
                 </Text>
                 {!requiredDetailsAreFilled() && <Text mt="2" color="red" display="block">* Fields are required</Text>}
-                <Button disabled={!requiredDetailsAreFilled() || isMining} onClick={handleCreateExam} className="block mt-3 bg-base-100" >
+                <Button disabled={!requiredDetailsAreFilled() || isMining} onClick={handleCreateExam} mt="3">
                     {isMining ? "Creating Exam..." : "Create Exam"}
                 </Button>
             </div>

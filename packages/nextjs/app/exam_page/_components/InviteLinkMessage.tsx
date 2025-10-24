@@ -1,5 +1,6 @@
-import { Box, Button } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react'
+import { Button } from '~~/components';
 
 const InviteLinkMessage = ({ id, address }: { id: bigint, address: string }) => {
     const [inviterLinkCopyButtonText, setInviterLinkCopyButtonText] = useState("Copy");
@@ -12,7 +13,7 @@ const InviteLinkMessage = ({ id, address }: { id: bigint, address: string }) => 
                 <Box flex="1" fontFamily="mono" fontSize="xs" wordBreak="break-all">
                     {`https://web3certifier.com/exam_page?id=${id.toString()}&inviter=${address}`}
                 </Box>
-                <Button size="xs" colorScheme="green" onClick={async () => {
+                <Button size="xs" bgColor="green" onClick={async () => {
                     navigator.clipboard.writeText(`https://web3certifier.com/exam_page?id=${id}&inviter=${address}`);
                     setInviterLinkCopyButtonText("Done!");
                     await new Promise(resolve => setTimeout(resolve, 3000));

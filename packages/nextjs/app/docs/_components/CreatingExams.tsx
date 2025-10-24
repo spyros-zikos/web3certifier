@@ -1,8 +1,7 @@
 'use client';
 import React from "react";
 import { Box, Heading, VStack, Code } from "@chakra-ui/react";
-import { Button } from "~~/components";
-import Link from "next/link";
+import { ButtonLink } from "~~/components";
 import { Section } from "./Section";
 
 export default function ExamDocsPage() {
@@ -61,11 +60,9 @@ export default function ExamDocsPage() {
             exam.
         </Section>
 
-        <Link href="/organize_exams">
-            <Button className="bg-base-100" onClick={undefined}>
-                Create an exam
-            </Button>
-        </Link>
+        <ButtonLink href="/organize_exams">
+            Create an exam
+        </ButtonLink>
         
       </VStack>
   );
