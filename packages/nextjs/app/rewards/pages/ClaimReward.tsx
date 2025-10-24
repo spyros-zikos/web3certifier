@@ -70,7 +70,7 @@ const ClaimReward = ({id}: {id: bigint}) => {
             <div className="mt-4 ml-2 max-w-[250px] wrap">
                 You can claim {scaledRewardAmountForUser?scaledRewardAmountForUser.toString():"0"} {tokenSymbol?tokenSymbol:""}!
             </div>
-            <Button onClick={handleClaim} className="block mt-5 bg-base-100 w-full h-[70px] text-xl font-bold" >
+            <Button onClick={handleClaim} className="mt-5 w-full h-[70px] text-xl font-bold" >
                 Claim
             </Button>
             <RewardInfo id={id} chain={chain}/>

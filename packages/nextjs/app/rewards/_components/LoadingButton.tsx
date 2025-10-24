@@ -5,24 +5,23 @@ export const LoadingButton = ({
     disabled, 
     loading, 
     children, 
-    variant = "primary",
+    bgColor = "green",
 }: {
     onClick: () => void;
     disabled?: boolean;
     loading?: boolean;
     children: React.ReactNode;
-    variant?: "primary" | "warning" | "error";
+    bgColor?: "green" | "black";
 }) => {
-    const textAndBorder = (variant === "primary") ? "base-200" : "[#F9FBFF]";
     return (<Button 
         onClick={onClick}
         disabled={disabled || loading}
         className={`
-            card w-full mt-8 transition-all duration-200
+            block w-full mt-16 transition-all duration-200
             hover:scale-105 active:scale-95
             shadow-md hover:shadow-lg
         `}
-        textBorderColor={textAndBorder}
+        bgColor={bgColor}
     >
             {loading ? (
                 <div className="flex items-center gap-2">

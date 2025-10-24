@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Button, Input, Text, ResponsivePageWrapper } from "~~/components";
+import { Button, Input, Text, ResponsivePageWrapper, ButtonLink } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { chainsToContracts, DEFAULT_CUSTOM_REWARD, CustomReward, ZERO_ADDRESS } from '~~/constants';
 import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
@@ -99,13 +99,11 @@ const CreateReward = ({id}: {id: bigint}) => {
         <ResponsivePageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
             <div>
-                <Link className="mb-8 block" href={`/docs?page=${DocsPage.SettingUpRewards}`} target="_blank" rel="noopener noreferrer">
-                    <Button className="bg-base-100 w-[40%]" onClick={undefined}>
+                    <ButtonLink className="mb-8 w-[40%]" href={`/docs?page=${DocsPage.SettingUpRewards}`} isExternal={true} >
                         <BookOpenIcon className="h-5 w-5 mr-2 inline" />
                         Docs 
                         <BookOpenIcon className="h-5 w-5 ml-2 inline" />
-                    </Button>
-                </Link>
+                    </ButtonLink>
             
                 <ActionCard
                     title="💰 Set Up Reward"
@@ -154,9 +152,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     <label className={`${labelMarginAndPadding}`}>Custom Reward</label>
                     <Menu.Root>
       <Menu.Trigger>
-        <Button className="my-0" onClick={() => {
-            // do nothing
-        }}>
+        <Button className="my-0" >
             {customReward.name}
         </Button>
       </Menu.Trigger>
@@ -183,7 +179,7 @@ const CreateReward = ({id}: {id: bigint}) => {
 
                     <div className="mt-12 block">{""}</div>
                     {!requiredDetailsAreFilled() && <Text mt="2" ml="2" color="red" display="block">* Fields are required</Text>}
-                    <Button disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="block mt-3 bg-base-100" >
+                    <Button bgColor="green" disabled={!requiredDetailsAreFilled()} onClick={handleCreateReward} className="mt-3" >
                         Create Reward
                     </Button>
                 </ActionCard>

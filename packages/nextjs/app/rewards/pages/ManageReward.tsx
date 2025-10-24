@@ -209,7 +209,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                     onClick={handleFundExam}
                     disabled={!fundAmount}
                     loading={isLoading.fund}
-                    variant="primary"
+                    bgColor="green"
                 >
                     <span className="flex items-center gap-2">
                         💎 Fund Reward Pool
@@ -236,7 +236,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                     onClick={handleSetRewardAmountPerPerson}
                     disabled={!rewardAmountPerPerson}
                     loading={isLoading.rewardPerPerson}
-                    variant="primary"
+                    bgColor="green"
                 >
                     <span className="flex items-center gap-2">
                         ⚙️ Set Amount
@@ -262,7 +262,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                     onClick={handleSetRewardAmountPerCorrectAnswer}
                     disabled={!rewardAmountPerCorrectAnswer}
                     loading={isLoading.rewardPerAnswer}
-                    variant="primary"
+                    bgColor="green"
                 >
                     <span className="flex items-center gap-2">
                         ⚙️ Set Amount
@@ -285,7 +285,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                 <LoadingButton
                     onClick={handleWithdraw}
                     loading={isLoading.withdraw}
-                    variant="warning"
+                    bgColor="black"
                 >
                     <span className="flex items-center gap-2">
                         🏦 Withdraw All Funds
@@ -311,7 +311,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                 <LoadingButton
                     onClick={handleRemoveReward}
                     loading={isLoading.delete}
-                    variant="error"
+                    bgColor="black"
                 >
                     <span className="flex items-center gap-2">
                         🗑️ Delete Reward Contract
