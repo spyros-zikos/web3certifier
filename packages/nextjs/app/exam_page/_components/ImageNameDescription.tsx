@@ -1,9 +1,19 @@
-import { Box, Heading, Image, Text } from '@chakra-ui/react'
+import { Box, Heading, Image } from '@chakra-ui/react'
 import React from 'react'
 import { defaultImage } from "~~/constants";
 import ReactMarkdown from 'react-markdown';
 
 const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
+    const [showFullDescription, setShowFullDescription] = React.useState(false);
+
+    const maxDescriptionWordLength = 30;
+    const descriptionWords = exam?.description ? exam.description.split(" ") : [];
+    const slicedDescription = descriptionWords.slice(0, maxDescriptionWordLength).join(" ");
+    const descriptionIsTooLong = descriptionWords.length > maxDescriptionWordLength;
+    const AfterSlicedDescription = () => showFullDescription
+        ? <div onClick={() => setShowFullDescription(false)} className="text-base-100">Less</div>
+        : <div onClick={() => setShowFullDescription(true)}  className="text-base-100">More</div>;
+
     return (
         <>
             {/* Image */}
@@ -17,7 +27,8 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
                 fontSize="12" 
                 color="lighterLighterBlack" 
                 whiteSpace={"pre-wrap"} 
-                marginY="5"
+                mt="5"
+                mb="10"
                 css={{
                     '& p': { marginBottom: '0.5em' },
                     '& strong': { fontWeight: 'bold' },
@@ -46,7 +57,14 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
                         <a {...props} target="_blank" rel="noopener noreferrer" />
                         )
                     }}
-                >{exam?.description || ''}</ReactMarkdown>
+                >{descriptionIsTooLong && !showFullDescription
+                    ? slicedDescription
+                    : exam?.description
+                }</ReactMarkdown>
+                {descriptionIsTooLong
+                    ? <AfterSlicedDescription />
+                    : null
+                }
             </Box>
         </>
     )
