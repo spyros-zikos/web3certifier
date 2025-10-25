@@ -8,8 +8,8 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
 
     const maxDescriptionWordLength = 30;
     const descriptionWords = exam?.description ? exam.description.split(" ") : [];
-    const slicedDescription = descriptionWords.slice(0, maxDescriptionWordLength).join(" ");
     const descriptionIsTooLong = descriptionWords.length > maxDescriptionWordLength;
+    const slicedDescription = descriptionWords.slice(0, maxDescriptionWordLength).join(" ") + (descriptionIsTooLong ? "..." : "");
     const AfterSlicedDescription = () => showFullDescription
         ? <div onClick={() => setShowFullDescription(false)} className="text-base-100">Less</div>
         : <div onClick={() => setShowFullDescription(true)}  className="text-base-100">More</div>;
