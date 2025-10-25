@@ -123,7 +123,7 @@ const RewardInfo = ({id, chain}: {id: bigint, chain: any}) => {
                 : <></>
             }
 
-            {tokenName && <RewardDetail label="Token"
+            {tokenName && tokenSymbol && <RewardDetail label="Token"
                 value={tokenName.toString() + " (" + tokenSymbol.toString() + ")"} 
             />}
             {tokenAddress && <RewardDetail label="Token Address"
