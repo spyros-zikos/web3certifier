@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { Bars3Icon, BookOpenIcon, MagnifyingGlassIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 
 type HeaderMenuLink = {
   label: string;
@@ -72,6 +74,13 @@ export const Header = () => {
     burgerMenuRef as React.RefObject<HTMLDivElement>,
     useCallback(() => setIsDrawerOpen(false), []),
   );
+  
+  const { address } = useNonUndefinedAccount();
+
+  const userXP: boolean = wagmiReadFromContract({
+    functionName: "getUserXP",
+    args: [address],
+  }).data;
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -112,6 +121,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        <div className="mr-5 text-base-100 bg-base-200 p-2 py-1 rounded-xl">{userXP?.toString() || "0"} XP</div>
         <div className="mr-5">
           <a href="https://discord.gg/4rXWFNGmDJ" target="_blank">
             <img src="https://di8m9w6rqrh5d.cloudfront.net/1zObrQ89Q4wHhgFCfYIUhMUvmNf4XjxO/big_preview_4ee0a3a1-c2ad-44de-867b-a1aaa7202f19.png" alt="discord" className="w-[25px] h-[19px]" />
