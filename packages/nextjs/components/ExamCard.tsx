@@ -29,6 +29,11 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
         args: [exam?.id],
     }).data as any;
 
+    const examXP = wagmiReadFromContract({
+        functionName: "getExamXp",
+        args: [id],
+    }).data;
+
     const rewardAddress = wagmiReadFromContract({
         contractName: "RewardFactory",
         functionName: "getRewardByExamId",
@@ -89,7 +94,8 @@ const ExamCard: React.FC<CardProps> = ({ className, id, searchTerm = "" }) => {
             }
             compact={true}
         >
-            {/* {exam.description} */}
+            {/* Show xp of each exam at the top right corner */}
+            <Box position="absolute" top="2" right="2" rounded="full" bg="green" color="white" fontSize="xs" px="2">{examXP?.toString() || "0"} XP</Box>
             <SimpleGrid columns={2} gap={0}>
                 <Box>
                     <Text color="black" fontSize="12" p="0" m="0" mt="3">Questions</Text>
