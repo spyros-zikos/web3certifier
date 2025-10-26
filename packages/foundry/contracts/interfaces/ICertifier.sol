@@ -29,7 +29,7 @@ interface ICertifier {
         uint256 endTime;
         string[] questions;
         string answers;
-        uint256 price; // in $
+        uint256 price; // in $  TODO replace with exam xp
         uint256 baseScore;
         string imageUrl;
         address[] users;
