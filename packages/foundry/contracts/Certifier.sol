@@ -60,7 +60,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     // User status
     mapping(address user => mapping(uint256 examId => UserStatus status)) private s_userStatus;
     // User to tokenId of exam
-    mapping(address user => mapping(uint256 examId => uint256 tokenId)) private s_userToTokenId;
+    mapping(address user => mapping(uint256 examId => uint256 tokenId)) private s_userToTokenId;  // TODO REPURPOSE
 
     // Exam
     mapping(uint256 id => Exam exam) private s_examIdToExam;
@@ -72,9 +72,9 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     // NFT
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
-    mapping(uint256 tokenId => uint256 examId) s_tokenIdToExamId;
+    mapping(uint256 tokenId => uint256 examId) s_tokenIdToExamId;  // TODO REPURPOSE
 
-    // usernames
+    // usernames  // TODO REPURPOSE
     mapping(address user => string username) private s_userToUsername;
     mapping(string username => address user) private s_usernameToUser;
     mapping(bytes32 => bool) private s_usedSignatures;
@@ -84,7 +84,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     bool private s_paused;
     bool private s_stopped;  // permanent
 
-    // Whitelist
+    // Whitelist  // TODO REPURPOSE
     address[] private s_whitelist;
     mapping(address => bool) private s_userIsWhitelisted;
 
@@ -94,6 +94,10 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     // Decimals
     uint256 private constant DECIMALS = 1e18;
     address private constant GOOD_DOLLAR_PROXY = 0xC361A6E67822a0EDc17D899227dd9FC50BD62F42;
+
+    // XP
+    uint256[] private s_examsWithXp;
+    mapping(uint256 examId => uint256 xp) private s_examIdToXp;  // XP that users earn for each exam
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -432,6 +436,19 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             s_whitelist.pop();
     }
 
+    function _removeFromIntArray(uint256[] memory array, uint256 number) private pure returns(uint256[] memory, bool canPop) {
+        if (array.length == 0) return (array, false);
+
+        bool shift;
+        uint256 arrayLength = array.length;
+        for (uint256 i = 0; i < arrayLength - 1; i++) {
+            if (array[i] == number) shift = true;
+            if (shift) array[i] = array[i + 1];
+        }
+        if (shift || array[array.length - 1] == number) return (array, true);
+        return (array, false);
+    }
+
     /**
      * @notice Checks if the signature has been used and if it has reverts.
      * @notice Checks if the signature is valid and reverts if it is not.
@@ -560,6 +577,22 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return s_userToTokenId[user][examId];
     }
 
+    function getExamsWithXp() external view returns (uint256[] memory) {
+        return s_examsWithXp;
+    }
+
+    function getExamXp(uint256 examId) external view returns (uint256) {
+        return s_examIdToXp[examId];
+    }
+
+    function getUserXP(address user) external view returns (uint256) {
+        uint256 xp;
+        for (uint256 i = 0; i < s_examsWithXp.length; i++)
+            if (s_userStatus[user][s_examsWithXp[i]] == UserStatus.Succeeded)
+                xp += s_examIdToXp[s_examsWithXp[i]];
+        return xp;
+    }
+
     /*//////////////////////////////////////////////////////////////
                            SETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -627,5 +660,27 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     function setPriceFeed(address priceFeed) external onlyOwner {
         s_priceFeed = priceFeed;
         emit SetPriceFeed(priceFeed);
+    }
+
+    function addExamWithXp(uint256 examId, uint256 xp) external onlyOwner {
+        if (s_examIdToXp[examId] > 0) return;
+
+        s_examsWithXp.push(examId);
+        s_examIdToXp[examId] = xp;
+        emit AddExamWithXp(examId, xp);
+    }
+
+    function removeExamWithXp(uint256 examId) external onlyOwner {
+        bool canPop;
+        (s_examsWithXp, canPop) = _removeFromIntArray(s_examsWithXp, examId);
+        if (!canPop) return;
+        s_examsWithXp.pop();
+        delete s_examIdToXp[examId];
+        emit RemoveExamWithXp(examId);
+    }
+
+    function updateExamXp(uint256 examId, uint256 xp) external onlyOwner {
+        s_examIdToXp[examId] = xp;
+        emit UpdateExamXp(examId, xp);
     }
 }

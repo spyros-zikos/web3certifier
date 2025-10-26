@@ -153,6 +153,75 @@ contract CertifierTest is Test {
         vm.stopPrank();
 
         assert(token.balanceOf(certifierOrg) == INITIAL_TOKEN_SUPPLY - token.balanceOf(user));
+
+        ///// XP /////
+        // create exam, submit, correct, claim, CHECK XP
+        orgCreatesExam(certifierOrg, true);
+        uint256 examId2 = 1;
+        string memory userAnswers2 = "112";
+        uint256 secretNumber2 = 123;
+        bytes32 hashedAnswer2 = keccak256(abi.encodePacked(userAnswers2, secretNumber2, user));
+        // User submits
+        uint256 submissionFeeInEth2 = certifier.getUsdToEthRate(certifier.getExam(examId2).price);
+        vm.prank(user);
+        certifier.submitAnswers{value: submissionFeeInEth2}(examId2, hashedAnswer2, address(0), 0, "0x");
+        vm.warp(block.timestamp + TIME_DURATION + 1);
+        // Org corrects
+        vm.prank(certifierOrg);
+        certifier.correctExam(examId2, userAnswers2);
+        // User claims
+        vm.prank(user);
+        certifier.claimCertificate(examId2, userAnswers2, secretNumber2);
+
+        // Set xp of exam 1 to 10 and exam 2 to 20
+        vm.startPrank(deployer);
+        certifier.addExamWithXp(1, 10);
+        certifier.addExamWithXp(2, 20);
+        vm.stopPrank();
+        // Check user xp
+        assert(certifier.getUserXP(user) == 30);
+        // remove xp from exam 1
+        vm.prank(deployer);
+        certifier.removeExamWithXp(1);
+        // Check user xp
+        assert(certifier.getUserXP(user) == 20);
+    }
+
+    function testXP() public {
+        // add an exam with 10 xp
+        vm.startPrank(deployer);
+        certifier.addExamWithXp(1, 10);
+        console2.log("After adding exam 1 with 10 xp: ");
+        for (uint256 i = 0; i < certifier.getExamsWithXp().length; i++)
+            console2.log(certifier.getExamsWithXp()[i]);
+        assert(certifier.getExamXp(1) == 10);
+
+        // add an exam with 20 xp
+        certifier.addExamWithXp(2, 20);
+        console2.log("After adding exam 2 with 20 xp: ");
+        for (uint256 i = 0; i < certifier.getExamsWithXp().length; i++)
+            console2.log(certifier.getExamsWithXp()[i]);
+        assert(certifier.getExamXp(2) == 20);
+
+        // update the xp of the exam 1 to 15
+        certifier.updateExamXp(1, 15);
+        console2.log("After updating xp of exam 1 to 15, the xp of the exam 1 is: ");
+        console2.log(certifier.getExamXp(1));
+        assert(certifier.getExamXp(1) == 15);
+
+        // remove xp from the exam 1
+        certifier.removeExamWithXp(1);
+        console2.log("After removing xp from exam 1: ");
+        for (uint256 i = 0; i < certifier.getExamsWithXp().length; i++)
+            console2.log(certifier.getExamsWithXp()[i]);
+        assert(certifier.getExamXp(1) == 0);
+
+        // remove xp from the exam 2
+        certifier.removeExamWithXp(2);
+        console2.log("After removing xp from exam 2: ");
+        for (uint256 i = 0; i < certifier.getExamsWithXp().length; i++)
+            console2.log(certifier.getExamsWithXp()[i]);
+        assert(certifier.getExamXp(2) == 0);
     }
 
     function _testCreateExamSubmitAnswersGetRefund() public notCelo {

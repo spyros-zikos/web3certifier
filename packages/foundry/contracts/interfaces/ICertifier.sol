@@ -79,6 +79,9 @@ interface ICertifier {
     event SetPriceFeed(address priceFeed);
     event UserFailed(address user, uint256 examId, string answers);
     event EngagementRewardClaimFailed(string message);
+    event AddExamWithXp(uint256 examId, uint256 xp);
+    event RemoveExamWithXp(uint256 examId);
+    event UpdateExamXp(uint256 examId, uint256 xp);
 
     /*//////////////////////////////////////////////////////////////
                                 ERRORS

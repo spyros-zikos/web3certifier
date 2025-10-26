@@ -13,7 +13,7 @@ const scaffoldConfig = {
   targetNetworks: [
     // chains.foundry, 
     chains.sepolia,
-    chains.arbitrum,
+    // chains.arbitrum,
     chains.celo
   ],
 
