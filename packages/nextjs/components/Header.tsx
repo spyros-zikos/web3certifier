@@ -120,13 +120,13 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end flex-grow mr-4">
-        <div className="mr-5 text-base-100 bg-base-200 p-2 py-1 rounded-xl">{userXP?.toString() || "0"} XP</div>
+      <div className="navbar-end flex-grow mr-5">
         <div className="mr-5">
           <a href="https://discord.gg/4rXWFNGmDJ" target="_blank">
             <img src="https://di8m9w6rqrh5d.cloudfront.net/1zObrQ89Q4wHhgFCfYIUhMUvmNf4XjxO/big_preview_4ee0a3a1-c2ad-44de-867b-a1aaa7202f19.png" alt="discord" className="w-[25px] h-[19px]" />
           </a>
         </div>
+        <div className="mr-3 text-neutral bg-base-200 p-2 py-1 rounded-full">{userXP?.toString() || "0"} XP</div>
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>
