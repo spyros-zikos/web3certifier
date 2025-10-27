@@ -55,4 +55,4 @@ NOTES
 forge install openzeppelin/openzeppelin-contracts-upgradeable --no-commit
 forge install openzeppelin/openzeppelin-contracts@v5.3.0 --no-commit
 exam for submission testing: 61
-exam for reward testing: 67
+exam for reward testing: 67, 40
