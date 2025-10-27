@@ -2,6 +2,7 @@ import { Box, Heading, Image } from '@chakra-ui/react'
 import React from 'react'
 import { defaultImage } from "~~/constants";
 import ReactMarkdown from 'react-markdown';
+import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 
 const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
     const [showFullDescription, setShowFullDescription] = React.useState(false);
@@ -14,10 +15,18 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
         ? <div onClick={() => setShowFullDescription(false)} className="text-base-100">Less</div>
         : <div onClick={() => setShowFullDescription(true)}  className="text-base-100">More</div>;
 
+    const examXP = wagmiReadFromContract({
+        functionName: "getExamXp",
+        args: [exam?.id || 0n],
+    }).data;
+
     return (
         <>
             {/* Image */}
-            <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={200} h={200} sm={{ w: 290, h: 290 }} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
+            <Box position="relative">
+                <Box position="absolute" top="2" left="145px" sm={{ left: "235px"}} md={{ left: "295px"}} rounded="full" bg="green" color="white" fontSize="xs" px="2">{examXP?.toString() || "0"} XP</Box>
+                <Image borderRadius="2xl" src={exam?.imageUrl || defaultImage} alt={"Exam Image"} maxWidth="500px" maxHeight="500px" mb="10" mt="6" w={200} h={200} sm={{ w: 290, h: 290 }} md={{ w: 350, h: 350 }} objectFit={"cover"}/>
+            </Box>
             
             {/* Name */}
             <Heading fontSize="3xl" fontWeight="bold">{exam?.name}</Heading>
