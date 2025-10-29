@@ -22,7 +22,7 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
             </div>
         );
     else if (examStage === ExamStage.User_Open_Submitted)
-        return () => (<> <Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage mentionRewards={true} /> </>);
+        return () => (<><Box display="inline">Your answers are submitted!</Box> <JoinDiscordMessage mentionRewards={true} /></>);
     // Under Correction
     else if (examStage === ExamStage.User_UnderCorrection)
         return () => <>This exam is being corrected by the certifier! <JoinDiscordMessage mentionRewards={true} /></>;
