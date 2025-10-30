@@ -3,7 +3,7 @@ import { Button } from '~~/components'
 
 const ClaimButton = ({text, onClick}: {text: string, onClick: any}) => {
   return (
-    <Button className="mt-8 ml-[25%] w-[50%]" onClick={onClick}>
+    <Button display="inline-block" mt="8" className="ml-[25%] w-[50%]" onClick={onClick}>
         {text}
     </Button>
   )

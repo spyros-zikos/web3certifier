@@ -6,9 +6,7 @@ import { Question, MessageForUser, ClaimButton, ClaimCertificateFaucet } from ".
 import Cookies from 'js-cookie';
 import { getVariablesFromPasswordCookie } from "../helperFunctions/PasswordManagement";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
-import { Box } from "@chakra-ui/react";
 import { getPasswordCookieName } from "~~/constants";
-import Link from "next/link";
 import examStageMessageFunction from "../_components/examStageMessage";
 import { ExamStage } from "~~/types/ExamStage";
 

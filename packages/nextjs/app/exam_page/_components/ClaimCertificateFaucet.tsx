@@ -4,6 +4,7 @@ import FaucetButton from './FaucetButton';
 const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string | undefined}) => {
     const initialStatus = 1000;
     const [status, setStatus] = useState(initialStatus);
+    const [buttonClicked, setButtonClicked] = useState(false);
     
     const handleClaimFaucet = async () => {
         if (!id) return;
@@ -11,6 +12,7 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
             setStatus(406);
             return;
         }
+        setButtonClicked(true);
 
         const response = await fetch(`/api/exam_page/user/claim_certificate/faucet/claim/`, {
             method: 'POST',
@@ -30,7 +32,6 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
     return (
         <FaucetButton
             message={
-                status === initialStatus ? "Get funds to cover gas fees" :
                 status === 200 ? "Claimed funds successfully!" :
                 status === 401 ? "Status is not submitted" :
                 status === 402 ? "Already claimed" :
@@ -39,6 +40,7 @@ const ClaimCertificateFaucet = ({chainId, id, user}: {chainId: number, id: bigin
                 "Faucet failed"
             }
             isInitialStatus={status===initialStatus}
+            disabled={buttonClicked}
             handleClaimFaucet={handleClaimFaucet}
         />
     )

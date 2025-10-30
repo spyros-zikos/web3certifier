@@ -5,6 +5,7 @@ import FaucetButton from './FaucetButton';
 const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, user: string | undefined}) => {
     const initialStatus = 1000;
     const [status, setStatus] = useState(initialStatus);
+    const [buttonClicked, setButtonClicked] = useState(false);
     
     const handleClaimFaucet = async () => {
         if (!id) return;
@@ -12,7 +13,8 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
             setStatus(406);
             return;
         }
-
+        setButtonClicked(true);
+        
         const response = await fetch(`/api/exam_page/user/submit_answers/faucet/claim/`, {
             method: 'POST',
             headers: {
@@ -32,7 +34,6 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
         <Box display={"flex"} justifyContent="right">
             <FaucetButton
                 message={
-                    status === initialStatus ? "Get funds to cover gas fees" :
                     status === 200 ? "Claimed funds successfully!" :
                     status === 401 ? "Not verified" :
                     status === 402 ? "Already claimed" :
@@ -41,6 +42,7 @@ const SubmitAnswersFaucet = ({chainId, id, user}: {chainId: number, id: bigint, 
                     "Faucet failed"
                 }
                 isInitialStatus={status===initialStatus}
+                disabled={buttonClicked}
                 handleClaimFaucet={handleClaimFaucet}
             />
         </Box>
