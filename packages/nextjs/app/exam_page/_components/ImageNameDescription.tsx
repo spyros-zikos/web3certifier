@@ -42,7 +42,8 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
                     '& p': { marginBottom: '0em', marginTop: '0.1em' },
                     '& strong': { fontWeight: 'bold' },
                     '& em': { fontStyle: 'italic' },
-                    '& ul, & ol': { marginLeft: '1.5em', marginBottom: '0.5em' },
+                    '& ul, & ol': { marginLeft: '1.5em', marginBottom: '0em', marginTop: '0em', padding: '0em' },
+                    '& li': { display: 'inline', '&::before': { content: "'\u2015\u0020'", } },
                     '& code': { 
                         backgroundColor: 'black', 
                         padding: '0.2em 0.4em', 
