@@ -39,7 +39,7 @@ const ImageNameDescription = ({exam}: {exam: Exam | undefined}) => {
                 mt="5"
                 mb="10"
                 css={{
-                    '& p': { marginBottom: '0.5em' },
+                    '& p': { marginBottom: '0em', marginTop: '0.1em' },
                     '& strong': { fontWeight: 'bold' },
                     '& em': { fontStyle: 'italic' },
                     '& ul, & ol': { marginLeft: '1.5em', marginBottom: '0.5em' },
