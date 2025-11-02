@@ -448,9 +448,7 @@ const CreateExam = () => {
                     {/* <FileUpload.List /> */}
                 </FileUpload.Root>
                 
-
                 <Text borderTop="1px solid" mt="8" borderColor="lighterLighterBlack"></Text>
-                
 
                 <Text mt="9" color="grey" display="block">
                     Exam Creation Fee: ${(examCreationFee ? (Math.round(Number(examCreationFee) / 1e16) / 1e2) : 0).toString()} in ({chain?.id === 42220 ? "CELO" : "ETH"})
