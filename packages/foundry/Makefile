@@ -17,35 +17,13 @@ fork-celo:
 build:
 	forge build --build-info --build-info-path out/build-info/ --optimizer-runs 1 --via-ir
 
-# Deploy the project
-# deploy:
-# 	@if [ "$(RPC_URL)" = "localhost" ]; then \
-# 		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi --via-ir; \
-# 	else \
-# 		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --optimizer-runs 1 --ffi --via-ir; \
-# 	fi
-
-# Build and deploy target
-# build-and-deploy: build deploy generate-abis
-
 # Generate TypeScript ABIs
 generate-abis:
 	node scripts-js/generateTsAbis.js
 
-# Deploy and verify
-# deploy-verify:
-# 	@if [ "$(RPC_URL)" = "localhost" ]; then \
-# 		forge script script/Deploy.s.sol --rpc-url localhost --password localhost --broadcast --legacy --ffi --verify; \
-# 	else \
-# 		forge script script/Deploy.s.sol --rpc-url $(RPC_URL) --broadcast --legacy --optimizer-runs 1 --ffi --verify; \
-# 	fi
-# 	node scripts-js/generateTsAbis.js
-
 # Verify contracts
 verify:
 	forge script script/VerifyAll.s.sol --optimizer-runs 1 --ffi --rpc-url $(RPC_URL) --via-ir
-
-build-and-verify: build verify
 
 -include .env
 
