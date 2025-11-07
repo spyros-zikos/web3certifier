@@ -89,6 +89,11 @@ contract CertifierTest is Test {
         // Act
         // Assert
         orgCreatesExam(certifierOrg, false);
+        // Set xp of exam 1 to 10 and exam 2 to 20
+        vm.startPrank(deployer);
+        certifier.addExamWithXp(0, 10);
+        certifier.addExamWithXp(1, 20);
+        vm.stopPrank();
 
         uint256 examId = 0;
         string memory userAnswers = "112";
@@ -137,7 +142,7 @@ contract CertifierTest is Test {
         Reward(reward).claim();
         vm.stopPrank();
 
-        assert(token.balanceOf(user) == 7);
+        assert(token.balanceOf(user) == 8);
 
         // Certifier funds reward
         vm.startPrank(certifierOrg);
@@ -156,15 +161,19 @@ contract CertifierTest is Test {
 
         ///// XP /////
         // create exam, submit, correct, claim, CHECK XP
-        orgCreatesExam(certifierOrg, true);
+        orgCreatesExam(certifierOrg, false);
         uint256 examId2 = 1;
         string memory userAnswers2 = "112";
         uint256 secretNumber2 = 123;
         bytes32 hashedAnswer2 = keccak256(abi.encodePacked(userAnswers2, secretNumber2, user));
+        bytes32 hashedAnswer2ForUser2 = keccak256(abi.encodePacked(userAnswers2, secretNumber2, user2));
         // User submits
         uint256 submissionFeeInEth2 = certifier.getUsdToEthRate(certifier.getExam(examId2).price);
         vm.prank(user);
         certifier.submitAnswers{value: submissionFeeInEth2}(examId2, hashedAnswer2, address(0), 0, "0x");
+        // User2 submits
+        vm.prank(user2);
+        certifier.submitAnswers{value: submissionFeeInEth2}(examId2, hashedAnswer2ForUser2, address(0), 0, "0x");
         vm.warp(block.timestamp + TIME_DURATION + 1);
         // Org corrects
         vm.prank(certifierOrg);
@@ -172,22 +181,35 @@ contract CertifierTest is Test {
         // User claims
         vm.prank(user);
         certifier.claimCertificate(examId2, userAnswers2, secretNumber2);
+        // User2 claims
+        vm.prank(user2);
+        certifier.claimCertificate(examId2, userAnswers2, secretNumber2);
 
-        // Set xp of exam 1 to 10 and exam 2 to 20
-        vm.startPrank(deployer);
-        certifier.addExamWithXp(1, 10);
-        certifier.addExamWithXp(2, 20);
-        vm.stopPrank();
+
         // Check user xp
-        assert(certifier.getUserXP(user) == 30);
+        assert(certifier.getUserXp(user) == 30);
+        assert(certifier.getUserXp(user2) == 20);
+
         // remove xp from exam 1
         vm.prank(deployer);
         certifier.removeExamWithXp(1);
+
         // Check user xp
-        assert(certifier.getUserXP(user) == 20);
+        assert(certifier.getUserXp(user) == 30);
+        assert(certifier.getUserXp(user2) == 20);
+        assert(certifier.getUsersWithXp().length == 2);
+
+        // reset user xp
+        vm.prank(deployer);
+        certifier.resetXpOfUsers();
+
+        // Check user xp
+        assert(certifier.getUserXp(user) == 0);
+        assert(certifier.getUserXp(user2) == 0);
+        assert(certifier.getUsersWithXp().length == 0);
     }
 
-    function testXP() public {
+    function testXp() public {
         // add an exam with 10 xp
         vm.startPrank(deployer);
         certifier.addExamWithXp(1, 10);
