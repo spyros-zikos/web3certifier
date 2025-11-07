@@ -797,7 +797,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getUserXP",
+          name: "getUserXp",
           inputs: [
             {
               name: "user",
@@ -836,6 +836,19 @@ const deployedContracts = {
         {
           type: "function",
           name: "getUsers",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getUsersWithXp",
           inputs: [],
           outputs: [
             {
@@ -1011,6 +1024,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "resetXpOfUsers",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
@@ -2406,22 +2426,6 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "StringsInsufficientHexLength",
-          inputs: [
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "length",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
           name: "UUPSUnauthorizedCallContext",
           inputs: [],
         },
@@ -2437,55 +2441,7 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        claimCertificate: "contracts/interfaces/ICertifier.sol",
-        correctExam: "contracts/interfaces/ICertifier.sol",
-        createExam: "contracts/interfaces/ICertifier.sol",
-        getExam: "contracts/interfaces/ICertifier.sol",
-        getHashesMatch: "contracts/interfaces/ICertifier.sol",
-        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
-        getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
-        getUserScore: "contracts/interfaces/ICertifier.sol",
-        getUserStatus: "contracts/interfaces/ICertifier.sol",
-        getUserTokenId: "contracts/interfaces/ICertifier.sol",
-        refundExam: "contracts/interfaces/ICertifier.sol",
-        submitAnswers: "contracts/interfaces/ICertifier.sol",
-        tokenURI:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        approve:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        balanceOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        getApproved:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        isApprovedForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        ownerOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        safeTransferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        setApprovalForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        supportsInterface:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        symbol:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        transferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   42161: {
@@ -2922,25 +2878,12 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   42220: {
     Certifier: {
-      address: "0xc738541dbeb5ace90a12ecff337c8212d31f1630",
+      address: "0x9af20ccc87a8295cc3046dbff0b24620c5386434",
       abi: [
         {
           type: "constructor",
@@ -3730,7 +3673,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getUserXP",
+          name: "getUserXp",
           inputs: [
             {
               name: "user",
@@ -3769,6 +3712,19 @@ const deployedContracts = {
         {
           type: "function",
           name: "getUsers",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getUsersWithXp",
           inputs: [],
           outputs: [
             {
@@ -3944,6 +3900,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "resetXpOfUsers",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
@@ -5339,22 +5302,6 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "StringsInsufficientHexLength",
-          inputs: [
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "length",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
           name: "UUPSUnauthorizedCallContext",
           inputs: [],
         },
@@ -5370,60 +5317,12 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        claimCertificate: "contracts/interfaces/ICertifier.sol",
-        correctExam: "contracts/interfaces/ICertifier.sol",
-        createExam: "contracts/interfaces/ICertifier.sol",
-        getExam: "contracts/interfaces/ICertifier.sol",
-        getHashesMatch: "contracts/interfaces/ICertifier.sol",
-        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
-        getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
-        getUserScore: "contracts/interfaces/ICertifier.sol",
-        getUserStatus: "contracts/interfaces/ICertifier.sol",
-        getUserTokenId: "contracts/interfaces/ICertifier.sol",
-        refundExam: "contracts/interfaces/ICertifier.sol",
-        submitAnswers: "contracts/interfaces/ICertifier.sol",
-        tokenURI:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        approve:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        balanceOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        getApproved:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        isApprovedForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        ownerOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        safeTransferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        setApprovalForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        supportsInterface:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        symbol:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        transferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
   11155111: {
     Certifier: {
-      address: "0x64a29f721fd8497d253aabc9f8f8160704bcae4c",
+      address: "0xd669ece01eae93ef112dec389c02fb2c7146852d",
       abi: [
         {
           type: "constructor",
@@ -6213,7 +6112,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "getUserXP",
+          name: "getUserXp",
           inputs: [
             {
               name: "user",
@@ -6252,6 +6151,19 @@ const deployedContracts = {
         {
           type: "function",
           name: "getUsers",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getUsersWithXp",
           inputs: [],
           outputs: [
             {
@@ -6427,6 +6339,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "resetXpOfUsers",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
@@ -7822,22 +7741,6 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "StringsInsufficientHexLength",
-          inputs: [
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "length",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
           name: "UUPSUnauthorizedCallContext",
           inputs: [],
         },
@@ -7853,55 +7756,7 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        UPGRADE_INTERFACE_VERSION:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        proxiableUUID:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        upgradeToAndCall:
-          "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol",
-        owner:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        claimCertificate: "contracts/interfaces/ICertifier.sol",
-        correctExam: "contracts/interfaces/ICertifier.sol",
-        createExam: "contracts/interfaces/ICertifier.sol",
-        getExam: "contracts/interfaces/ICertifier.sol",
-        getHashesMatch: "contracts/interfaces/ICertifier.sol",
-        getIsVerifiedOnCelo: "contracts/interfaces/ICertifier.sol",
-        getUsdToEthRate: "contracts/interfaces/ICertifier.sol",
-        getUserScore: "contracts/interfaces/ICertifier.sol",
-        getUserStatus: "contracts/interfaces/ICertifier.sol",
-        getUserTokenId: "contracts/interfaces/ICertifier.sol",
-        refundExam: "contracts/interfaces/ICertifier.sol",
-        submitAnswers: "contracts/interfaces/ICertifier.sol",
-        tokenURI:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        approve:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        balanceOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        getApproved:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        isApprovedForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        name: "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        ownerOf:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        safeTransferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        setApprovalForAll:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        supportsInterface:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        symbol:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-        transferFrom:
-          "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
 } as const;

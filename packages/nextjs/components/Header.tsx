@@ -78,7 +78,7 @@ export const Header = () => {
   const { address } = useNonUndefinedAccount();
 
   const userXP: boolean = wagmiReadFromContract({
-    functionName: "getUserXP",
+    functionName: "getUserXp",
     args: [address],
   }).data;
 
