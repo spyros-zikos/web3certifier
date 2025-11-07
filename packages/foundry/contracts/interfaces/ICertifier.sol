@@ -177,6 +177,11 @@ interface ICertifier {
     */
     function refundExam(uint256 examId) external;
 
+    /**
+    * @notice Sets the xp of all users to 0
+    */
+    function resetXpOfUsers() external;
+
     // public
 
     function tokenURI(uint256 tokenId) external view returns (string memory);

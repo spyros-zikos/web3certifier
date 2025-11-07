@@ -98,6 +98,8 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     // XP
     uint256[] private s_examsWithXp;
     mapping(uint256 examId => uint256 xp) private s_examIdToXp;  // XP that users earn for each exam
+    address[] private s_usersWithXp;
+    mapping(address user => uint256 xp) private s_userXp;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -176,7 +178,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             userClaimsWithPassword: userClaimsWithPassword
         });
 
-        transferEther(s_feeCollector, msg.value);
+        _transferEther(s_feeCollector, msg.value);
 
         emit CreateExam(
             exam.id,
@@ -216,7 +218,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         s_userStatus[msg.sender][examId] = UserStatus.Submitted;
         uint256 feeAmount = msg.value * s_submissionFee / DECIMALS;
         s_examIdToExam[examId].etherAccumulated += (msg.value - feeAmount);
-        transferEther(s_feeCollector, feeAmount);
+        _transferEther(s_feeCollector, feeAmount);
         s_userToExamIds[msg.sender].push(examId);
         s_userToHashedAnswers[msg.sender][examId] = hashedAnswer;
         s_examIdToExam[examId].users.push(msg.sender);
@@ -250,7 +252,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
         uint256 ethToCollect = s_examIdToExam[examId].etherAccumulated;
         if (ethToCollect > 0) {
-            transferEther(msg.sender, ethToCollect);
+            _transferEther(msg.sender, ethToCollect);
             s_examIdToExam[examId].etherAccumulated = 0;
         }
 
@@ -271,7 +273,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
             getHashesMatch(examId, answers, secretNumber);
         if (!hashesMatch) revert Certifier__AnswerHashesDontMatch(submittedHashedAnswer, expectedHashedAnswer);
 
-        uint256 score = getScore(s_examIdToExam[examId].answers, answers);
+        uint256 score = _getScore(s_examIdToExam[examId].answers, answers);
         s_userToStringAnswers[msg.sender][examId] = answers;
 
         if (score < s_examIdToExam[examId].baseScore) {
@@ -281,11 +283,13 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         }
         s_userStatus[msg.sender][examId] = UserStatus.Succeeded;
 
-        string memory tokenUri = makeTokenUri(examId, score);
+        string memory tokenUri = _makeTokenUri(examId);
         s_tokenIdToUri[s_tokenCounter] = tokenUri;
         s_tokenIdToExamId[s_tokenCounter] = examId;
         s_examIdToExam[examId].tokenIds.push(s_tokenCounter);
         s_userToTokenId[msg.sender][examId] = s_tokenCounter;
+        if (s_userXp[msg.sender] == 0) s_usersWithXp.push(msg.sender);
+        s_userXp[msg.sender] += s_examIdToXp[examId];
 
         _safeMint(msg.sender, s_tokenCounter);
         emit ClaimNFT(msg.sender, examId, answers, s_tokenCounter);
@@ -303,10 +307,18 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
 
         uint256 ethAmount = getUsdToEthRate(s_examIdToExam[examId].price);
         uint256 feeAmount = ethAmount * s_submissionFee / DECIMALS;
-        transferEther(msg.sender, ethAmount - feeAmount);
+        _transferEther(msg.sender, ethAmount - feeAmount);
         s_userStatus[msg.sender][examId] = UserStatus.Refunded;
 
         emit ClaimRefund(examId, msg.sender, ethAmount - feeAmount);
+    }
+
+    /// @inheritdoc ICertifier
+    function resetXpOfUsers() external nonReentrant onlyOwner {
+        for (uint256 i = 0; i < s_usersWithXp.length; i++) {
+            s_userXp[s_usersWithXp[i]] = 0;
+        }
+        s_usersWithXp = new address[](0);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -371,12 +383,12 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
                            PRIVATE FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function transferEther(address to, uint256 amount) private {
+    function _transferEther(address to, uint256 amount) private {
         (bool success,) = to.call{value: amount}("");
         if (!success) revert Certifier__EtherTransferFailed();
     }
 
-    function getScore(string memory correctAnswers, string memory userAnswers) private pure returns (uint256) {
+    function _getScore(string memory correctAnswers, string memory userAnswers) private pure returns (uint256) {
         uint256 correctAnswersLength = bytes(userAnswers).length;
         uint256 userAnswersLength = bytes(userAnswers).length;
         if (correctAnswersLength != userAnswersLength) revert Certifier__AnswersLengthDontMatch(correctAnswersLength, userAnswersLength);
@@ -395,7 +407,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return score;
     }
 
-    function makeTokenUri(uint256 examId, uint256 score) private view returns (string memory) {
+    function _makeTokenUri(uint256 examId) private view returns (string memory) {
         string memory nameLine = string.concat(
             '{"name": "', s_examIdToExam[examId].name, " | ", name(), " #", s_tokenCounter.toString()
         );
@@ -405,11 +417,6 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         string memory attributesLine = string.concat(
             '"attributes":[',
             '{"trait_type": "exam_name", "value": "', s_examIdToExam[examId].name, '"}, ',
-            '{"trait_type": "exam_description", "value": "', s_examIdToExam[examId].description, '"}, ',
-            '{"trait_type": "my_score", "value": ', score.toString(), '}, ',
-            '{"trait_type": "number_of_questions", "value": ', s_examIdToExam[examId].questions.length.toString(), '}, ',
-            '{"trait_type": "exam_base_score", "value": ', s_examIdToExam[examId].baseScore.toString(), "}, ",
-            '{"trait_type": "initial_owner", "value": "', msg.sender.toHexString(), '"}, ',
             '{"trait_type": "exam_id", "value": ', examId.toString(), "}",
             '], "image": "', s_examIdToExam[examId].imageUrl, '"}'
         );
@@ -478,7 +485,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     //////////////////////////////////////////////////////////////*/
 
     function getUserScore(uint256 examId, address user) public view returns (uint256) {
-        return getScore(s_examIdToExam[examId].answers, s_userToStringAnswers[user][examId]);
+        return _getScore(s_examIdToExam[examId].answers, s_userToStringAnswers[user][examId]);
     }
 
     function getFeeCollector() external view returns (address) {
@@ -585,12 +592,12 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return s_examIdToXp[examId];
     }
 
-    function getUserXP(address user) external view returns (uint256) {
-        uint256 xp;
-        for (uint256 i = 0; i < s_examsWithXp.length; i++)
-            if (s_userStatus[user][s_examsWithXp[i]] == UserStatus.Succeeded)
-                xp += s_examIdToXp[s_examsWithXp[i]];
-        return xp;
+    function getUserXp(address user) external view returns (uint256) {
+        return s_userXp[user];
+    }
+
+    function getUsersWithXp() external view returns (address[] memory) {
+        return s_usersWithXp;
     }
 
     /*//////////////////////////////////////////////////////////////
