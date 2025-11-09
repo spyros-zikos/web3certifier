@@ -7,7 +7,6 @@ export default function MilestoneRoadmap() {
 
     const milestones = [
         {
-            id: 1,
             title: "Getting Started",
             description: "Complete your profile",
             points: 10,
@@ -15,7 +14,6 @@ export default function MilestoneRoadmap() {
             icon: Star
         },
         {
-            id: 2,
             title: "First Steps",
             description: "Complete 5 tasks",
             points: 25,
@@ -23,7 +21,6 @@ export default function MilestoneRoadmap() {
             icon: Trophy
         },
         {
-            id: 3,
             title: "Making Progress",
             description: "Reach 50 points",
             points: 50,
@@ -31,7 +28,6 @@ export default function MilestoneRoadmap() {
             icon: Gift
         },
         {
-            id: 4,
             title: "Going Strong",
             description: "Complete 20 tasks",
             points: 75,
@@ -39,7 +35,6 @@ export default function MilestoneRoadmap() {
             icon: Trophy
         },
         {
-            id: 5,
             title: "Master Level",
             description: "Reach 100 points",
             points: 100,
@@ -60,7 +55,7 @@ export default function MilestoneRoadmap() {
         <div className="min-h-screen bg-base-200 p-8">
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-neutral mb-4">Your Journey</h1>
+                    <h1 className="text-4xl font-bold text-neutral mb-4">Your Journey <div className="text-base-300 inline">(Beta)</div></h1>
                     <p className="text-neutral mb-6">Track your progress and unlock amazing prizes!</p>
                     
                     <div className="bg-secondary rounded-lg p-6 shadow-lg mb-8">
@@ -108,7 +103,7 @@ export default function MilestoneRoadmap() {
                         const Icon = milestone.icon;
                         
                         return (
-                            <div key={milestone.id} className="relative flex items-start gap-6">
+                            <div key={index} className="relative flex items-start gap-6">
                                 <div className={`relative z-10 flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
                                     status === 'completed' 
                                     ? 'bg-primary' 
