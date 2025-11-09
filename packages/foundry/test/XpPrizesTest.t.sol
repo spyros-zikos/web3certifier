@@ -18,7 +18,7 @@ contract XpPrizesTest is Test {
     address user = makeAddr("user");
 
     function setUp() public {
-        mockToken = new MockToken(address(this), INITIAL_TOKEN_SUPPLY);  // mint initial supply (useless)
+        mockToken = new MockToken(address(this), 0);
         mockCertifier = new MockCertifier();
         xpPrizes = new XpPrizes(address(mockToken), address(mockCertifier), block.timestamp + EXPIRATION_TIME);
         mockToken.mint(address(xpPrizes), xpPrizes.getXpPrize(XP_POINT).prizeAmount);
