@@ -13,6 +13,10 @@ fork-sepolia:
 fork-celo:
 	forge test --fork-url celo -vv --via-ir
 
+# Test Xp Prizes
+test-xp-prizes:
+	forge test --mc XpPrizesTest --via-ir
+
 # Build the project
 build:
 	forge build --build-info --build-info-path out/build-info/ --optimizer-runs 1 --via-ir

@@ -196,9 +196,93 @@ interface ICertifier {
 
     function getUserScore(uint256 examId, address user) external view returns (uint256);
 
-    function getUserTokenId(address user, uint256 examId) external view returns (uint256);
+    function getFeeCollector() external view returns (address);
+
+    function getCertifierExams(address certifier) external view returns (uint256[] memory);
+
+    function getUserExams(address user) external view returns (uint256[] memory);
+
+    function getUsers() external view returns (address[] memory);
+
+    function getUser(uint256 index) external view returns (address);
+
+    function getUserHashedAnswer(address user, uint256 examId) external view returns (bytes32);
+
+    function getUserStringAnswer(address user, uint256 examId) external view returns (string memory);
 
     function getExam(uint256 id) external view returns (Exam memory);
 
+    function getLastExamId() external view returns (uint256);
+
+    function getExamCreationFee() external view returns (uint256);
+
+    function getSubmissionFee() external view returns (uint256);
+
+    function getTimeToCorrectExam() external view returns (uint256);
+
+    function getTokenCounter() external view returns (uint256);
+
+    function getUsername(address user) external view returns (string memory);
+
+    function getUserFromUsername(string memory username) external view returns (address);
+
+    function getDecimals() external pure returns (uint256);
+
+    function getIsPaused() external view returns (bool);
+
+    function getIsStopped() external view returns (bool);
+
+    function getWhitelist() external view returns (address[] memory);
+
+    function getUserIsWhitelisted(address user) external view returns (bool);
+
+    function getSigner() external view returns (address);
+
+    function getRequiresSignature() external view returns (bool);
+
     function getUserStatus(address user, uint256 examId) external view returns (UserStatus);
+
+    function getUserTokenId(address user, uint256 examId) external view returns (uint256);
+
+    function getExamsWithXp() external view returns (uint256[] memory);
+
+    function getExamXp(uint256 examId) external view returns (uint256);
+
+    function getUserXp(address user) external view returns (uint256);
+
+    function getUsersWithXp() external view returns (address[] memory);
+
+    /*//////////////////////////////////////////////////////////////
+                           SETTER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    function setFeeCollector(address feeCollector) external;
+
+    function setTimeToCorrectExam(uint256 time) external;
+
+    function setExamCreationFee(uint256 fee) external;
+
+    function setSubmissionFee(uint256 fee) external;
+
+    function setUsername(string memory username, uint256 nonce, bytes memory signature) external;
+
+    function setPaused(bool paused) external;
+
+    function setStopped() external;
+
+    function addToWhitelist(address user) external;
+
+    function removeFromWhitelist(address user) external;
+
+    function setSigner(address signer) external;
+
+    function setRequiresSignature(bool requiresSignature) external;
+
+    function setPriceFeed(address priceFeed) external;
+
+    function addExamWithXp(uint256 examId, uint256 xp) external;
+
+    function removeExamWithXp(uint256 examId) external;
+
+    function updateExamXp(uint256 examId, uint256 xp) external;
 }

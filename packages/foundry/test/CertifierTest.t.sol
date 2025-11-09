@@ -8,7 +8,7 @@ import {RewardFactory} from "../contracts/RewardFactory.sol";
 import {Reward} from "../contracts/Reward.sol";
 import {ICertifier} from "../contracts/interfaces/ICertifier.sol";
 import {DeployCertifierProxy} from "../script/Certifier/DeployCertifierProxy.s.sol";
-import {Token} from "./mocks/Token.t.sol";
+import {MockToken} from "./mocks/MockToken.sol";
 
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -70,7 +70,7 @@ contract CertifierTest is Test {
         rewardFactory = RewardFactory(rewardFactoryProxyAddress);
 
         // Deploy token contract
-        token = new Token(certifierOrg, INITIAL_TOKEN_SUPPLY);
+        token = new MockToken(certifierOrg, INITIAL_TOKEN_SUPPLY);
         vm.stopPrank();
 
         examQuestions.push("question1");
