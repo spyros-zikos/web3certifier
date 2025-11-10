@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { ICertifier } from "./interfaces/ICertifier.sol";
 
@@ -13,8 +14,11 @@ import { ICertifier } from "./interfaces/ICertifier.sol";
  * @notice Only deploy it when the xp of the Certifier has been reset
  */
 contract XpPrizes is Ownable, ReentrancyGuard {
+    using Strings for uint256;
     // Structs
     struct XpPrize {
+        string name;
+        string description;
         uint256 prizeAmount;
         uint256 availablePrizes;
     }
@@ -29,6 +33,7 @@ contract XpPrizes is Ownable, ReentrancyGuard {
 
     // Events
     event XpPrizeClaimed(address user, uint256 xpPoint);
+    event Fund(address funder, uint256 amount);
 
     // Errors
     error XpPrizes__Expired(uint256 currentTimestamp, uint256 expirationTimestamp);
@@ -45,8 +50,15 @@ contract XpPrizes is Ownable, ReentrancyGuard {
         s_expirationTimestamp = expirationTimestamp;
 
         for (uint256 i = 0; i < s_xpPoints.length; i++) {
-            s_xpPrizes[s_xpPoints[i]] = XpPrize({prizeAmount: s_xpPoints[i] * 100, availablePrizes: 10});
+            s_xpPrizes[s_xpPoints[i]] = XpPrize({
+                name: "", description: string.concat("Reach ", s_xpPoints[i].toString(), " xp"), prizeAmount: s_xpPoints[i] * 100, availablePrizes: 10
+            });
         }
+        s_xpPrizes[0].name = "Getting Started";
+        s_xpPrizes[1].name = "First Steps";
+        s_xpPrizes[2].name = "Making Progress";
+        s_xpPrizes[3].name = "Going Strong";
+        s_xpPrizes[4].name = "Master Level";
     }
     
     // External Functions
@@ -64,6 +76,15 @@ contract XpPrizes is Ownable, ReentrancyGuard {
         IERC20(s_prizeToken).transfer(msg.sender, s_xpPrizes[xpPoint].prizeAmount);
 
         emit XpPrizeClaimed(msg.sender, xpPoint);
+    }
+
+    function fund() external {
+        uint256 totalPrizeAmount;
+        for (uint256 i = 0; i < s_xpPoints.length; i++) {
+            totalPrizeAmount += s_xpPrizes[s_xpPoints[i]].prizeAmount * s_xpPrizes[s_xpPoints[i]].availablePrizes;
+        }
+        IERC20(s_prizeToken).transferFrom(msg.sender, address(this), totalPrizeAmount);
+        emit Fund(msg.sender, totalPrizeAmount);
     }
 
     // Public Functions
