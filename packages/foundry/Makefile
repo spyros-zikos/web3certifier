@@ -31,16 +31,21 @@ verify:
 
 -include .env
 
-# Deploy and verify
+# Deploy and verify certifier or reward factory
 deploy-sepolia:
 	@forge script script/Deploy.s.sol:DeployScript --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=11155111 --optimizer-runs 1 --via-ir -vvvv
 deploy-celo:
 	@forge script script/Deploy.s.sol:DeployScript --rpc-url celo --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=42220 --optimizer-runs 1 --via-ir -vvvv
 
+# Deploy and verify xp prizes contract
+deploy-xp-prizes-sepolia:
+	@forge script script/XpPrizes/DeployXpPrizes.s.sol:DeployXpPrizes --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=11155111 --optimizer-runs 1 --via-ir -vvvv
+deploy-xp-prizes-celo:
+	@forge script script/XpPrizes/DeployXpPrizes.s.sol:DeployXpPrizes --rpc-url celo --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=42220 --optimizer-runs 1 --via-ir -vvvv
+
+
 # Verify the Reward contract
 deploy-reward-sepolia:
-	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --optimizer-runs 1 --via-ir -vvvv
-deploy-reward-arbitrum:
-	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url arbitrum --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ARBITRUM_API_KEY) --optimizer-runs 1 --via-ir -vvvv
+	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url sepolia --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=11155111 --optimizer-runs 1 --via-ir -vvvv
 deploy-reward-celo:
-	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url celo --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(CELO_API_KEY) --optimizer-runs 1 --via-ir -vvvv
+	@forge script script/Reward/DeployReward.s.sol:DeployReward --rpc-url celo --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) --verifier-url https://api.etherscan.io/v2/api?chainid=42220 --optimizer-runs 1 --via-ir -vvvv
