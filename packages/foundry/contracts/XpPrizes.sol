@@ -59,11 +59,11 @@ contract XpPrizes is Ownable, ReentrancyGuard {
         s_xpPrizes[s_xpPoints[2]].title = "Making Progress";
         s_xpPrizes[s_xpPoints[3]].title = "Going Strong";
         s_xpPrizes[s_xpPoints[4]].title = "Master Level";
-        s_xpPrizes[s_xpPoints[0]].availablePrizes = 20;
-        s_xpPrizes[s_xpPoints[1]].availablePrizes = 15;
-        s_xpPrizes[s_xpPoints[2]].availablePrizes = 10;
-        s_xpPrizes[s_xpPoints[3]].availablePrizes = 5;
-        s_xpPrizes[s_xpPoints[4]].availablePrizes = 3;
+        s_xpPrizes[s_xpPoints[0]].availablePrizes = 10;
+        s_xpPrizes[s_xpPoints[1]].availablePrizes = 5;
+        s_xpPrizes[s_xpPoints[2]].availablePrizes = 3;
+        s_xpPrizes[s_xpPoints[3]].availablePrizes = 2;
+        s_xpPrizes[s_xpPoints[4]].availablePrizes = 1;
     }
     
     // External Functions
@@ -85,12 +85,20 @@ contract XpPrizes is Ownable, ReentrancyGuard {
 
     // Needs approval
     function fund() external {
-        uint256 totalPrizeAmount;
-        for (uint256 i = 0; i < s_xpPoints.length; i++) {
-            totalPrizeAmount += s_xpPrizes[s_xpPoints[i]].prizeAmount * s_xpPrizes[s_xpPoints[i]].availablePrizes;
-        }
-        IERC20(s_prizeToken).transferFrom(msg.sender, address(this), totalPrizeAmount);
-        emit Fund(msg.sender, totalPrizeAmount);
+        if (timeExpired()) revert XpPrizes__Expired(block.timestamp, s_expirationTimestamp);
+        if (IERC20(s_prizeToken).balanceOf(address(this)) >= totalPrizeAmount()) return;
+        uint256 amount = totalPrizeAmount();
+        IERC20(s_prizeToken).transferFrom(msg.sender, address(this), amount);
+        emit Fund(msg.sender, amount);
+    }
+
+    function withdraw() external onlyOwner {
+        if (IERC20(s_prizeToken).balanceOf(address(this)) == 0) return;
+        IERC20(s_prizeToken).transfer(owner(), IERC20(s_prizeToken).balanceOf(address(this)));
+    }
+
+    receive() external payable {
+        if (timeExpired()) revert XpPrizes__Expired(block.timestamp, s_expirationTimestamp);
     }
 
     // Public Functions
@@ -109,6 +117,14 @@ contract XpPrizes is Ownable, ReentrancyGuard {
 
     function tokenBalance() public view returns (uint256) {
         return IERC20(s_prizeToken).balanceOf(address(this));
+    }
+
+    function totalPrizeAmount() public view returns (uint256) {
+        uint256 amount;
+        for (uint256 i = 0; i < s_xpPoints.length; i++) {
+            amount += s_xpPrizes[s_xpPoints[i]].prizeAmount * s_xpPrizes[s_xpPoints[i]].availablePrizes;
+        }
+        return amount;
     }
 
     // Getter Functions
