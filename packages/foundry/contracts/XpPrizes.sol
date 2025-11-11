@@ -17,7 +17,7 @@ contract XpPrizes is Ownable, ReentrancyGuard {
     using Strings for uint256;
     // Structs
     struct XpPrize {
-        string name;
+        string title;
         string description;
         uint256 prizeAmount;
         uint256 availablePrizes;
@@ -51,14 +51,19 @@ contract XpPrizes is Ownable, ReentrancyGuard {
 
         for (uint256 i = 0; i < s_xpPoints.length; i++) {
             s_xpPrizes[s_xpPoints[i]] = XpPrize({
-                name: "", description: string.concat("Reach ", s_xpPoints[i].toString(), " xp"), prizeAmount: s_xpPoints[i] * 100, availablePrizes: 10
+                title: "", description: string.concat("Reach ", s_xpPoints[i].toString(), " xp"), prizeAmount: s_xpPoints[i] * 100e18, availablePrizes: 10
             });
         }
-        s_xpPrizes[0].name = "Getting Started";
-        s_xpPrizes[1].name = "First Steps";
-        s_xpPrizes[2].name = "Making Progress";
-        s_xpPrizes[3].name = "Going Strong";
-        s_xpPrizes[4].name = "Master Level";
+        s_xpPrizes[s_xpPoints[0]].title = "Getting Started";
+        s_xpPrizes[s_xpPoints[1]].title = "First Steps";
+        s_xpPrizes[s_xpPoints[2]].title = "Making Progress";
+        s_xpPrizes[s_xpPoints[3]].title = "Going Strong";
+        s_xpPrizes[s_xpPoints[4]].title = "Master Level";
+        s_xpPrizes[s_xpPoints[0]].availablePrizes = 20;
+        s_xpPrizes[s_xpPoints[1]].availablePrizes = 15;
+        s_xpPrizes[s_xpPoints[2]].availablePrizes = 10;
+        s_xpPrizes[s_xpPoints[3]].availablePrizes = 5;
+        s_xpPrizes[s_xpPoints[4]].availablePrizes = 3;
     }
     
     // External Functions
@@ -78,6 +83,7 @@ contract XpPrizes is Ownable, ReentrancyGuard {
         emit XpPrizeClaimed(msg.sender, xpPoint);
     }
 
+    // Needs approval
     function fund() external {
         uint256 totalPrizeAmount;
         for (uint256 i = 0; i < s_xpPoints.length; i++) {
