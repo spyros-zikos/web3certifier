@@ -4,7 +4,7 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BookOpenIcon, MagnifyingGlassIcon, ShareIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BookOpenIcon, MagnifyingGlassIcon, TrophyIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
@@ -31,11 +31,11 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/search_exams",
     icon: <MagnifyingGlassIcon className="h-4 w-4" />,
   },
-  // {
-  //   label: "Connect Discord",
-  //   href: "/connect_discord",
-  //   icon: <ShareIcon className="h-4 w-4" />,
-  // },
+  {
+    label: "XP Prizes",
+    href: "/xp_prizes",
+    icon: <TrophyIcon className="h-4 w-4" />,
+  },
 ];
 
 export const HeaderMenuLinks = () => {

@@ -96,9 +96,6 @@ export default function MilestoneRoadmap() {
                 contractName: 'XpPrizes',
                 functionName: 'claim',
                 args: [xpPoints[index]],
-                onSuccess: () => {
-                    // do nothing
-                }
             });
         } catch (error) {
             console.error("Error claiming xp:", error);
@@ -162,7 +159,7 @@ export default function MilestoneRoadmap() {
                 <div className="mb-12 w-[60%] mx-auto">
                     <Timer 
                         message="Time Left" 
-                        timeLeft={getTimeLeft(Date.now(), expirationTimestamp)}
+                        timeLeft={getTimeLeft(timeNow, expirationTimestamp)}
                         bgColor={"lighterBlack"}
                     />
                 </div>}
