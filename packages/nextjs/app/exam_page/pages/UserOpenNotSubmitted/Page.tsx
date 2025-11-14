@@ -74,8 +74,10 @@ const Page = ({
     const startTimeCookie = getStartTimeCookieName(chain, id);
     // identity verification
     const needsVerification = !isVerifiedOnCelo && chain?.id === 42220;
+    // featured exams
+    const [featuredExamIds, setFeaturedExamIds] = useState<bigint[]>([]);
     // engagement rewards
-    const canClaimEngagementRewards = inviter && chain.id === 42220 && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0];
+    const canClaimEngagementRewards = inviter && (chain.id === 42220) && isRegisteredOnEngagementRewards && !isRegisteredOnEngagementRewards[0] && featuredExamIds.includes(exam?.id  || 0n);
     const engagementRewards = useEngagementRewards(REWARDS_CONTRACT);
     // submit answers hook
     const { writeContractAsync: submitAnswers } = wagmiWriteToContract();
@@ -106,6 +108,17 @@ const Page = ({
             startTimeCookie
         );
     }, [getCurrentTimestamp()]);
+
+    // Check if the exam is featured
+    useEffect(() => {
+        const fetchFeaturedExams = async () => {
+            await fetch("api/explore_page/featured_exams?chainId=" + chain?.id)
+            .then(response => response.json())
+            .then(data => {setFeaturedExamIds(data.length > 0 ? data.split(",").map((id: string) => BigInt(id)) : [])})
+            .catch(error => setFeaturedExamIds([]));
+        };
+        fetchFeaturedExams();
+    }, [chain?.id]);
 
     /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
@@ -156,7 +169,7 @@ const Page = ({
                     address,
                     exam,
                     examPriceInEth,
-                    submitAnswers
+                    submitAnswers,
                 )}
                 previousEnabled={false}
             />: <></>}
