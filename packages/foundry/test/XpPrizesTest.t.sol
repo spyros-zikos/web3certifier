@@ -28,7 +28,8 @@ contract XpPrizesTest is Test {
     function testClaimSuccessful() public {
         vm.prank(user);
         xpPrizes.claim(XP_POINT);
-        assert(mockToken.balanceOf(user) == 1000);
+        console2.log("user balance: ", mockToken.balanceOf(user));
+        assert(mockToken.balanceOf(user) == 1000e18);
     }
 
     function testClaimTimeExpired() public {
@@ -46,7 +47,7 @@ contract XpPrizesTest is Test {
         vm.expectRevert(abi.encodeWithSelector(XpPrizes.XpPrizes__AlreadyClaimed.selector, user, XP_POINT));
         vm.prank(user);
         xpPrizes.claim(XP_POINT);
-        assert(mockToken.balanceOf(user) == 1000);
+        assert(mockToken.balanceOf(user) == 1000e18);
     }
 
     function testClaimNotEnoughXp() public {
@@ -69,7 +70,7 @@ contract XpPrizesTest is Test {
     }
 
     function testClaimPrizeNotAvailable() public {
-        mockToken.mint(address(xpPrizes), 1000000);
+        mockToken.mint(address(xpPrizes), 1000000e18);
 
         uint256 users = 10;  // = availablePrizes
         for (uint256 i = 1; i <= users; i++) {
