@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Reward} from "../../contracts/Reward.sol";
+import { RewardFactory } from "../../contracts/RewardFactory.sol";
 import {Script, console} from "forge-std/Script.sol";
 
 contract DeployReward is Script {
@@ -15,15 +16,16 @@ contract DeployReward is Script {
     /// @notice Needs a certifier proxy DEPLOYED
     function run() external returns (address) {
         vm.startBroadcast();
+        
         address reward = address(new Reward(
             certifierProxy, // address certifier,
             0, // uint256 examId,
-            0, // uint256 initialRewardAmount,
-            1, // uint256 rewardAmountPerPerson,
-            1, // uint256 rewardAmountPerCorrectAnswer,
-            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address tokenAddress,
-            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address owner
-            address(0) // address customReward
+            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address rewardToken,
+            0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address owner,
+            RewardFactory.DistributionType.CONSTANT, // RewardFactory.DistributionType distributionType,
+            1, // uint256 distributionParameter,
+            RewardFactory.EligibilityCriteria.NONE, // RewardFactory.EligibilityCriteria eligibilityCriteria,
+            address(0) // address eligibilityParameter
         ));
         vm.stopBroadcast();
         console.log("Reward Contract deployed at: ", reward);
