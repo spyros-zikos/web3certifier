@@ -70,7 +70,7 @@ contract XpPrizes is Ownable, ReentrancyGuard {
     function claim(uint256 xpPoint) external nonReentrant {
         if (timeExpired()) revert XpPrizes__Expired(block.timestamp, s_expirationTimestamp);
         if (s_xpPrizeClaims[msg.sender][xpPoint]) revert XpPrizes__AlreadyClaimed(msg.sender, xpPoint);
-        if (userXp(msg.sender) < xpPoint)revert XpPrizes__NotEnoughXp(msg.sender, xpPoint, ICertifier(s_certifier).getUserXp(msg.sender));
+        if (userXp(msg.sender) < xpPoint)revert XpPrizes__NotEnoughXp(msg.sender, xpPoint, userXp(msg.sender));
         if (!isValidXpPoint(xpPoint)) revert XpPrizes__NotValidXpPoint(xpPoint);
         if (s_xpPrizes[xpPoint].availablePrizes == 0) revert XpPrizes__PrizeNotAvailable(xpPoint);
         if (tokenBalance() < s_xpPrizes[xpPoint].prizeAmount) revert XpPrizes__NotEnoughPrizeTokens(xpPoint);
