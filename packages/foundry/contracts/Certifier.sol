@@ -314,7 +314,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     }
 
     /// @inheritdoc ICertifier
-    function resetXpOfUsers() external nonReentrant onlyOwner {
+    function resetXpOfUsers() external onlyOwner {
         for (uint256 i = 0; i < s_usersWithXp.length; i++) {
             s_userXp[s_usersWithXp[i]] = 0;
         }
