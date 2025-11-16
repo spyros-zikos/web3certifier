@@ -1,4 +1,4 @@
-.PHONY: build deploy generate-abis deploy-verify test verify
+.PHONY: build generate-abis
 
 # install dependencies
 install:
