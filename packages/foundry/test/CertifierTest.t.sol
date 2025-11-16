@@ -130,10 +130,11 @@ contract CertifierTest is Test {
         address reward = rewardFactory.createReward(
             examId,
             REWARD_INITIAL_AMOUNT, // initialRewardAmount,
-            5, // rewardAmountPerPerson,
-            1, // rewardAmountPerCorrectAnswer,
-            address(token), // tokenAddress
-            address(0) // customReward
+            address(token), // rewardToken
+            RewardFactory.DistributionType.CONSTANT, // distributionType,
+            5, // distributionParameter,
+            RewardFactory.EligibilityCriteria.NONE, // eligibilityCriteria,
+            address(0) // eligibilityParameter,
         );
         vm.stopPrank();
 
@@ -142,7 +143,7 @@ contract CertifierTest is Test {
         Reward(reward).claim();
         vm.stopPrank();
 
-        assert(token.balanceOf(user) == 8);
+        assert(token.balanceOf(user) == 5);
 
         // Certifier funds reward
         vm.startPrank(certifierOrg);
