@@ -14,5 +14,5 @@ interface ICustomReward {
      * @param distributionParameter The distribution parameter
      * @return The amount of tokens that this user should get
      */
-    function getRewardAmount(address user, uint256 distributionParameter) external view returns (uint256);
+    function rewardAmount(address user, uint256 distributionParameter) external view returns (uint256);
 }

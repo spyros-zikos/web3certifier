@@ -127,7 +127,7 @@ contract Reward is Ownable, ReentrancyGuard {
 
     function rewardAmountForUser(address user) public view returns (uint256) {
         if (i_distributionType == RewardFactory.DistributionType.CUSTOM) {
-            return ICustomReward(i_eligibilityParameter).getRewardAmount(user, s_distributionParameter);
+            return ICustomReward(i_eligibilityParameter).rewardAmount(user, s_distributionParameter);
         } else if (i_distributionType == RewardFactory.DistributionType.CONSTANT) {
             return s_distributionParameter;
         } else if (i_distributionType == RewardFactory.DistributionType.UNIFORM) {
