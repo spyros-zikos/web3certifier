@@ -16,18 +16,18 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
                                  ENUMS
     //////////////////////////////////////////////////////////////*/
     enum DistributionType {CUSTOM, CONSTANT, UNIFORM}
-    enum EligibilityCriteria {NONE, CUSTOM, HOLDS_TOKEN, HOLDS_NFT}
+    enum EligibilityType {NONE, CUSTOM, HOLDS_TOKEN, HOLDS_NFT}
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
-    event CreateReward(uint256 examId, address reward, uint256 initialRewardAmount, uint256 distributionParameter, address rewardToken);
+    event CreateReward(uint256 examId, address reward, uint256 distributionParameter, address rewardToken);
     event RemoveReward(uint256 examId);
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
     //////////////////////////////////////////////////////////////*/
     error RewardFactory__RewardAlreadyExists(uint256 examId);
     error RewardFactory__UserIsNotCertifier(address user, address certifier);
-    error RewardFactory__CustomDistributionTypeNeedsCustomEligibilityCriteria();
+    error RewardFactory__CustomDistributionTypeNeedsCustomEligibilityType();
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -47,8 +47,7 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
     }
 
     /**
-     * @notice needs approval
-     * @notice if you set custom distribution type, you need to also set custom eligibility criteria
+     * @notice if you set custom distribution type, you need to also set custom eligibility type
      * 
      * @param distributionParameter:
      *  for constant distribution: reward amount,
@@ -57,19 +56,18 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
      */ 
     function createReward(
         uint256 examId,
-        uint256 initialRewardAmount,
         address rewardToken,
         DistributionType distributionType,
         uint256 distributionParameter,  // has 18 decimals
-        EligibilityCriteria eligibilityCriteria,
+        EligibilityType eligibilityType,
         address eligibilityParameter
     ) external returns (address) {
         if (s_examIdToReward[examId] != address(0)) revert RewardFactory__RewardAlreadyExists(examId);
         address examCertifier = ICertifier(i_certifierContractAddress).getExam(examId).certifier;
         if (msg.sender != examCertifier)
             revert RewardFactory__UserIsNotCertifier(msg.sender, examCertifier);
-        if ((distributionType == DistributionType.CUSTOM) && (eligibilityCriteria != EligibilityCriteria.CUSTOM))
-            revert RewardFactory__CustomDistributionTypeNeedsCustomEligibilityCriteria();
+        if ((distributionType == DistributionType.CUSTOM) && (eligibilityType != EligibilityType.CUSTOM))
+            revert RewardFactory__CustomDistributionTypeNeedsCustomEligibilityType();
     
         address reward = address(new Reward(
             i_certifierContractAddress,
@@ -78,13 +76,12 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
             msg.sender,
             distributionType,
             distributionParameter,
-            eligibilityCriteria,
+            eligibilityType,
             eligibilityParameter
         ));
-        IERC20(rewardToken).transferFrom(msg.sender, reward, initialRewardAmount);
         s_rewards.push(reward);
         s_examIdToReward[examId] = reward;
-        emit CreateReward(examId, reward, initialRewardAmount, distributionParameter, rewardToken);
+        emit CreateReward(examId, reward, distributionParameter, rewardToken);
         return reward;
     }
 
