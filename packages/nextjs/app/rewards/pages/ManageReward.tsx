@@ -3,22 +3,18 @@
 import React from 'react'
 import { useState } from "react";
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
-import { Input, ResponsivePageWrapper } from "~~/components";
 import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
-import TitleWithLinkToExamPage from '../_components/TitleWithLinkToExamPage';
-import RewardInfo from '../_components/RewardInfo';
-import BuyGoodDollarTokensMessage from '../_components/BuyGoodDollarTokensMessage';
-import { Box } from '@chakra-ui/react';
-import { ActionCard } from '../_components/ActionCard';
-import { LoadingButton } from '../_components/LoadingButton';
 import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
+import { Input, ResponsivePageWrapper } from "~~/components";
+import { TitleWithLinkToExamPage, BuyGoodDollarTokensMessage, ActionCard, LoadingButton } from '../components';
+import { distributionParameterName, DistributionType } from './CreateReward';
+import { RewardInfoDropDown } from '~~/app/exam_page/_components';
 
 const ManageReward = ({id}: {id: bigint}) => {
     const { address, chain } = useNonUndefinedAccount();
 
     const [fundAmount, setFundAmount] = useState<bigint>(BigInt(0));
-    const [rewardAmountPerPerson, setRewardAmountPerPerson] = useState<bigint>(BigInt(0));
-    const [rewardAmountPerCorrectAnswer, setRewardAmountPerCorrectAnswer] = useState<bigint>(BigInt(0));
+    const [distributionParameter, setDistributionParameter] = useState<bigint>(BigInt(0));
     const [isLoading, setIsLoading] = useState<{[key: string]: boolean}>({});
 
     /*//////////////////////////////////////////////////////////////
@@ -31,22 +27,28 @@ const ManageReward = ({id}: {id: bigint}) => {
         args: [id],
     }).data;
 
-    const tokenAddress: string = wagmiReadFromContract({
+    const rewardToken: string = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getTokenAddress",
+        functionName: "getRewardToken",
+    }).data;
+
+    const distributionTypeNumber: number  = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getDistributionType",
     }).data;
 
     const allowance: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "allowance",
         args: [address, rewardAddress],
     }).data;
 
     const decimals: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "decimals",
     }).data;
 
@@ -73,7 +75,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             if (allowance < scaledFundAmount)
                 await approve({
                     contractName: 'ERC20',
-                    contractAddress: tokenAddress,
+                    contractAddress: rewardToken,
                     functionName: 'approve',
                     args: [
                         rewardAddress,
@@ -98,43 +100,23 @@ const ManageReward = ({id}: {id: bigint}) => {
         }
     }
 
-    // Set reward amount per person
-    const { writeContractAsync: setRewardAmountPerPersonHook } = wagmiWriteToContract();
-    async function handleSetRewardAmountPerPerson() {
+    // Set distribution parameter
+    const { writeContractAsync: setDistributionParameterHook } = wagmiWriteToContract();
+    async function handleSetDistributionParameter() {
         try {
-            setLoadingState('rewardPerPerson', true);
-            const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) * (Number(10) ** Number(decimals));
-            await setRewardAmountPerPersonHook({
+            setLoadingState('distributionParameter', true);
+            const scaledDistributionParameter = Number(distributionParameter) * (Number(10) ** Number(decimals));
+            await setDistributionParameterHook({
                 contractName: 'Reward',
                 contractAddress: rewardAddress,
-                functionName: 'setRewardAmountPerPerson',
+                functionName: 'setDistributionParameter',
                 args: [
-                    BigInt(scaledRewardAmountPerPerson)
+                    BigInt(scaledDistributionParameter)
                 ],
             });
-            setRewardAmountPerPerson(BigInt(0));
+            setDistributionParameter(BigInt(0));
         } finally {
-            setLoadingState('rewardPerPerson', false);
-        }
-    }
-
-    // Set reward amount per correct answer
-    const { writeContractAsync: setRewardAmountPerCorrectAnswerHook } = wagmiWriteToContract();
-    async function handleSetRewardAmountPerCorrectAnswer() {
-                try {
-            setLoadingState('rewardPerAnswer', true);
-            const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) * (Number(10) ** Number(decimals));
-            await setRewardAmountPerCorrectAnswerHook({
-                contractName: 'Reward',
-                contractAddress: rewardAddress,
-                functionName: 'setRewardAmountPerCorrectAnswer',
-                args: [
-                    BigInt(scaledRewardAmountPerCorrectAnswer)
-                ],
-            });
-            setRewardAmountPerCorrectAnswer(BigInt(0));
-        } finally {
-            setLoadingState('rewardPerAnswer', false);
+            setLoadingState('distributionParameter', false);
         }
     }
 
@@ -174,10 +156,9 @@ const ManageReward = ({id}: {id: bigint}) => {
     // should:
     // 1. show reward details
     // 2. fund - 1 input
-    // 3. set reward amount per person - 1 input
-    // 4. set reward amount per correct answer - 1 input
-    // 5. withdraw
-    // 6. delete (factory contract)
+    // 3. set distribution parameter - 1 input
+    // 4. withdraw
+    // 5. delete (factory contract)
     return (
         <ResponsivePageWrapper>
             <TitleWithLinkToExamPage id={id}>
@@ -187,9 +168,9 @@ const ManageReward = ({id}: {id: bigint}) => {
                 </div>
             </TitleWithLinkToExamPage>
             {/* REWARD INFO */}
-            <Box className="mb-8">
-                <RewardInfo id={id} chain={chain}/>
-            </Box>
+            
+            <RewardInfoDropDown id={id} />
+            <div className="mb-16"></div>
 
             {/* Fund Reward */}
             <ActionCard
@@ -218,50 +199,24 @@ const ManageReward = ({id}: {id: bigint}) => {
                 {chain?.id === 42220 && <BuyGoodDollarTokensMessage />}
             </ActionCard>
 
-            {/* Set Reward Per Person */}
+            {/* Set Distribution Parameter */}
             <ActionCard
-                title="👤 Reward Per Person"
-                description="Set the base reward amount each participant receives"
+                title="⚙️ Distribution Parameter"
+                description="Set the value of the distribution parameter"
             >
                 <label className="label">
-                    <span className="label-text font-medium">Amount Per Person</span>
+                    <span className="label-text font-medium">{distributionParameterName(Object.values(DistributionType)[distributionTypeNumber])}</span>
                 </label>
                 <Input
-                    value={rewardAmountPerPerson}
+                    value={distributionParameter}
                     type="number"
                     placeholder="Enter amount..."
-                    onChange={(e: any) => setRewardAmountPerPerson(e.target.value)}
+                    onChange={(e: any) => setDistributionParameter(e.target.value)}
                 />
                 <LoadingButton
-                    onClick={handleSetRewardAmountPerPerson}
-                    disabled={!rewardAmountPerPerson}
-                    loading={isLoading.rewardPerPerson}
-                    bgColor="green"
-                >
-                    <span className="flex items-center gap-2">
-                        ⚙️ Set Amount
-                    </span>
-                </LoadingButton>
-            </ActionCard>
-
-            {/* Set Reward Per Correct Answer */}
-            <ActionCard
-                title="✅ Reward Per Correct Answer"
-                description="Set bonus reward for each correct answer given"
-            >
-                <label className="label">
-                    <span className="label-text font-medium">Amount Per Correct Answer</span>
-                </label>
-                <Input
-                    value={rewardAmountPerCorrectAnswer}
-                    type="number"
-                    placeholder="Enter amount..."
-                    onChange={(e: any) => setRewardAmountPerCorrectAnswer(e.target.value)}
-                />
-                <LoadingButton
-                    onClick={handleSetRewardAmountPerCorrectAnswer}
-                    disabled={!rewardAmountPerCorrectAnswer}
-                    loading={isLoading.rewardPerAnswer}
+                    onClick={handleSetDistributionParameter}
+                    disabled={!distributionParameter}
+                    loading={isLoading.distributionParameter}
                     bgColor="green"
                 >
                     <span className="flex items-center gap-2">
