@@ -19,13 +19,13 @@ contract DeployReward is Script {
         
         address reward = address(new Reward(
             certifierProxy, // address certifier,
-            0, // uint256 examId,
+            1, // uint256 examId,
             0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address rewardToken,
             0xC2e13e7E6255d84f3D517Fc4995f44C69E7abA62, // address owner,
             RewardFactory.DistributionType.CONSTANT, // RewardFactory.DistributionType distributionType,
             1, // uint256 distributionParameter,
-            RewardFactory.EligibilityCriteria.NONE, // RewardFactory.EligibilityCriteria eligibilityCriteria,
-            address(0) // address eligibilityParameter
+            RewardFactory.EligibilityType.NONE, // RewardFactory.EligibilityType eligibilityType,
+            address(1) // address eligibilityParameter
         ));
         vm.stopBroadcast();
         console.log("Reward Contract deployed at: ", reward);
