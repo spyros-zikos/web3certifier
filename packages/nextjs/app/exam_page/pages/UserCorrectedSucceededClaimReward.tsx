@@ -15,21 +15,21 @@ const UserCorrectedSucceededClaimReward = ({
     const [questionNumber, setQuestionNumber] = useState<number>(1);
     const [showConfetti, setShowConfetti] = useState(false);
 
-    const tokenAddress: string = wagmiReadFromContract({
+    const rewardToken: string = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getTokenAddress",
+        functionName: "getRewardToken",
     }).data;
     
     const decimals: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "decimals",
     }).data;
 
     const tokenSymbol: string  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "symbol",
     }).data;
 

@@ -69,16 +69,22 @@ const ExamPage = () => {
     const rewardAmount: bigint  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getRewardAmountForUser",
+        functionName: "rewardAmountForUser",
         args: [address],
     }).data;
 
     const totalRewardAmount: bigint  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getBalance",
+        functionName: "rewardTokenBalance",
     }).data;
 
+    const isEligible: boolean = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "isEligible",
+        args: [address],
+    }).data;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -92,8 +98,8 @@ const ExamPage = () => {
         const examStatus = getExamStatusStr(examStatusNum);
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
-        const userCanClaimReward = !userHasClaimedReward && hasReward;
-        return examStage(examStatus, userStatus, address, exam, userCanClaimReward, rewardAmount, totalRewardAmount);
+        const rewardExistsAndUserHasNotClaimed = !userHasClaimedReward && hasReward;
+        return examStage(examStatus, userStatus, address, exam, rewardExistsAndUserHasNotClaimed, isEligible, rewardAmount, totalRewardAmount);
     }
 
     // If user is connected, check that he's on supported network
@@ -155,8 +161,8 @@ const ExamPage = () => {
 
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
                 <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} rewardAmount={rewardAmount} />
-            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_ZeroReward ?
-                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_ZeroReward)()} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEligible ?
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_NotEligible)()} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens ?
                 <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)()} />
             

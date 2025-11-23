@@ -44,8 +44,8 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
                 </>
         );
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward)
-        return (scaledRewardAmountForUser: bigint, tokenSymbol: string) => "You claim can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!";
-    else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_ZeroReward)
+        return (scaledRewardAmountForUser: bigint, tokenSymbol: string) => "You can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!";
+    else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEligible)
         return () => <>This exam has ended! You completed it successfully! Unfortunately, you don&apos;t qualify for rewards. <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)
         return () => <>This exam has ended! You completed it successfully! Unfortunately, the reward pool does not have enough tokens to reward you. <JoinDiscordMessage /> </>;
