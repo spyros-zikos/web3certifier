@@ -5,7 +5,8 @@ export const examStage = (
     userStatus: string,
     address: any,
     exam: Exam | undefined,
-    userCanClaimReward: boolean,
+    rewardExistsAndUserHasNotClaimed: boolean,
+    isEligible: boolean,
     rewardAmount: bigint,
     totalRewardAmount: bigint,
 ) => {
@@ -37,9 +38,8 @@ export const examStage = (
             if (userStatus === "Not Submitted") return ExamStage.User_Corrected_NotSubmitted;
             else {
                 if (userStatus === "Succeeded") {
-                    if (userCanClaimReward) {
-                        if (rewardAmount === BigInt(0))
-                            return ExamStage.User_Corrected_SucceededClaimReward_ZeroReward;
+                    if (rewardExistsAndUserHasNotClaimed) {
+                        if (isEligible === false) return ExamStage.User_Corrected_SucceededClaimReward_NotEligible;
                         if (rewardAmount > totalRewardAmount) return ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens;
                         return ExamStage.User_Corrected_SucceededClaimReward;
                     }
