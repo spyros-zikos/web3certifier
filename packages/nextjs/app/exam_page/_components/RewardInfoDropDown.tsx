@@ -4,6 +4,7 @@ import { ZERO_ADDRESS } from '~~/constants';
 import { Address } from '~~/components/scaffold-eth';
 import { Accordion, Text, Spacer } from '@chakra-ui/react';
 import ExamDetail from './ExamDetail';
+import { distributionParameterName, DistributionType, eligibilityParameterName, EligibilityType } from '~~/types/RewardTypes';
 
 
 const RewardInfoDropDown = ({id}: {id: bigint}) => {
@@ -18,117 +19,134 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
         args: [id],
     }).data;
 
-    const tokenAddress: string = wagmiReadFromContract({
+    const rewardToken: string = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getTokenAddress",
+        functionName: "getRewardToken",
     }).data;
 
-    const rewardAmountPerPerson: string = wagmiReadFromContract({
+    const distributionTypeNumber: number  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getRewardAmountPerPerson",
+        functionName: "getDistributionType",
     }).data;
 
-    const rewardAmountPerCorrectAnswer: string = wagmiReadFromContract({
+    const distributionParameter: string = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getRewardAmountPerCorrectAnswer",
+        functionName: "getDistributionParameter",
+    }).data;
+
+    const eligibilityTypeNumber: number  = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getEligibilityType",
+    }).data;
+
+    const eligibilityParameter: string = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getEligibilityParameter",
     }).data;
 
     const balance: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "balanceOf",
         args: [rewardAddress],
     }).data;
 
     const decimals: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "decimals",
     }).data;
 
     const tokenName: string  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "name",
     }).data;
 
     const tokenSymbol: string  = wagmiReadFromContract({
         contractName: "ERC20",
-        contractAddress: tokenAddress,
+        contractAddress: rewardToken,
         functionName: "symbol",
     }).data;
 
-    const customRewardAddress = wagmiReadFromContract({
+    const customRewardName = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getCustomReward",
+        functionName: "getCustomRewardName",
     }).data;
-    
+
+    const customRewardDescription = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getCustomRewardDescription",
+    }).data;
+
     if (rewardAddress === ZERO_ADDRESS)
         return <></>;
 
     const scaledBalance = Number(balance) / (Number(10) ** Number(decimals));
-    const scaledRewardAmountPerPerson = Number(rewardAmountPerPerson) / (Number(10) ** Number(decimals));
-    const scaledRewardAmountPerCorrectAnswer = Number(rewardAmountPerCorrectAnswer) / (Number(10) ** Number(decimals));
-
+    const scaledDistributionParameter = Number(distributionParameter) / (Number(10) ** Number(decimals));
+    const distributionType = Object.values(DistributionType)[distributionTypeNumber];
+    const eligibilityType = Object.values(EligibilityType)[eligibilityTypeNumber];
+    
     return (
         <Accordion.Root borderBottom="1px solid" borderColor="lighterLighterBlack" my="0" py="2" collapsible>
             <Accordion.Item value={"1"}>
                 <Accordion.ItemTrigger>
-                <Text fontWeight="semibold" fontSize={"lg"}>
-                    Reward Information
-                </Text>
-                <Spacer />
-                <Accordion.ItemIndicator />
+                    <Text fontWeight="semibold" fontSize={"lg"}>
+                        Reward Information
+                    </Text>
+                    <Spacer />
+                    <Accordion.ItemIndicator />
                 </Accordion.ItemTrigger>
                 <Accordion.ItemContent>
-                <Accordion.ItemBody>
-                        <ExamDetail
-                            name="Available Reward Amount"
-                            value={(scaledBalance?scaledBalance.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
-                        />
-                        <ExamDetail
-                            name="Reward Amount Per Person"
-                            value={(scaledRewardAmountPerPerson?scaledRewardAmountPerPerson.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
-                        />
-                        {scaledRewardAmountPerCorrectAnswer ? 
-                        <ExamDetail
-                            name="Reward Amount Per Correct Answer"
-                            value={(scaledRewardAmountPerCorrectAnswer?scaledRewardAmountPerCorrectAnswer.toFixed(2).toString():"0") + " " + (tokenSymbol?tokenSymbol.toString():"unknown")}
-                        /> 
-                        : <></>}
-                        <ExamDetail name="Token Name" value={tokenName?tokenName.toString():"unknown"} />
-                        <ExamDetail name="Token Symbol" value={tokenSymbol?tokenSymbol.toString():"unknown"} />
-                        <ExamDetail
-                            name="Token Address"
-                            value={tokenAddress ?
-                            <div className="inline-block">
-                                <Address address={tokenAddress} className={"text-bold"} disableAddressLink={false} />
-                            </div>
-                            : <>unknown</>}
-                        />
-                        <ExamDetail
-                            name="Reward Address"
-                            value={tokenAddress ?
-                            <div className="inline-block">
-                                <Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
-                            </div>
-                            :<>unknown</>}
-                        />
-                        {/* Check if custom reward address is undefined because it does not exist in previous exams */}
-                        {customRewardAddress && customRewardAddress !== ZERO_ADDRESS ?
-                        <ExamDetail
-                            name="Custom Reward Logic"
-                            value={
-                                <div className="inline-block">
-                                    <Address address={customRewardAddress} className={"text-bold inline-block"} disableAddressLink={false} />
-                                </div>
-                            }
-                        />
-                    : <></>}
+                    <Accordion.ItemBody>
+                        {((scaledBalance !== undefined) && tokenSymbol) &&
+                        <ExamDetail name="Available Reward Amount"
+                            value={<div>{scaledBalance.toString()} {} {tokenSymbol.toString()}</div>} 
+                        />}
+
+                        {/* Distribution Type */}
+                        {distributionType && <ExamDetail name="Distribution Type" value={distributionType} />}
+
+                        {/* Distribution Parameter */}
+                        {scaledDistributionParameter!==undefined && 
+                        <ExamDetail name={distributionParameterName(distributionType)}
+                            value={scaledDistributionParameter.toString()} 
+                        />}
+
+                        {/* Eligibility Type */}
+                        {eligibilityType && <ExamDetail name="Eligibility Type" value={eligibilityType} />}
+
+                        {/* Eligibility Parameter */}
+                        {eligibilityParameter && (eligibilityParameter != ZERO_ADDRESS) && 
+                        <ExamDetail name={eligibilityParameterName(eligibilityType)}
+                            value={<Address address={eligibilityParameter} className={"text-bold"} disableAddressLink={true} />} 
+                        />}
+
+                        {/* Reward Token */}
+                        {tokenName && tokenSymbol && <ExamDetail name="Reward Token"
+                            value={tokenName.toString() + " (" + tokenSymbol.toString() + ")"} 
+                        />}
+                        {rewardToken && <ExamDetail name="Reward Token Address"
+                            value={<Address address={rewardToken} className={"text-bold"} disableAddressLink={true} />}
+                        />}
+                        {rewardToken && <ExamDetail name="Reward Address"
+                            value={<Address address={rewardAddress} className={"text-bold inline-block"} disableAddressLink={true} />} 
+                        />}
+
+                        {/* Custom Reward Name */}
+                        {eligibilityType === EligibilityType.CUSTOM && customRewardName && <ExamDetail name="Custom Reward Name" value={customRewardName} />}
+
+                        {/* Custom Reward Description */}
+                        {eligibilityType === EligibilityType.CUSTOM && customRewardDescription && <div className="pt-2">
+                            {<>Reward Description:<br />{customRewardDescription}</>}
+                        </div>}
                     </Accordion.ItemBody>
                 </Accordion.ItemContent>
             </Accordion.Item>
