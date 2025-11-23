@@ -22,7 +22,7 @@ contract Reward is Ownable, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
     error Reward__UserAlreadyClaimed(address user);
     error Reward__UserDidNotSucceed(address user);
-    error Reward__UserDoesNotSatisfyEligibilityCriteria(address user);
+    error Reward__UserIsNotEligible(address user);
     error Reward__NotEnoughRewardTokens(uint256 rewardAmount, uint256 contractBalance);
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
@@ -35,7 +35,7 @@ contract Reward is Ownable, ReentrancyGuard {
     address private immutable i_factory;
     RewardFactory.DistributionType private immutable i_distributionType;
     uint256 private s_distributionParameter;
-    RewardFactory.EligibilityCriteria private immutable i_eligibilityCriteria;
+    RewardFactory.EligibilityType private immutable i_eligibilityType;
     address private immutable i_eligibilityParameter;
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -49,7 +49,7 @@ contract Reward is Ownable, ReentrancyGuard {
      * @param owner Address of the owner
      * @param distributionType Distribution type
      * @param distributionParameter Distribution parameter - has 18 decimals
-     * @param eligibilityCriteria Eligibility criteria
+     * @param eligibilityType Eligibility type
      * @param eligibilityParameter Eligibility parameter
      */
     constructor(
@@ -59,7 +59,7 @@ contract Reward is Ownable, ReentrancyGuard {
         address owner,
         RewardFactory.DistributionType distributionType,
         uint256 distributionParameter,
-        RewardFactory.EligibilityCriteria eligibilityCriteria,
+        RewardFactory.EligibilityType eligibilityType,
         address eligibilityParameter
     ) Ownable(owner) {
         i_certifierContractAddress = certifier;
@@ -68,7 +68,7 @@ contract Reward is Ownable, ReentrancyGuard {
         i_factory = msg.sender;
         i_distributionType = distributionType;
         s_distributionParameter = distributionParameter;
-        i_eligibilityCriteria = eligibilityCriteria;
+        i_eligibilityType = eligibilityType;
         i_eligibilityParameter = eligibilityParameter;
         emit Reward__NewReward(certifier, examId, distributionParameter, rewardToken, i_factory);
     }
@@ -88,8 +88,8 @@ contract Reward is Ownable, ReentrancyGuard {
         if (s_userHasClaimed[msg.sender]) revert Reward__UserAlreadyClaimed(msg.sender);
         // check if the user has claimed the NFT certificate, if not he is not allowed to claim the reward
         if (!userHasSucceeded(msg.sender)) revert Reward__UserDidNotSucceed(msg.sender);
-        // check if the user satisfies the eligibility criteria
-        if (!satisfiesEligibilityCriteria(msg.sender)) revert Reward__UserDoesNotSatisfyEligibilityCriteria(msg.sender);
+        // check if the user satisfies the eligibility type
+        if (!isEligible(msg.sender)) revert Reward__UserIsNotEligible(msg.sender);
 
         s_userHasClaimed[msg.sender] = true;
         s_usersThatClaimed.push(msg.sender);
@@ -110,16 +110,26 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__Withdraw(contractBalance);
     }
 
+    // Custom Reward Wrapper
+    function getCustomRewardName() external view returns (string memory) {
+        return ICustomReward(i_eligibilityParameter).name();
+    }
+
+    // Custom Reward Wrapper
+    function getCustomRewardDescription() external view returns (string memory) {
+        return ICustomReward(i_eligibilityParameter).description();
+    }
+
     // Public Functions
 
-    function satisfiesEligibilityCriteria(address user) public view returns (bool) {
-        if (i_eligibilityCriteria == RewardFactory.EligibilityCriteria.NONE) {
+    function isEligible(address user) public view returns (bool) {
+        if (i_eligibilityType == RewardFactory.EligibilityType.NONE) {
             return true;
-        } else if (i_eligibilityCriteria == RewardFactory.EligibilityCriteria.CUSTOM) {
+        } else if (i_eligibilityType == RewardFactory.EligibilityType.CUSTOM) {
             return ICustomReward(i_eligibilityParameter).isEligible(user);
-        } else if (i_eligibilityCriteria == RewardFactory.EligibilityCriteria.HOLDS_TOKEN) {
+        } else if (i_eligibilityType == RewardFactory.EligibilityType.HOLDS_TOKEN) {
             return IERC20(i_eligibilityParameter).balanceOf(user) > 0;
-        } else if (i_eligibilityCriteria == RewardFactory.EligibilityCriteria.HOLDS_NFT) {
+        } else if (i_eligibilityType == RewardFactory.EligibilityType.HOLDS_NFT) {
             return IERC721(i_eligibilityParameter).balanceOf(user) > 0;
         }
         return false;
@@ -127,7 +137,7 @@ contract Reward is Ownable, ReentrancyGuard {
 
     function rewardAmountForUser(address user) public view returns (uint256) {
         if (i_distributionType == RewardFactory.DistributionType.CUSTOM) {
-            return ICustomReward(i_eligibilityParameter).rewardAmount(user, s_distributionParameter);
+            return ICustomReward(i_eligibilityParameter).rewardAmountForUser(user, s_distributionParameter);
         } else if (i_distributionType == RewardFactory.DistributionType.CONSTANT) {
             return s_distributionParameter;
         } else if (i_distributionType == RewardFactory.DistributionType.UNIFORM) {
@@ -180,8 +190,8 @@ contract Reward is Ownable, ReentrancyGuard {
         return s_distributionParameter;
     }
 
-    function getEligibilityCriteria() external view returns (RewardFactory.EligibilityCriteria) {
-        return i_eligibilityCriteria;
+    function getEligibilityType() external view returns (RewardFactory.EligibilityType) {
+        return i_eligibilityType;
     }
 
     function getEligibilityParameter() external view returns (address) {
