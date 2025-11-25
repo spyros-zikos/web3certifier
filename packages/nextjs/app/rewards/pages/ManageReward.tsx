@@ -7,7 +7,7 @@ import { wagmiReadFromContract } from '~~/hooks/wagmi/wagmiRead';
 import { useNonUndefinedAccount } from '~~/utils/NonUndefinedAccount';
 import { Input, ResponsivePageWrapper } from "~~/components";
 import { TitleWithLinkToExamPage, BuyGoodDollarTokensMessage, ActionCard, LoadingButton } from '../components';
-import { distributionParameterName, DistributionType } from './CreateReward';
+import { distributionParameterName, DistributionType } from '~~/types/RewardTypes';
 import { RewardInfoDropDown } from '~~/app/exam_page/_components';
 
 const ManageReward = ({id}: {id: bigint}) => {

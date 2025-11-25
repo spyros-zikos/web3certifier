@@ -144,8 +144,8 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                         {eligibilityType === EligibilityType.CUSTOM && customRewardName && <ExamDetail name="Custom Reward Name" value={customRewardName} />}
 
                         {/* Custom Reward Description */}
-                        {eligibilityType === EligibilityType.CUSTOM && customRewardDescription && <div className="pt-2">
-                            {<>Reward Description:<br />{customRewardDescription}</>}
+                        {eligibilityType === EligibilityType.CUSTOM && customRewardDescription && <div>
+                            {<><div className="text-base-100">Custom Reward Description:</div>{customRewardDescription}</>}
                         </div>}
                     </Accordion.ItemBody>
                 </Accordion.ItemContent>
