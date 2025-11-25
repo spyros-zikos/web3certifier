@@ -5,12 +5,12 @@ interface ICustomReward {
     /**
      * @return The name of the custom reward
      */
-    function name() external view returns (string memory);
+    function name() external pure returns (string memory);
 
     /**
      * @return The description of the custom reward
      */
-    function description() external view returns (string memory);
+    function description() external pure returns (string memory);
 
     /**
      * @notice required if the distribution type or eligibility type is custom
