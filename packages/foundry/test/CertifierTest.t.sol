@@ -23,7 +23,6 @@ contract CertifierTest is Test {
     uint256 constant USER_INITIAL_BALANCE = 1000 ether;
     uint256 constant ORG_INITIAL_BALANCE = 1000 ether;
     uint256 constant INITIAL_TOKEN_SUPPLY = 1000 ether;
-    uint256 constant REWARD_INITIAL_AMOUNT = 2 ether;
     uint256 constant REWARD_FUND_AMOUNT = 1 ether;
     string[] public examQuestions;
 
@@ -122,20 +121,22 @@ contract CertifierTest is Test {
         // NFT metadata
         console2.log(certifier.tokenURI(0));
 
-        vm.prank(certifierOrg);
-        token.approve(address(rewardFactory), REWARD_INITIAL_AMOUNT);
-
         // Org creates a reward
         vm.startPrank(certifierOrg);
         address reward = rewardFactory.createReward(
             examId,
-            REWARD_INITIAL_AMOUNT, // initialRewardAmount,
             address(token), // rewardToken
             RewardFactory.DistributionType.CONSTANT, // distributionType,
             5, // distributionParameter,
-            RewardFactory.EligibilityCriteria.NONE, // eligibilityCriteria,
+            RewardFactory.EligibilityType.NONE, // eligibilityCriteria,
             address(0) // eligibilityParameter,
         );
+        vm.stopPrank();
+
+        // Certifier funds reward
+        vm.startPrank(certifierOrg);
+        token.approve(reward, REWARD_FUND_AMOUNT);
+        Reward(reward).fund(REWARD_FUND_AMOUNT);
         vm.stopPrank();
 
         // User claims reward
@@ -144,14 +145,7 @@ contract CertifierTest is Test {
         vm.stopPrank();
 
         assert(token.balanceOf(user) == 5);
-
-        // Certifier funds reward
-        vm.startPrank(certifierOrg);
-        token.approve(reward, REWARD_FUND_AMOUNT);
-        Reward(reward).fund(REWARD_FUND_AMOUNT);
-        vm.stopPrank();
-
-        assert(token.balanceOf(certifierOrg) == INITIAL_TOKEN_SUPPLY - REWARD_INITIAL_AMOUNT - REWARD_FUND_AMOUNT);
+        assert(token.balanceOf(certifierOrg) == INITIAL_TOKEN_SUPPLY - REWARD_FUND_AMOUNT);
 
         // Certifier withdraws reward
         vm.startPrank(certifierOrg);
