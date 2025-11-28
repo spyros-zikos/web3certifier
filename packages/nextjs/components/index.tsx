@@ -7,7 +7,7 @@ export { default as Alert } from "./Alert";
 export { default as Card } from "./Card";
 export { default as ExamCard } from "./ExamCard";
 export { default as ButtonLink } from "./ButtonLink";
-// export { default as ImageWrapper } from "./ImageWrapper";
+export { default as Spinner } from "./Spinner";
 export { EtherInput } from "./EtherInput";
 // export { default as Accordion } from "./Accordion";
 // export { default as NFTCard } from "./NFTCard";
