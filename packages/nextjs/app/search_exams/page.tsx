@@ -1,6 +1,6 @@
 "use client";
 
-import { Title } from "~~/components";
+import { Spinner, Title } from "~~/components";
 import React, { useEffect, useState } from "react";
 import { SearchBar } from "./_components/SearchBar";
 import { IndexSelector } from "../../components/IndexSelector";
@@ -109,7 +109,7 @@ const SearchExamsPage: React.FC = () => {
                         searchTerm={searchTerm}
                     />
                 ))}
-                {!apiFetched && <span className="loading loading-spinner loading-lg block"></span>}
+                {!apiFetched && <Spinner />}
             </div>
             {lastPage > 1 && 
             <>

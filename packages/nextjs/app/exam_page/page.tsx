@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box } from "@chakra-ui/react";
-import { PageWrapper, ResponsivePageWrapper, Title } from "~~/components";
+import { PageWrapper, ResponsivePageWrapper, Spinner, Title } from "~~/components";
 import { ExamStage } from "../../types/ExamStage";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
@@ -125,6 +125,8 @@ const ExamPage = () => {
             </PageWrapper>
         );
     }
+
+    if (!exam) return <Spinner />
 
     return (
         <ResponsivePageWrapper>

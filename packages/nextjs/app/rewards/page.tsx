@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ZERO_ADDRESS } from "~~/constants";
 import { CreateReward, ManageReward, ErrorPage } from "./pages"
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
+import { Spinner } from "~~/components";
 
 const Page = () => {
     const { address, chain } = useNonUndefinedAccount();
@@ -27,6 +28,8 @@ const Page = () => {
         args: [id],
     }).data;
 
+    if (!exam) return <Spinner />
+    
     if (exam?.certifier === address)
         if (rewardAddress === ZERO_ADDRESS)
             return <CreateReward id={id} />

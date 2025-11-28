@@ -8,6 +8,7 @@ import { ZERO_ADDRESS } from '~~/constants';
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { Timer } from '../exam_page/_components';
 import getTimeLeft from '../exam_page/helperFunctions/GetTimeLeft';
+import { Spinner } from '~~/components';
 
 export default function MilestoneRoadmap() {
     const TEST = false;
@@ -104,6 +105,8 @@ export default function MilestoneRoadmap() {
 
     const progressPercentage = (Number(currentProgress) / 100) * 100;
 
+    if (userXP === undefined || xpPoints === undefined) return <Spinner />
+    
     return (
         <div className="min-h-screen bg-base-200 p-8">
             <style>{`
