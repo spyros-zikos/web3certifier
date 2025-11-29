@@ -7,7 +7,7 @@ import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
-import { Accordion, Box, Text, Flex, Spacer } from "@chakra-ui/react"
+import { Accordion, Box, Text, Flex, Spacer, Slider, useSlider, HStack } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
@@ -16,9 +16,8 @@ import { useAccount } from "wagmi";
 import { ProgressBar, IndexSelector } from '~~/components';
 import { FileUpload } from "@chakra-ui/react"
 import { HiUpload } from "react-icons/hi"
-import { FileAcceptDetails } from "@zag-js/file-upload";
-import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
 import { DocsPage } from '~~/types/DocsPage';
+import { downloadQuestionsTemplate, handleFileAccept } from "./helpers";
 
 
 const CreateExam = () => {
@@ -30,15 +29,24 @@ const CreateExam = () => {
     const [rewardDescription, setRewardDescription] = useState<string>("");
     const [eligibilityCriteria, setEligibilityCriteria] = useState<string>("");
     const [examResources, setExamResources] = useState<string>("");
-    const [endTime, setendTime] = useState<string>("");
-    const [price, setprice] = useState<number>();
-    const [baseScore, setbaseScore] = useState<string>("");
-    const [maxSubmissions, setmaxSubmissions] = useState<string>("");
+    const [endTime, setEndTime] = useState<string>("");
+    const [price, setPrice] = useState<number>();
+    const [baseScore, setBaseScore] = useState<number>(1);
+    const [maxSubmissions, setMaxSubmissions] = useState<string>("");
     const [imageUrl, setImageUrl] = useState<string>("");
     const [questionNumber, setQuestionNumber] = useState<number>(1);
     const [showButtonToViewExam, setShowButtonToViewExam] = useState<boolean>(false);
-
     const { chain } = useAccount();
+    const onDrop = useCallback(
+        async (acceptedFiles: File[]) => {
+            const file = acceptedFiles[0];
+            const returnedImageUrl = await singleUpload(file, file.name);
+            setImageUrl(returnedImageUrl);
+            console.log("Uploaded image url: ", returnedImageUrl);
+        }, []
+    );
+    const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
+    const dropZoneRef: React.Ref<HTMLDivElement> | undefined = createRef();
 
     const description = examDescription
         + (rewardDescription ? "\n\nReward Description:\n" + rewardDescription : "")
@@ -89,7 +97,7 @@ const CreateExam = () => {
                             question.answer4
                     ),
                     price ? BigInt(price * 1e18) : BigInt(0),
-                    BigInt(baseScore ? baseScore : Math.ceil(questionsWithAnswers.length / 2)),
+                    BigInt(baseScore),
                     imageUrl || defaultImage,
                     maxSubmissions ? BigInt(maxSubmissions) : BigInt(0),
                     false,
@@ -99,12 +107,18 @@ const CreateExam = () => {
                     // do nothing
                 }
             });
-        } catch (error) {
-            console.error("Error creating exam:", error);
-        } finally {
-            setShowButtonToViewExam(true);
-        }
+        } 
+        catch (error) { console.error("Error creating exam:", error); }
+        finally { setShowButtonToViewExam(true); }
     }
+
+    /*//////////////////////////////////////////////////////////////
+                              USE EFFECT
+    //////////////////////////////////////////////////////////////*/
+
+    useEffect(() => {
+        setBaseScore(Math.ceil(questionsWithAnswers.length / 2));
+    }, [questionsWithAnswers]);
 
     useEffect(() => {
         // Save timers to MongoDB via API
@@ -131,60 +145,6 @@ const CreateExam = () => {
         }
     }, [success]);
 
-    const handleFileAccept = async (details: FileAcceptDetails) => {
-        const file = details.files[0];
-        const listWithFileLines = (await file.text())?.split("\n");
-        setQuestionNumber(1);
-        
-        const tempQuestionsWithAnswers: QuestionWithAnswers[] = [];
-        try {
-            if (listWithFileLines)
-                for (let i = 0; i < listWithFileLines.length; i++) {
-                    if (i % 6 === 0)
-                        tempQuestionsWithAnswers.push({question: listWithFileLines[i], answer1: listWithFileLines[i + 1], answer2: listWithFileLines[i + 2], answer3: listWithFileLines[i + 3], answer4: listWithFileLines[i + 4]});
-                }
-                setQuestionsWithAnswers(tempQuestionsWithAnswers);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const downloadQuestionsTemplate = () => {
-        downloadListAsTxt(
-            [
-                "How much is 2 + 2?",
-                "2",
-                "3",
-                "4",
-                "5",
-                " ",
-                "What is the capital of France?",
-                "Paris",
-                "London",
-                "Berlin",
-                "Rome",
-                " ",
-                "Who is the president of the United States?",
-                "Joe Biden",
-                "Donald Trump",
-                "Barack Obama",
-                "George Washington",
-            ],
-            "questions"
-        );
-    }
-
-    const onDrop = useCallback(
-        async (acceptedFiles: File[]) => {
-            const file = acceptedFiles[0];
-            const returnedImageUrl = await singleUpload(file, file.name);
-            setImageUrl(returnedImageUrl);
-            console.log("Uploaded image url: ", returnedImageUrl);
-        }, []
-    );
-
-    const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
-    const dropZoneRef: React.LegacyRef<HTMLDivElement> | undefined = createRef();
 
     return (
         <ResponsivePageWrapper>
@@ -280,7 +240,7 @@ const CreateExam = () => {
                     value={endTime}
                     type="datetime-local"
                     onChange={(e: any) => {
-                        setendTime(e.target.value);
+                        setEndTime(e.target.value);
                     }}
                 />
 
@@ -301,19 +261,22 @@ const CreateExam = () => {
                                 placeholder="Price"
                                 onChange={(e: any) => {
                                     if (e.target.value >= 0)
-                                    setprice(e.target.value);
+                                    setPrice(e.target.value);
                                 }}
                             />
-                            <InputLabel>Base Score | Default: 50%</InputLabel>
-                            <Input
-                                value={baseScore}
-                                className="mb-4"
-                                type="number"
-                                placeholder="Base Score"
-                                onChange={(e: any) => {
-                                    setbaseScore(e.target.value);
-                                }}
-                            />
+                            <InputLabel>Base Score</InputLabel>
+                            <HStack ml="3">
+                                <Slider.Root value={[baseScore]} onValueChange={(v: any) => setBaseScore(v.value)} width="200px" max={questionsWithAnswers.length}>
+                                    <Slider.Control>
+                                        <Slider.Track>
+                                            <Slider.Range />
+                                        </Slider.Track>
+                                        <Slider.Thumbs />
+                                    </Slider.Control>
+                                </Slider.Root>
+                                <Box ml="2">{baseScore}</Box>
+                            </HStack>
+
                             <InputLabel>Max Submissions | Default: 0 (unlimited)</InputLabel>
                             <Input
                                 value={maxSubmissions}
@@ -321,7 +284,7 @@ const CreateExam = () => {
                                 type="number"
                                 placeholder="Max Submissions"
                                 onChange={(e: any) => {
-                                    setmaxSubmissions(e.target.value);
+                                    setMaxSubmissions(e.target.value);
                                 }}
                             />
                         </Accordion.ItemBody>
@@ -417,18 +380,15 @@ const CreateExam = () => {
 
                 <Button onClick={() => {
                     setQuestionNumber(questionsWithAnswers.length + 1);
-                        // add empty question
-                        setQuestionsWithAnswers([ ...questionsWithAnswers, emptyQuestionWithAnswers ]);
-                    }}
-                    
-                    >
+                    // add empty question
+                    setQuestionsWithAnswers([ ...questionsWithAnswers, emptyQuestionWithAnswers ]);
+                }}>
                     Add Question
                 </Button>
                 <Button onClick={() => {
                     if (questionsWithAnswers.length > 1) {
-                        if (questionNumber === questionsWithAnswers.length) {
+                        if (questionNumber === questionsWithAnswers.length)
                             setQuestionNumber(questionsWithAnswers.length - 1)
-                        }
                         setQuestionsWithAnswers([...questionsWithAnswers.slice(0, questionNumber-1), ...questionsWithAnswers.slice(questionNumber)])
                     }
                 }}>
@@ -439,7 +399,7 @@ const CreateExam = () => {
                 <Box mt="8">
                     Alternatively, you can upload a text file with the questions. It should follow <Box display="inline" textDecoration="underline" cursor="pointer" onClick={downloadQuestionsTemplate}>this</Box> template.
                 </Box>
-                <FileUpload.Root accept={["text/plain"]} onFileAccept={handleFileAccept} mt="2">
+                <FileUpload.Root accept={["text/plain"]} onFileAccept={(details) => handleFileAccept(details, setQuestionNumber, setQuestionsWithAnswers)} mt="2">
                     <FileUpload.HiddenInput />
                     <FileUpload.Trigger asChild>
                         <Box display="flex" alignItems="center" gap="2" border="1px solid" borderColor="lighterLighterBlack" px="4" py="2" mt="2" cursor="pointer">
