@@ -27,7 +27,7 @@ const ExamPage = () => {
                           READ FROM CONTRACT
     //////////////////////////////////////////////////////////////*/
 
-    const exam: Exam | undefined  = wagmiReadFromContract({
+    const exam: Exam | undefined = wagmiReadFromContract({
         functionName: "getExam",
         args: [id],
     }).data;

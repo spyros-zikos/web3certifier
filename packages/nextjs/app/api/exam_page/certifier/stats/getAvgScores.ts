@@ -15,9 +15,9 @@ export async function getAvgScores(request: Request, scoreType: ScoreType) {
             return new Response('Invalid chainId or examId', { status: 400 });
         }
         
-        const userStatusFunction = (scoreType == ScoreType.Success) ? (status: any) => status == 2:
-            (scoreType == ScoreType.Fail) ? (status: any) => status == 3:
-            (status: any) => status >= 2;
+        const userStatusFunction = (scoreType == ScoreType.Success) ? ((status: any) => status == 2):
+            (scoreType == ScoreType.Fail) ? ((status: any) => status == 3):
+            ((status: any) => status >= 2);
         const score = await getScoresOfUsersWithStatus(chainId, examId, userStatusFunction);
 
         return new Response(JSON.stringify(score), {

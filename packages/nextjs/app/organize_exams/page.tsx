@@ -12,7 +12,6 @@ import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
 import TextArea from "./_components/TextArea";
-import Link from "next/link";
 import { useAccount } from "wagmi";
 import { ProgressBar, IndexSelector } from '~~/components';
 import { FileUpload } from "@chakra-ui/react"
@@ -37,6 +36,7 @@ const CreateExam = () => {
     const [maxSubmissions, setmaxSubmissions] = useState<string>("");
     const [imageUrl, setImageUrl] = useState<string>("");
     const [questionNumber, setQuestionNumber] = useState<number>(1);
+    const [showButtonToViewExam, setShowButtonToViewExam] = useState<boolean>(false);
 
     const { chain } = useAccount();
 
@@ -101,6 +101,8 @@ const CreateExam = () => {
             });
         } catch (error) {
             console.error("Error creating exam:", error);
+        } finally {
+            setShowButtonToViewExam(true);
         }
     }
 
@@ -457,6 +459,9 @@ const CreateExam = () => {
                 <Button disabled={!requiredDetailsAreFilled() || isMining} onClick={handleCreateExam} mt="3">
                     {isMining ? "Creating Exam..." : "Create Exam"}
                 </Button>
+                <br />
+                {showButtonToViewExam && <ButtonLink href={`/exam_page?id=${lastExamId}`}>See the latest exam</ButtonLink>}
+                
             </div>
         </ResponsivePageWrapper>
     )
