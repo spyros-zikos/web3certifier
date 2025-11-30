@@ -18,6 +18,7 @@ import { FileUpload } from "@chakra-ui/react"
 import { HiUpload } from "react-icons/hi"
 import { DocsPage } from '~~/types/DocsPage';
 import { downloadQuestionsTemplate, handleFileAccept } from "./helpers";
+import { getExamsStringFromGraph } from "./helpers";
 
 
 const CreateExam = () => {

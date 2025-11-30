@@ -1,0 +1,257 @@
+type AddExamWithXp @entity(immutable: true) {
+  id: Bytes!
+  examId: BigInt! # uint256
+  xp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type AddeToWhitelist @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ClaimNFT @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  examId: BigInt! # uint256
+  answers: String! # string
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ClaimRefund @entity(immutable: true) {
+  id: Bytes!
+  examId: BigInt! # uint256
+  user: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CorrectExam @entity(immutable: true) {
+  id: Bytes!
+  examId: BigInt! # uint256
+  answers: String! # string
+  etherAccumulated: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CreateExam @entity(immutable: true) {
+  id: Bytes!
+  internal_id: BigInt! # uint256
+  name: String! # string
+  description: String! # string
+  endTime: BigInt! # uint256
+  questions: [String!]! # string[]
+  answers: String! # string
+  price: BigInt! # uint256
+  baseScore: BigInt! # uint256
+  imageUrl: String! # string
+  users: [Bytes!]! # address[]
+  etherAccumulated: BigInt! # uint256
+  certifier: Bytes! # address
+  maxSubmissions: BigInt! # uint256
+  userClaimsWithPassword: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type EngagementRewardClaimFailed @entity(immutable: true) {
+  id: Bytes!
+  message: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Initialized @entity(immutable: true) {
+  id: Bytes!
+  version: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RemoveExamWithXp @entity(immutable: true) {
+  id: Bytes!
+  examId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RemoveFromWhitelist @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetExamCreationFee @entity(immutable: true) {
+  id: Bytes!
+  fee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetFeeCollector @entity(immutable: true) {
+  id: Bytes!
+  feeCollector: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetPaused @entity(immutable: true) {
+  id: Bytes!
+  paused: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetPriceFeed @entity(immutable: true) {
+  id: Bytes!
+  priceFeed: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetRequiresSignature @entity(immutable: true) {
+  id: Bytes!
+  requiresSignature: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetSigner @entity(immutable: true) {
+  id: Bytes!
+  signer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetSubmissionFee @entity(immutable: true) {
+  id: Bytes!
+  fee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetTimeToCorrectExam @entity(immutable: true) {
+  id: Bytes!
+  time: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetUsername @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  username: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Stopped @entity(immutable: true) {
+  id: Bytes!
+
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubmitAnswers @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  examId: BigInt! # uint256
+  hashedAnswer: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UpdateExamXp @entity(immutable: true) {
+  id: Bytes!
+  examId: BigInt! # uint256
+  xp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Upgraded @entity(immutable: true) {
+  id: Bytes!
+  implementation: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UserFailed @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  examId: BigInt! # uint256
+  answers: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
