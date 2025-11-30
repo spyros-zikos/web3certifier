@@ -1,13 +1,13 @@
 {
-  "name": "certifier-celo",
+  "name": "certifier-celo-implementation",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ certifier-celo",
-    "create-local": "graph create --node http://localhost:8020/ certifier-celo",
-    "remove-local": "graph remove --node http://localhost:8020/ certifier-celo",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 certifier-celo",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ certifier-celo-implementation",
+    "create-local": "graph create --node http://localhost:8020/ certifier-celo-implementation",
+    "remove-local": "graph remove --node http://localhost:8020/ certifier-celo-implementation",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 certifier-celo-implementation",
     "test": "graph test"
   },
   "dependencies": {

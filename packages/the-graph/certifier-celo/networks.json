@@ -1,8 +1,8 @@
 {
   "celo": {
-    "ERC1967Proxy": {
-      "address": "0xEdA52212b4BE0EB74aef879e714E4f722EA263A0",
-      "startBlock": 34721840
+    "Certifier": {
+      "address": "0x9af20ccc87a8295cc3046dbff0b24620c5386434",
+      "startBlock": 50627935
     }
   }
 }
