@@ -7,7 +7,7 @@ import { useDropzone } from "react-dropzone";
 import { singleUpload } from "~~/services/ipfs";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
-import { Accordion, Box, Text, Flex, Spacer, Slider, useSlider, HStack } from "@chakra-ui/react"
+import { Accordion, Box, Text, Flex, Spacer, Slider, HStack } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import InputLabel from "./_components/InputLabel";
