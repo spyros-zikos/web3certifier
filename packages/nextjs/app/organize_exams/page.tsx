@@ -2,20 +2,18 @@
 
 import React, { useEffect } from "react";
 import { createRef, useCallback, useState } from "react";
-import { Button, Title, Input, ResponsivePageWrapper, ButtonLink } from "~~/components";
+import { useAccount } from "wagmi";
 import { useDropzone } from "react-dropzone";
-import { singleUpload } from "~~/services/ipfs";
-import { PhotoIcon } from "@heroicons/react/24/outline";
-import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
-import { Accordion, Box, Text, Flex, Spacer, Slider, HStack } from "@chakra-ui/react"
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite'
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
+import { singleUpload } from "~~/services/ipfs";
+import { answersSeparator, defaultImage, timePerQuestion } from "~~/constants";
+import { Accordion, Box, Text, Flex, Spacer, Slider, HStack, FileUpload } from "@chakra-ui/react"
 import InputLabel from "./_components/InputLabel";
 import TextArea from "./_components/TextArea";
-import { useAccount } from "wagmi";
-import { ProgressBar, IndexSelector } from '~~/components';
-import { FileUpload } from "@chakra-ui/react"
+import { Button, Title, Input, ResponsivePageWrapper, ButtonLink, ProgressBar, IndexSelector } from "~~/components";
 import { HiUpload } from "react-icons/hi"
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { DocsPage } from '~~/types/DocsPage';
 import { downloadQuestionsTemplate, handleFileAccept } from "./helpers";
 
