@@ -1,0 +1,26 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ERC1967Proxy
+    network: celo
+    source:
+      address: "0xEdA52212b4BE0EB74aef879e714E4f722EA263A0"
+      abi: ERC1967Proxy
+      startBlock: 34721840
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Upgraded
+      abis:
+        - name: ERC1967Proxy
+          file: ./abis/ERC1967Proxy.json
+      eventHandlers:
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+      file: ./src/erc-1967-proxy.ts
