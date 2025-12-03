@@ -91,7 +91,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setTokenAddress(e.target.value);
                     }}
                 /></>
-                : <Heading fontSize="lg" fontWeight={"bold"} mb={4}>Reward users with G$ tokens!</Heading>}
+                : <Heading fontSize="lg" fontWeight={"bold"} my={8}>Reward users with G$ tokens!</Heading>}
                 
                 {/* Distribution Type */}
                 <label className={`${labelMarginAndPadding}`}>Distribution Type</label>

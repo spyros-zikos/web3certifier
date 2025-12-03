@@ -115,7 +115,7 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                         {distributionType && <ExamDetail name="Distribution Type" value={distributionType} />}
 
                         {/* Distribution Parameter */}
-                        {scaledDistributionParameter!==undefined && 
+                        {scaledDistributionParameter!==undefined && !Number.isNaN(scaledDistributionParameter) && 
                         <ExamDetail name={distributionParameterName(distributionType)}
                             value={scaledDistributionParameter.toString()} 
                         />}
