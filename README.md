@@ -48,7 +48,7 @@ Before you begin, you need to install the following tools:
 4. To verify the reward contract do: `make deploy-reward-{network}`. Look at Makefile!
 
 ### To redeploy the subgraph:
-Delete the `packages/the-graph` directory and go to <a href="https://thegraph.com/studio/">https://thegraph.com/studio/</a>. There you can follow the instructions to create a new subgraph. Use the implementation contract and then change the 'address' and the 'startblock' at the subgraph.yaml file. Then execute 'graph deploy certifier-celo'.
+Delete the `packages/the-graph` directory and go to <a href="https://thegraph.com/studio/">https://thegraph.com/studio/</a>. There you can follow the instructions to create a new subgraph. Use the implementation contract and then change the 'address' and the 'startblock' at the subgraph.yaml file to the proxy contract address and startblock. Then execute 'graph deploy certifier-celo'.
 
 
 NOTES  
