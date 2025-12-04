@@ -9,6 +9,7 @@ import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
 import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
 import examStageMessageFunction from "../_components/examStageMessage";
 import { ExamStage } from "~~/types/ExamStage";
+import { getAvgScore } from "../helperFunctions/avgScores";
 
 const DownloadButton = ({onClick}: {onClick: any}) => {
     return <Box position="absolute" top="1" right="2">
@@ -48,12 +49,10 @@ const CertifierCorrected = ({
 }: {
     exam: Exam | undefined, id: bigint
 }) => {
-    const { chain } = useAccount();
-
     const [questionNumber, setQuestionNumber] = useState<number>(1);
-    const [avgScore, setAvgScore] = useState<number>(1);
-    const [avgSuccessScore, setAvgSuccessScore] = useState<number>(1);
-    const [avgFailScore, setAvgFailScore] = useState<number>(1);
+    const [avgScore, setAvgScore] = useState<number>(0);
+    const [avgSuccessScore, setAvgSuccessScore] = useState<number>(0);
+    const [avgFailScore, setAvgFailScore] = useState<number>(0);
 
     const rewardAddress = wagmiReadFromContract({
         contractName: "RewardFactory",
@@ -70,24 +69,27 @@ const CertifierCorrected = ({
 
     // avg score
     useEffect(() => {
-        fetch("api/exam_page/certifier/stats/avgScore/?examId=" + id + "&chainId=" + chain?.id)
-        .then(response => response.json())
-        .then(data => setAvgScore(data.toFixed(2)));
-    }, [id, chain]);
+        (async () => {
+            await getAvgScore("All", id, exam!.answers)
+            .then((score: any) => setAvgScore(score));
+        })();
+    }, []);
 
-    // avg success score
+    // avg pass score
     useEffect(() => {
-        fetch("api/exam_page/certifier/stats/avgSuccessScore/?examId=" + id + "&chainId=" + chain?.id)
-        .then(response => response.json())
-        .then(data => setAvgSuccessScore(data.toFixed(2)));
-    }, [id, chain]);
+        (async () => {
+            await getAvgScore("Pass", id, exam!.answers)
+            .then((score: any) => setAvgSuccessScore(score));
+        })();
+    }, []);
 
     // avg fail score
     useEffect(() => {
-        fetch("api/exam_page/certifier/stats/avgFailScore/?examId=" + id + "&chainId=" + chain?.id)
-        .then(response => response.json())
-        .then(data => setAvgFailScore(data.toFixed(2)));
-    }, [id, chain]);
+        (async () => {
+            await getAvgScore("Fail", id, exam!.answers)
+            .then((score: any) => setAvgFailScore(score));
+        })();
+    }, []);
 
     return (
         <>
