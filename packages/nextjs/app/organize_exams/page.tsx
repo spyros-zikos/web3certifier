@@ -24,9 +24,8 @@ const CreateExam = () => {
 
     const [name, setname] = useState<string>("");
     const [examDescription, setExamDescription] = useState<string>("");
-    const [rewardDescription, setRewardDescription] = useState<string>("");
-    const [eligibilityCriteria, setEligibilityCriteria] = useState<string>("");
     const [examResources, setExamResources] = useState<string>("");
+    const [rewardDescription, setRewardDescription] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
     const [price, setPrice] = useState<number>();
     const [baseScore, setBaseScore] = useState<number>(1);
@@ -47,9 +46,8 @@ const CreateExam = () => {
     const dropZoneRef: React.Ref<HTMLDivElement> | undefined = createRef();
 
     const description = examDescription
-        + (rewardDescription ? "\n\nReward Description:\n" + rewardDescription : "")
-        + (eligibilityCriteria ? "\n\nEligibility Criteria:\n" + eligibilityCriteria : "")
-        + (examResources ? "\n\nResources:\n" + examResources : "");
+        + (examResources ? "\n\nResources:\n" + examResources : "")
+        + (rewardDescription ? "\n\nReward Description:\n" + rewardDescription : "");
 
     const requiredDetailsAreFilled = () => {
         return name&&examDescription&&endTime&&questionsWithAnswers[0];
@@ -209,6 +207,14 @@ const CreateExam = () => {
                         setExamDescription(e.target.value);
                     }}
                 />
+                <InputLabel>Exam Resources</InputLabel>
+                <TextArea
+                    value={examResources}
+                    placeholder="Exam Resources"
+                    onChange={(e: any) => {
+                        setExamResources(e.target.value);
+                    }}
+                />
                 <InputLabel>Reward Description</InputLabel>
                 <TextArea
                     value={rewardDescription}
@@ -217,22 +223,7 @@ const CreateExam = () => {
                         setRewardDescription(e.target.value);
                     }}
                 />
-                <InputLabel>Eligibility Criteria</InputLabel>
-                <TextArea
-                    value={eligibilityCriteria}
-                    placeholder="Eligibility Criteria"
-                    onChange={(e: any) => {
-                        setEligibilityCriteria(e.target.value);
-                    }}
-                />
-                <InputLabel>Exam resources</InputLabel>
-                <TextArea
-                    value={examResources}
-                    placeholder="Exam Resources"
-                    onChange={(e: any) => {
-                        setExamResources(e.target.value);
-                    }}
-                />
+
                 <InputLabel>End Time *</InputLabel>
                 <Input
                     value={endTime}
