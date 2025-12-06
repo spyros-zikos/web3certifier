@@ -15,26 +15,23 @@ export default function SettingUpRewards() {
             <Heading fontSize="2xl" fontWeight="bold">🏆 How to Set Up Rewards</Heading>
 
             <Box>
-                When setting up rewards you can specify 3 optional parameters.
+                When setting up rewards you can specify 4 parameters.
             </Box>
 
-            <Section title="Reward Amount">
-                The total amount of G$ tokens that you want to offer as rewards. If you insert a value,
-                the amount of tokens that you specified will be transferred from your wallet to the
-                reward contract.
+            <Section title="Distribution Type">
+                The distribution type defines how the rewards will be distributed. You can choose between Constant, Uniform and Custom. If you select Custom you will have to also set the eligibility criteria to Custom. Constant: A constant amount will be distributed to each user. Uniform: The total reward amount will be distributed evenly among all submissions but only the users that pass the exam can claim their reward.
             </Section>
 
-            <Section title="Reward Amount Per Person">
-                The amount of tokens that each user that passes the exam will get.
+            <Section title="Reward Amount Per User / Total Reward Amount / Distribution Parameter">
+                Depending on the distribution type you can either set the Reward Amount Per User, the Total Reward Amount or the Distribution Parameter (if the custom reward uses it).
             </Section>
 
-            <Section title="Reward Amount Per Correct Answer">
-                The amount of tokens that each user that passes the exam will get for each correct
-                answer they have. Example: Exam with 11 questions has a base of 6 and{" "}
-                <Code>Reward amount per correct answer</Code> is set to 10. A user that passes the exam
-                with 8 correct answers will get 80 tokens as
-                a reward. If the <Code>Reward amount per person</Code> field is set to 20 then this user
-                will get 80+20=100 tokens in total.
+            <Section title="Eligibility Type">
+                The eligibility type defines how the users will be eligible for the reward. You can choose between None, Holds Token, Holds NFT and Custom.
+            </Section>
+
+            <Section title="Token Address / NFT Address / Custom Reward Address">
+                This field in not required if the eligibility type is None. If the eligibility type is Holds Token or Holds NFT you have to specify the token address or NFT address. If the eligibility type is Custom you have to specify the custom reward address which will have the eligibility logic and optionally the distribution logic.
             </Section>
         </VStack>
     );
