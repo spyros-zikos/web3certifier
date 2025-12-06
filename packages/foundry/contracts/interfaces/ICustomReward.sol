@@ -8,9 +8,14 @@ interface ICustomReward {
     function name() external pure returns (string memory);
 
     /**
-     * @return The description of the custom reward
+     * @return The description of the eligibility criteria of the custom reward (required)
      */
-    function description() external pure returns (string memory);
+    function eligibilityDescription() external pure returns (string memory);
+
+    /**
+     * @return The description of the distribution method of the custom reward (optional)
+     */
+    function distributionDescription() external pure returns (string memory);
 
     /**
      * @notice required if the distribution type or eligibility type is custom

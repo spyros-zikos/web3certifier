@@ -111,13 +111,18 @@ contract Reward is Ownable, ReentrancyGuard {
     }
 
     // Custom Reward Wrapper
-    function getCustomRewardName() external view returns (string memory) {
+    function customRewardName() external view returns (string memory) {
         return ICustomReward(i_eligibilityParameter).name();
     }
 
     // Custom Reward Wrapper
-    function getCustomRewardDescription() external view returns (string memory) {
-        return ICustomReward(i_eligibilityParameter).description();
+    function customEligibilityDescription() external view returns (string memory) {
+        return ICustomReward(i_eligibilityParameter).eligibilityDescription();
+    }
+
+    // Custom Reward Wrapper
+    function customDistributionDescription() external view returns (string memory) {
+        return ICustomReward(i_eligibilityParameter).distributionDescription();
     }
 
     // Public Functions

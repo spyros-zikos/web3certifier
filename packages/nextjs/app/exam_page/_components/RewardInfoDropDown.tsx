@@ -77,13 +77,19 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
     const customRewardName = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getCustomRewardName",
+        functionName: "customRewardName",
     }).data;
 
-    const customRewardDescription = wagmiReadFromContract({
+    const customEligibilityDescription = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "getCustomRewardDescription",
+        functionName: "customEligibilityDescription",
+    }).data;
+
+    const customDistributionDescription = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "customDistributionDescription",
     }).data;
 
     if (rewardAddress === ZERO_ADDRESS)
@@ -143,9 +149,14 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                         {/* Custom Reward Name */}
                         {eligibilityType === EligibilityType.CUSTOM && customRewardName && <ExamDetail name="Custom Reward Name" value={customRewardName} />}
 
-                        {/* Custom Reward Description */}
-                        {eligibilityType === EligibilityType.CUSTOM && customRewardDescription && <div>
-                            {<><div className="text-base-100">Custom Reward Description:</div>{customRewardDescription}</>}
+                        {/* Custom Eligibility Description */}
+                        {eligibilityType === EligibilityType.CUSTOM && customEligibilityDescription && <div className="mb-4">
+                            {<><div className="text-base-100">Custom Eligibility Description:</div>{customEligibilityDescription}</>}
+                        </div>}
+
+                        {/* Custom Distribution Description */}
+                        {distributionType === DistributionType.CUSTOM && customDistributionDescription && <div>
+                            {<><div className="text-base-100">Custom Distribution Description:</div>{customDistributionDescription}</>}
                         </div>}
                     </Accordion.ItemBody>
                 </Accordion.ItemContent>
