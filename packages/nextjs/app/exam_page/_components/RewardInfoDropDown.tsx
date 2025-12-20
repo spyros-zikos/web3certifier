@@ -31,7 +31,7 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
         functionName: "getDistributionType",
     }).data;
 
-    const distributionParameter: string = wagmiReadFromContract({
+    const distributionParameter: number = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionParameter",
@@ -92,6 +92,12 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
         functionName: "customDistributionDescription",
     }).data;
 
+    const usersThatClaimed = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUsersThatClaimed",
+    }).data;
+
     if (rewardAddress === ZERO_ADDRESS)
         return <></>;
 
@@ -122,8 +128,15 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
 
                         {/* Distribution Parameter */}
                         {scaledDistributionParameter!==undefined && !Number.isNaN(scaledDistributionParameter) && 
+                            Object.values(DistributionType)[distributionTypeNumber] !== DistributionType.DRAW &&
                         <ExamDetail name={distributionParameterName(distributionType)}
                             value={scaledDistributionParameter.toString()} 
+                        />}
+
+                        {Object.values(DistributionType)[distributionTypeNumber] === DistributionType.DRAW &&
+                            distributionParameter !== 0 &&
+                        <ExamDetail name={"Draw Winner"}
+                            value={<Address address={usersThatClaimed?.[Number(distributionParameter) % usersThatClaimed?.length]} className={"text-bold inline-block"} disableAddressLink={true} />}
                         />}
 
                         {/* Eligibility Type */}

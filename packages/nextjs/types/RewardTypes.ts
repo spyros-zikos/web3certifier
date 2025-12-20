@@ -2,6 +2,7 @@ export enum DistributionType{
     CUSTOM = "Custom",
     CONSTANT = "Constant",
     UNIFORM = "Uniform",
+    DRAW = "Draw",
 }
 
 export enum EligibilityType {

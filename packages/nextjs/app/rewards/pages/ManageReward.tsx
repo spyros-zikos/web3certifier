@@ -9,6 +9,8 @@ import { Input, ResponsivePageWrapper } from "~~/components";
 import { TitleWithLinkToExamPage, BuyGoodDollarTokensMessage, ActionCard, LoadingButton } from '../components';
 import { distributionParameterName, DistributionType } from '~~/types/RewardTypes';
 import { RewardInfoDropDown } from '~~/app/exam_page/_components';
+import { random } from 'lodash';
+import { Box } from '@chakra-ui/react';
 
 const ManageReward = ({id}: {id: bigint}) => {
     const { address, chain } = useNonUndefinedAccount();
@@ -37,6 +39,18 @@ const ManageReward = ({id}: {id: bigint}) => {
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionType",
+    }).data;
+
+    const usersThatClaimed = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUsersThatClaimed",
+    }).data;
+
+    const contractDistributionParameter = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getDistributionParameter",
     }).data;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -102,18 +116,30 @@ const ManageReward = ({id}: {id: bigint}) => {
 
     // Set distribution parameter
     const { writeContractAsync: setDistributionParameterHook } = wagmiWriteToContract();
+    const { writeContractAsync: pickDrawWinner } = wagmiWriteToContract();
     async function handleSetDistributionParameter() {
         try {
             setLoadingState('distributionParameter', true);
             const scaledDistributionParameter = Number(distributionParameter) * (Number(10) ** Number(decimals));
-            await setDistributionParameterHook({
-                contractName: 'Reward',
-                contractAddress: rewardAddress,
-                functionName: 'setDistributionParameter',
-                args: [
-                    BigInt(scaledDistributionParameter)
-                ],
-            });
+            if (Object.values(DistributionType)[distributionTypeNumber] !== DistributionType.DRAW) 
+                await setDistributionParameterHook({
+                    contractName: 'Reward',
+                    contractAddress: rewardAddress,
+                    functionName: 'setDistributionParameter',
+                    args: [
+                        BigInt(scaledDistributionParameter)
+                    ],
+                });
+            else {
+                const seed = BigInt(Math.random() * Number.MAX_SAFE_INTEGER + 1); // +1 to avoid zero seed
+                console.log("seed", seed);
+                await pickDrawWinner({
+                    contractName: 'Reward',
+                    contractAddress: rewardAddress,
+                    functionName: 'pickDrawWinner',
+                    args: [seed],
+                });
+            }
             setDistributionParameter(BigInt(0));
         } finally {
             setLoadingState('distributionParameter', false);
@@ -200,6 +226,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             </ActionCard>
 
             {/* Set Distribution Parameter */}
+            { Object.values(DistributionType)[distributionTypeNumber] !== DistributionType.DRAW ?
             <ActionCard
                 title="⚙️ Distribution Parameter"
                 description="Set the value of the distribution parameter"
@@ -224,6 +251,23 @@ const ManageReward = ({id}: {id: bigint}) => {
                     </span>
                 </LoadingButton>
             </ActionCard>
+            :
+            (contractDistributionParameter === BigInt(0) && <ActionCard
+                title="🏆 Pick Draw Winner"
+                description="Pick a winner for the draw"
+            >
+                <Box mb="4">There are {usersThatClaimed?.length} participants in the draw.</Box>
+                <LoadingButton
+                    onClick={handleSetDistributionParameter}
+                    loading={isLoading.distributionParameter}
+                    bgColor="green"
+                >
+                    <span className="flex items-center gap-2">
+                        🎁 Pick Random Winner
+                    </span>
+                </LoadingButton>
+            </ActionCard>)
+            }
 
             {/* Withdraw */}
             <ActionCard

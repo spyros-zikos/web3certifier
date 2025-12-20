@@ -16,6 +16,8 @@ export enum ExamStage {
     // --- Exam Ended ---
     Certifier_Corrected,
     User_Corrected_ClaimCertificate, // submit
+    User_Corrected_SucceededPatricipateInDraw, // submit
+    User_Corrected_SucceededAlreadyParticipatesInDraw,
     User_Corrected_SucceededClaimReward, // submit
     User_Corrected_SucceededClaimReward_NotEligible,
     User_Corrected_SucceededClaimReward_NotEnoughTokens,

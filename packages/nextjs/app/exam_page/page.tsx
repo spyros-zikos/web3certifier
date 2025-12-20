@@ -9,12 +9,13 @@ import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
 import { SUPPORTED_NETWORKS, ZERO_ADDRESS } from "~~/constants";
-import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
+import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededPatricipateInDraw, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, InviteLinkMessage, ManageRewardsLink, Timer } from "./_components";
 import getTimeLeft from "./helperFunctions/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 import examStageMessageFunction from "./_components/examStageMessage";
+import { DistributionType } from "~~/types/RewardTypes";
 
 
 const ExamPage = () => {
@@ -86,6 +87,18 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
+    const distributionTypeNumber: number  = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getDistributionType",
+    }).data;
+
+    const distributionParameter = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getDistributionParameter",
+    }).data;
+
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeNow(Date.now());
@@ -99,7 +112,20 @@ const ExamPage = () => {
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
         const rewardExistsAndUserHasNotClaimed = !userHasClaimedReward && hasReward;
-        return examStage(examStatus, userStatus, address, exam, rewardExistsAndUserHasNotClaimed, isEligible, rewardAmount, totalRewardAmount);
+        const drawIsOpenForParticipants = 
+            (Object.values(DistributionType)[distributionTypeNumber] === DistributionType.DRAW) &&
+            distributionParameter === 0n;
+        return examStage(
+            examStatus,
+            userStatus,
+            address,
+            exam,
+            rewardExistsAndUserHasNotClaimed,
+            isEligible,
+            rewardAmount,
+            totalRewardAmount,
+            drawIsOpenForParticipants
+        );
     }
 
     // If user is connected, check that he's on supported network
@@ -161,6 +187,10 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Corrected_ClaimCertificate ?
                 <UserCorrectedClaimCertificate id={id} exam={exam} address={address} chain={chain} />
 
+            : getExamStage() === ExamStage.User_Corrected_SucceededPatricipateInDraw ?
+                <UserCorrectedSucceededPatricipateInDraw exam={exam} rewardAddress={rewardAddress} />
+            : getExamStage() === ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw ?
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw)()} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
                 <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} rewardAmount={rewardAmount} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEligible ?

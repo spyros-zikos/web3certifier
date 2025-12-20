@@ -11,7 +11,7 @@ import { TitleWithLinkToExamPage, MyMenu } from '../components';
 import { distributionParameterName, DistributionType, eligibilityParameterName, EligibilityType } from "~~/types/RewardTypes";
 
 
-const distributionTypesList: DistributionType[] = [DistributionType.CONSTANT, DistributionType.UNIFORM, DistributionType.CUSTOM];
+const distributionTypesList: DistributionType[] = [DistributionType.CONSTANT, DistributionType.UNIFORM, DistributionType.DRAW, DistributionType.CUSTOM];
 const eligibilityTypesList: EligibilityType[] = [EligibilityType.NONE, EligibilityType.HOLDS_TOKEN, EligibilityType.HOLDS_NFT, EligibilityType.CUSTOM];
 
 const CreateReward = ({id}: {id: bigint}) => {
@@ -107,7 +107,8 @@ const CreateReward = ({id}: {id: bigint}) => {
                     }
                 />
                 
-                <label className={`${labelMarginAndPadding}`}>
+                { distributionType !== DistributionType.DRAW &&
+                <><label className={`${labelMarginAndPadding}`}>
                     {distributionParameterName(distributionType)}
                 </label>
                 <Input
@@ -116,7 +117,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => {
                         setDistributionParameter(e.target.value);
                     }}
-                />
+                /></>}
                 
                 {/* Eligibility Type */}
                 <label className={`${labelMarginAndPadding}`}>Eligibility Type</label>

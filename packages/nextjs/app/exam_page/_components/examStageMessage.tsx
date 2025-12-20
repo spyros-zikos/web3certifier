@@ -43,6 +43,10 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
                     {discordServerLink}.
                 </>
         );
+    else if (examStage === ExamStage.User_Corrected_SucceededPatricipateInDraw)
+        return () => "You can participate in the draw!";
+    else if (examStage === ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw)
+        return () => "You already participate in the draw!";
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward)
         return (scaledRewardAmountForUser: bigint, tokenSymbol: string) => "You can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!";
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEligible)

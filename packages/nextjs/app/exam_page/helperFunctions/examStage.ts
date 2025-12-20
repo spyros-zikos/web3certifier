@@ -9,6 +9,7 @@ export const examStage = (
     isEligible: boolean,
     rewardAmount: bigint,
     totalRewardAmount: bigint,
+    drawIsOpenForParticipants: boolean
 ) => {
     if (address === exam?.certifier) {
         // Open
@@ -41,8 +42,10 @@ export const examStage = (
                     if (rewardExistsAndUserHasNotClaimed) {
                         if (isEligible === false) return ExamStage.User_Corrected_SucceededClaimReward_NotEligible;
                         if (rewardAmount > totalRewardAmount) return ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens;
+                        if (drawIsOpenForParticipants) return ExamStage.User_Corrected_SucceededPatricipateInDraw;
                         return ExamStage.User_Corrected_SucceededClaimReward;
                     }
+                    if (drawIsOpenForParticipants) return ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw;
                     return ExamStage.User_Corrected_SucceededNoReward;
                 }
                 if (userStatus === "Failed") return ExamStage.User_Corrected_Failed;
