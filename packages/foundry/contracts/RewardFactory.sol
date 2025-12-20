@@ -15,7 +15,15 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
     /*//////////////////////////////////////////////////////////////
                                  ENUMS
     //////////////////////////////////////////////////////////////*/
-    enum DistributionType {CUSTOM, CONSTANT, UNIFORM}
+    /**
+     * @notice DRAW distribution is using the distributionParameter as a random number to pick the winner
+     * if it's 0 then it's not drawn. Users that pass the exam have to call the claim function of the Reward contract first
+     * so that they are included in the draw. Because they call the claim function all users appear as if they have claimed.
+     * When a winner is drawn, their address in the s_userHasClaimed array is set to false so they can call the claim function again
+     * and this time actually claim the reward.
+     * 
+     */
+    enum DistributionType {CUSTOM, CONSTANT, UNIFORM, DRAW}
     enum EligibilityType {NONE, CUSTOM, HOLDS_TOKEN, HOLDS_NFT}
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
@@ -53,6 +61,7 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
      *  for constant distribution: reward amount,
      *  for uniform distribution: total reward amount,
      *  for custom distribution: custom parameter
+     *  for draw distribution: 0 if not drawn, a random number if drawn
      */ 
     function createReward(
         uint256 examId,

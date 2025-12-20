@@ -17,6 +17,8 @@ contract Reward is Ownable, ReentrancyGuard {
     event Reward__Fund(uint256 amount);
     event Reward__Claim(address user, uint256 amount);
     event Reward__Withdraw(uint256 amount);
+    event Reward__ParticipateInDraw(address user);
+    event Reward__DrawWinner(address user);
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
     //////////////////////////////////////////////////////////////*/
@@ -24,6 +26,8 @@ contract Reward is Ownable, ReentrancyGuard {
     error Reward__UserDidNotSucceed(address user);
     error Reward__UserIsNotEligible(address user);
     error Reward__NotEnoughRewardTokens(uint256 rewardAmount, uint256 contractBalance);
+    error Reward__NotADraw();
+    error Reward__NoParticipants();
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -91,8 +95,18 @@ contract Reward is Ownable, ReentrancyGuard {
         // check if the user satisfies the eligibility type
         if (!isEligible(msg.sender)) revert Reward__UserIsNotEligible(msg.sender);
 
+        if (RewardFactory.DistributionType.DRAW == i_distributionType && s_distributionParameter != 0) { // reward has been drawn
+            // do nothing so that you don't include the draw winner 2 times
+        } else {
+            s_usersThatClaimed.push(msg.sender);
+        }
         s_userHasClaimed[msg.sender] = true;
-        s_usersThatClaimed.push(msg.sender);
+
+        // check if it's a draw and if it has not been drawn then return because users just call it to participate in the draw
+        if (RewardFactory.DistributionType.DRAW == i_distributionType && s_distributionParameter == 0) {
+            emit Reward__ParticipateInDraw(msg.sender);
+            return;
+        }
 
         uint256 rewardAmount = rewardAmountForUser(msg.sender);
         // check if the contract has enough reward tokens
@@ -108,6 +122,17 @@ contract Reward is Ownable, ReentrancyGuard {
         IERC20(i_rewardToken).approve(owner(), contractBalance);
         IERC20(i_rewardToken).transfer(owner(), contractBalance);
         emit Reward__Withdraw(contractBalance);
+    }
+
+    function pickDrawWinner(uint256 seed) external onlyOwner {
+        if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
+        if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
+        if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
+        uint256 indexOfWinner = seed % s_usersThatClaimed.length;
+        address winner = s_usersThatClaimed[indexOfWinner];
+        s_distributionParameter = seed;
+        s_userHasClaimed[winner] = false;
+        emit Reward__DrawWinner(winner);
     }
 
     // Custom Reward Wrapper
@@ -148,6 +173,8 @@ contract Reward is Ownable, ReentrancyGuard {
         } else if (i_distributionType == RewardFactory.DistributionType.UNIFORM) {
             uint256 numberOfSubmissions = ICertifier(i_certifierContractAddress).getExam(i_examId).numberOfSubmissions;
             return s_distributionParameter / numberOfSubmissions;
+        } else if (i_distributionType == RewardFactory.DistributionType.DRAW) {
+            return rewardTokenBalance();
         }
         return 0;
     }
