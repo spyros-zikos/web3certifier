@@ -1,8 +1,6 @@
 import deployedContracts from "./contracts/deployedContracts";
 
 export const defaultImage = "https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/QmfTzmiCRgw379MZeD6kmese9oTfVhqASfHo3FcoMSBrJ8/book-token-logo-white-big-rectangle.png";
-// proof of knowledge: https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/Qme6b3de9ATPVjNh5mhFPwHgJUmqKz8vqYx2LPj6j3uQTY/KNOWLEDGE.png
-// book with coin logo: https://0a050602b1c1aeae1063a0c8f5a7cdac.ipfscdn.io/ipfs/QmcbPPCv9VMjXVYmbtyuhtLycfDLWbtosD2mAQJwXGJdGg/Web3%20Certifier%20(1).png
 export const SUPPORTED_NETWORKS = { sepolia: 11155111, arbitrum: 42161, celo: 42220 };
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000002";
@@ -15,6 +13,7 @@ export const getPasswordCookieName = (chain: any, id: bigint, address?: string) 
 export const getStartTimeCookieName = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.startTime`;
 export const getLocalStorageAnswersKey = (chain: any, id: bigint) => `w3c.${chain?.id}.${id}.answers`;
 export const DISCORD_INVITE_LINK = "https://discord.gg/4rXWFNGmDJ";
+export const emptyQuestionWithAnswers = {question: "", answer1: "", answer2: "", answer3: "", answer4: ""};
 
 export interface ContractsConfig {
     [chainId: number]: {

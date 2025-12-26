@@ -15,5 +15,6 @@ export { EtherInput } from "./EtherInput";
 // export { default as PurchaseTokenWidget } from "./PurchaseTokenWidget";
 // export { default as Loader } from "./Loader";
 export { default as ProgressBar } from "./ProgressBar";
-export { default as Input} from "./Input";
-export { IndexSelector} from "./IndexSelector";
+export { default as Input } from "./Input";
+export { IndexSelector } from "./IndexSelector";
+export { default as ExamDataForm } from "./ExamDataForm/ExamDataForm";

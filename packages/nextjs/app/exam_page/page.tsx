@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Box } from "@chakra-ui/react";
-import { PageWrapper, ResponsivePageWrapper, Spinner, Title } from "~~/components";
+import { ButtonLink, PageWrapper, ResponsivePageWrapper, Spinner, Title } from "~~/components";
 import { ExamStage } from "../../types/ExamStage";
 import { examStage } from "./helperFunctions/examStage";
 import { getExamStatusStr, getUserStatusStr } from "~~/utils/StatusStr";
@@ -157,7 +157,12 @@ const ExamPage = () => {
     return (
         <ResponsivePageWrapper>
             {/* Set Up/Manage Rewards */}
-            { address === exam?.certifier && <ManageRewardsLink id={exam?.id || BigInt(0)} rewardAddress={rewardAddress} /> }
+            { address === exam?.certifier && 
+            <>
+            <ManageRewardsLink id={exam?.id || BigInt(0)} rewardAddress={rewardAddress} />
+            <ButtonLink href={`/exam_page/edit?id=${exam?.id || BigInt(0)}`} className="ml-4">🖊️ Edit Exam</ButtonLink>
+            </>
+            }
 
             {/* Image, Name, Description */}
             <ImageNameDescription exam={exam} />

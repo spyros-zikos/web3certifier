@@ -3,7 +3,6 @@ import { IndexSelector } from "~~/components/IndexSelector";
 import { MessageForUser, Question } from "../_components";
 import { Box, Button, Table } from "@chakra-ui/react";
 import { wagmiReadFromContract } from "~~/hooks/wagmi/wagmiRead";
-import { useAccount } from "wagmi";
 import { ZERO_ADDRESS } from "thirdweb";
 import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
 import { downloadListAsTxt } from "~~/utils/downloadListAsTxt";
