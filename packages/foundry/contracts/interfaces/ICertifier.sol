@@ -33,12 +33,12 @@ interface ICertifier {
         uint256 baseScore;
         string imageUrl;
         address[] users;
-        uint256 etherAccumulated;
+        uint256 etherAccumulated; // replace
         address certifier;
         uint256[] tokenIds;
         uint256 maxSubmissions;
         uint256 numberOfSubmissions;
-        bool userClaimsWithPassword;
+        bool userClaimsWithPassword; // replace
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -82,6 +82,18 @@ interface ICertifier {
     event AddExamWithXp(uint256 examId, uint256 xp);
     event RemoveExamWithXp(uint256 examId);
     event UpdateExamXp(uint256 examId, uint256 xp);
+    event SetExamData(
+        uint256 indexed id,
+        string name,
+        string description,
+        uint256 endTime,
+        string[] questions,
+        uint256 price,
+        uint256 baseScore,
+        string imageUrl,
+        address certifier,
+        uint256 maxSubmissions
+    );
 
     /*//////////////////////////////////////////////////////////////
                                 ERRORS
@@ -112,7 +124,8 @@ interface ICertifier {
     error ReusedSignature();
     error InvalidSignature();
     error Certifier__VerificationAvailableOnlyOnCelo();
-    
+    error Certifier__NotOwnerOrCertifier(uint256 examId, address user, address certifier, address owner);
+
     // external
 
     /**
@@ -264,7 +277,7 @@ interface ICertifier {
 
     function setSubmissionFee(uint256 fee) external;
 
-    function setUsername(string memory username, uint256 nonce, bytes memory signature) external;
+    // function setUsername(string memory username, uint256 nonce, bytes memory signature) external;
 
     function setPaused(bool paused) external;
 

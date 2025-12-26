@@ -134,6 +134,12 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         _;
     }
 
+    modifier onlyOwnerOrCertifier(uint256 examId) {
+        if (msg.sender != owner() && msg.sender != s_examIdToExam[examId].certifier)
+            revert Certifier__NotOwnerOrCertifier(examId, msg.sender, s_examIdToExam[examId].certifier, owner());
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////
                           EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -456,7 +462,7 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         return (array, false);
     }
 
-    /**
+    /*--------------*
      * @notice Checks if the signature has been used and if it has reverts.
      * @notice Checks if the signature is valid and reverts if it is not.
      * @notice Stores the signature so that it cannot be reused.
@@ -465,20 +471,20 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
      * @param nonce Nonce used for the signature
      * @param signature The signature from the signer
      */
-    function _checkSignatureAndStore(
-        string memory username,
-        uint256 nonce,
-        bytes memory signature
-    ) private {
-        if (s_usedSignatures[keccak256(signature)]) revert ReusedSignature();
+    // function _checkSignatureAndStore(
+    //     string memory username,
+    //     uint256 nonce,
+    //     bytes memory signature
+    // ) private {
+    //     if (s_usedSignatures[keccak256(signature)]) revert ReusedSignature();
 
-        bytes32 message = keccak256(abi.encodePacked(username, nonce, address(this), block.chainid, msg.sender));
+    //     bytes32 message = keccak256(abi.encodePacked(username, nonce, address(this), block.chainid, msg.sender));
 
-        if (!SignatureChecker.isValidSignatureNow(s_signer, MessageHashUtils.toEthSignedMessageHash(message), signature))
-            revert InvalidSignature();
+    //     if (!SignatureChecker.isValidSignatureNow(s_signer, MessageHashUtils.toEthSignedMessageHash(message), signature))
+    //         revert InvalidSignature();
 
-        s_usedSignatures[keccak256(signature)] = true;
-    }
+    //     s_usedSignatures[keccak256(signature)] = true;
+    // }
 
     /*//////////////////////////////////////////////////////////////
                            GETTER FUNCTIONS
@@ -624,13 +630,13 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
         emit SetSubmissionFee(fee);
     }
 
-    function setUsername(string memory username, uint256 nonce, bytes memory signature) external nonReentrant verifiedOnCelo(msg.sender) {
-        if (s_requiresSignature)
-            _checkSignatureAndStore(username, nonce, signature);
-        s_userToUsername[msg.sender] = username;
-        s_usernameToUser[username] = msg.sender;
-        emit SetUsername(msg.sender, username);
-    }
+    // function setUsername(string memory username, uint256 nonce, bytes memory signature) external nonReentrant verifiedOnCelo(msg.sender) {
+    //     if (s_requiresSignature)
+    //         _checkSignatureAndStore(username, nonce, signature);
+    //     s_userToUsername[msg.sender] = username;
+    //     s_usernameToUser[username] = msg.sender;
+    //     emit SetUsername(msg.sender, username);
+    // }
 
     function setPaused(bool paused) external onlyOwner {
         s_paused = paused;
@@ -689,5 +695,41 @@ contract Certifier is Initializable, UUPSUpgradeable, OwnableUpgradeable, ICerti
     function updateExamXp(uint256 examId, uint256 xp) external onlyOwner {
         s_examIdToXp[examId] = xp;
         emit UpdateExamXp(examId, xp);
+    }
+
+    function setExamData(
+        uint256 id,
+        string memory name,
+        string memory description,
+        uint256 endTime,
+        string[] memory questions,
+        uint256 price,
+        uint256 baseScore,
+        string memory imageUrl,
+        address certifier,
+        uint256 maxSubmissions
+    ) external onlyOwnerOrCertifier(id) {
+        Exam storage exam = s_examIdToExam[id];
+        exam.name = name;
+        exam.description = description;
+        exam.endTime = endTime;
+        exam.questions = questions;
+        exam.price = price;
+        exam.baseScore = baseScore;
+        exam.imageUrl = imageUrl;
+        exam.certifier = certifier;
+        exam.maxSubmissions = maxSubmissions;
+        emit SetExamData(
+            id,
+            name,
+            description,
+            endTime,
+            questions,
+            price,
+            baseScore,
+            imageUrl,
+            certifier,
+            maxSubmissions
+        );
     }
 }
