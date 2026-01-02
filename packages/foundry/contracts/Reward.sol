@@ -28,6 +28,7 @@ contract Reward is Ownable, ReentrancyGuard {
     error Reward__NotEnoughRewardTokens(uint256 rewardAmount, uint256 contractBalance);
     error Reward__NotADraw();
     error Reward__NoParticipants();
+    error Reward__CannotDrawYet(uint256 distributionParameter, uint256 currentTime);
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -95,11 +96,7 @@ contract Reward is Ownable, ReentrancyGuard {
         // check if the user satisfies the eligibility type
         if (!isEligible(msg.sender)) revert Reward__UserIsNotEligible(msg.sender);
 
-        if (RewardFactory.DistributionType.DRAW == i_distributionType && s_distributionParameter != 0) { // reward has been drawn
-            // do nothing so that you don't include the draw winner 2 times
-        } else {
-            s_usersThatClaimed.push(msg.sender);
-        }
+        s_usersThatClaimed.push(msg.sender);
         s_userHasClaimed[msg.sender] = true;
 
         // check if it's a draw and if it has not been drawn then return because users just call it to participate in the draw
@@ -116,23 +113,25 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__Claim(msg.sender, rewardAmount);
     }
 
+    /// @notice can draw multiple winners but only the first to claim will get the reward
+    /// @notice the winners can be identified by being in the s_usersThatClaimed list twice
+    function pickDrawWinner(uint256 seed) external onlyOwner {
+        if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
+        if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
+        if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
+        if (s_distributionParameter > block.timestamp) revert Reward__CannotDrawYet(s_distributionParameter, block.timestamp);
+        uint256 indexOfWinner = seed % s_usersThatClaimed.length;
+        address winner = s_usersThatClaimed[indexOfWinner];
+        s_userHasClaimed[winner] = false;
+        emit Reward__DrawWinner(winner);
+    }
+
     function withdraw() external onlyOwner {
         uint256 contractBalance = rewardTokenBalance();
         if (contractBalance == 0) return;
         IERC20(i_rewardToken).approve(owner(), contractBalance);
         IERC20(i_rewardToken).transfer(owner(), contractBalance);
         emit Reward__Withdraw(contractBalance);
-    }
-
-    function pickDrawWinner(uint256 seed) external onlyOwner {
-        if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
-        if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
-        if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
-        uint256 indexOfWinner = seed % s_usersThatClaimed.length;
-        address winner = s_usersThatClaimed[indexOfWinner];
-        s_distributionParameter = seed;
-        s_userHasClaimed[winner] = false;
-        emit Reward__DrawWinner(winner);
     }
 
     // Custom Reward Wrapper

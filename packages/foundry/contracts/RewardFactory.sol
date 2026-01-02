@@ -16,11 +16,10 @@ contract RewardFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable, Re
                                  ENUMS
     //////////////////////////////////////////////////////////////*/
     /**
-     * @notice DRAW distribution is using the distributionParameter as a random number to pick the winner
-     * if it's 0 then it's not drawn. Users that pass the exam have to call the claim function of the Reward contract first
-     * so that they are included in the draw. Because they call the claim function all users appear as if they have claimed.
-     * When a winner is drawn, their address in the s_userHasClaimed array is set to false so they can call the claim function again
-     * and this time actually claim the reward.
+     * @notice DRAW distribution is using the distributionParameter as the timestamp when the draw can be executed
+     * before that timestamp, the users that passed the exam can declare their participation in the draw
+     * after that timestamp, the certifier can execute the draw to select a winner randomly among the participants
+     * based on a random number generated off-chain
      * 
      */
     enum DistributionType {CUSTOM, CONSTANT, UNIFORM, DRAW}
