@@ -96,11 +96,13 @@ contract Reward is Ownable, ReentrancyGuard {
         // check if the user satisfies the eligibility type
         if (!isEligible(msg.sender)) revert Reward__UserIsNotEligible(msg.sender);
 
-        s_usersThatClaimed.push(msg.sender);
         s_userHasClaimed[msg.sender] = true;
+        // don't push winners a third time (they are pushed a second time when pickDrawWinner is called)
+        if (RewardFactory.DistributionType.DRAW != i_distributionType || !timeToExecuteDrawPassed())
+            s_usersThatClaimed.push(msg.sender);
 
         // check if it's a draw and if it has not been drawn then return because users just call it to participate in the draw
-        if (RewardFactory.DistributionType.DRAW == i_distributionType && s_distributionParameter == 0) {
+        if (RewardFactory.DistributionType.DRAW == i_distributionType && !timeToExecuteDrawPassed()) {
             emit Reward__ParticipateInDraw(msg.sender);
             return;
         }
@@ -113,16 +115,18 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__Claim(msg.sender, rewardAmount);
     }
 
-    /// @notice can draw multiple winners but only the first to claim will get the reward
-    /// @notice the winners can be identified by being in the s_usersThatClaimed list twice
+    /// @notice can draw multiple winners but only the last one can claim the reward
+    /// @notice the winner that can claim is at the end of the s_usersThatClaimed array
     function pickDrawWinner(uint256 seed) external onlyOwner {
         if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
         if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
         if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
-        if (!timeToExecuteDraw()) revert Reward__CannotDrawYet(s_distributionParameter, block.timestamp);
+        if (!timeToExecuteDrawPassed()) revert Reward__CannotDrawYet(s_distributionParameter, block.timestamp);
+        s_userHasClaimed[s_usersThatClaimed[s_usersThatClaimed.length - 1]] = true;  // the previously drawn winner cannot claim
         uint256 indexOfWinner = seed % s_usersThatClaimed.length;
         address winner = s_usersThatClaimed[indexOfWinner];
         s_userHasClaimed[winner] = false;
+        s_usersThatClaimed.push(winner);
         emit Reward__DrawWinner(winner);
     }
 
@@ -134,7 +138,7 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__Withdraw(contractBalance);
     }
 
-    function timeToExecuteDraw() public view returns (bool) {
+    function timeToExecuteDrawPassed() public view returns (bool) {
         if (s_distributionParameter > block.timestamp) return false;
         return true;
     }
