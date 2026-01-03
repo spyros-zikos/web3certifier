@@ -119,7 +119,7 @@ contract Reward is Ownable, ReentrancyGuard {
         if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
         if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
         if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
-        if (s_distributionParameter > block.timestamp) revert Reward__CannotDrawYet(s_distributionParameter, block.timestamp);
+        if (!timeToExecuteDraw()) revert Reward__CannotDrawYet(s_distributionParameter, block.timestamp);
         uint256 indexOfWinner = seed % s_usersThatClaimed.length;
         address winner = s_usersThatClaimed[indexOfWinner];
         s_userHasClaimed[winner] = false;
@@ -132,6 +132,11 @@ contract Reward is Ownable, ReentrancyGuard {
         IERC20(i_rewardToken).approve(owner(), contractBalance);
         IERC20(i_rewardToken).transfer(owner(), contractBalance);
         emit Reward__Withdraw(contractBalance);
+    }
+
+    function timeToExecuteDraw() public view returns (bool) {
+        if (s_distributionParameter > block.timestamp) return false;
+        return true;
     }
 
     // Custom Reward Wrapper

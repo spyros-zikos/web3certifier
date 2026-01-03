@@ -57,3 +57,4 @@ forge install openzeppelin/openzeppelin-contracts@v5.3.0 --no-commit
 exam for submission testing: 61
 exam for reward testing: 40
 exam submitted, corrected not claimed NFT yet: 61 on sepolia
+Note: test with exam id 37/40 on Celo and id 69 on Sepolia

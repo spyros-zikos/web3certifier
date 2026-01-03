@@ -25,6 +25,7 @@ const CreateReward = ({id}: {id: bigint}) => {
     const [eligibilityParameter, setEligibilityParameter] = useState<string>("");
     const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? GOOD_DOLLAR_TOKEN : "");
 
+    /// TODO: remove api
     // // fetch
     // useEffect(() => {
     //     fetch(`/api/reward_page/custom_rewards/?chainId=${chain.id}`)
@@ -107,8 +108,8 @@ const CreateReward = ({id}: {id: bigint}) => {
                     }
                 />
                 
-                { distributionType !== DistributionType.DRAW &&
-                <><label className={`${labelMarginAndPadding}`}>
+                {/* Distribution Parameter */}
+                <label className={`${labelMarginAndPadding}`}>
                     {distributionParameterName(distributionType)}
                 </label>
                 <Input
@@ -117,7 +118,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                     onChange={(e: any) => {
                         setDistributionParameter(e.target.value);
                     }}
-                /></>}
+                />
                 
                 {/* Eligibility Type */}
                 <label className={`${labelMarginAndPadding}`}>Eligibility Type</label>

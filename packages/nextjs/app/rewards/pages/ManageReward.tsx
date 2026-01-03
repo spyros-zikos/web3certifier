@@ -53,6 +53,12 @@ const ManageReward = ({id}: {id: bigint}) => {
         functionName: "getDistributionParameter",
     }).data;
 
+    const timeToExecuteDraw = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "timeToExecuteDraw",
+    }).data;
+
     const allowance: bigint  = wagmiReadFromContract({
         contractName: "ERC20",
         contractAddress: rewardToken,
@@ -72,6 +78,29 @@ const ManageReward = ({id}: {id: bigint}) => {
 
     const setLoadingState = (action: string, loading: boolean) => {
         setIsLoading(prev => ({ ...prev, [action]: loading }));
+    };
+
+    const getWinners = (participants: string[]) => {
+        let foundAll;
+        const winners: string[] = [];
+
+        for (let i = participants.length - 1; i >= 0; i--) {
+            // suppose we found all winners
+            foundAll = true;
+            // if we don't find another winner
+            for (let j = 0; j < participants.length; j++) {
+                if (participants[j] === participants[i] && i !== j) {
+                    if (winners.includes(participants[j])) break;  // already recorded as winner e.g. [A, D, B, C, B, C]
+                    winners.push(participants[i]);
+                    foundAll = false;  // we found a new winner so we continue searching
+                    break;
+                }
+            }
+            // this will break the outer loop
+            if (foundAll) break;
+        }
+
+        return winners;
     };
 
     /*//////////////////////////////////////////////////////////////
@@ -193,10 +222,32 @@ const ManageReward = ({id}: {id: bigint}) => {
                     <span>Manage Reward</span>
                 </div>
             </TitleWithLinkToExamPage>
+
             {/* REWARD INFO */}
-            
             <RewardInfoDropDown id={id} />
             <div className="mb-16"></div>
+
+            {/* Pick Draw Winner */}
+            {timeToExecuteDraw && <ActionCard
+                title="🏆 Pick Draw Winner"
+                description="Pick a winner for the draw"
+            >
+                <Box mb="4">There are {usersThatClaimed?.length} participants in the draw.</Box>
+                {getWinners(usersThatClaimed).length > 0 && <Box mb="4">
+                    Identified winners so far: {getWinners(usersThatClaimed).map((winner, index) => (
+                        <span key={index} className="badge badge-lg badge-primary mr-2">{winner}</span>
+                    ))}
+                </Box>}
+                <LoadingButton
+                    onClick={handleSetDistributionParameter}
+                    loading={isLoading.distributionParameter}
+                    bgColor="green"
+                >
+                    <span className="flex items-center gap-2">
+                        🎁 Pick Random Winner
+                    </span>
+                </LoadingButton>
+            </ActionCard>}
 
             {/* Fund Reward */}
             <ActionCard
@@ -226,7 +277,6 @@ const ManageReward = ({id}: {id: bigint}) => {
             </ActionCard>
 
             {/* Set Distribution Parameter */}
-            { Object.values(DistributionType)[distributionTypeNumber] !== DistributionType.DRAW ?
             <ActionCard
                 title="⚙️ Distribution Parameter"
                 description="Set the value of the distribution parameter"
@@ -251,23 +301,6 @@ const ManageReward = ({id}: {id: bigint}) => {
                     </span>
                 </LoadingButton>
             </ActionCard>
-            :
-            (contractDistributionParameter === BigInt(0) && <ActionCard
-                title="🏆 Pick Draw Winner"
-                description="Pick a winner for the draw"
-            >
-                <Box mb="4">There are {usersThatClaimed?.length} participants in the draw.</Box>
-                <LoadingButton
-                    onClick={handleSetDistributionParameter}
-                    loading={isLoading.distributionParameter}
-                    bgColor="green"
-                >
-                    <span className="flex items-center gap-2">
-                        🎁 Pick Random Winner
-                    </span>
-                </LoadingButton>
-            </ActionCard>)
-            }
 
             {/* Withdraw */}
             <ActionCard

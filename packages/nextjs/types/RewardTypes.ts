@@ -18,6 +18,8 @@ export const distributionParameterName = (distributionType: DistributionType) =>
             return "Reward Amount Per User";
         case DistributionType.UNIFORM:
             return "Total Reward Amount";
+        case DistributionType.DRAW:
+            return "Draw Time (Unix Timestamp)";
         default:
             return "Distribution Parameter";
     }
