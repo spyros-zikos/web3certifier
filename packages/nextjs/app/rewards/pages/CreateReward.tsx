@@ -20,7 +20,7 @@ const CreateReward = ({id}: {id: bigint}) => {
     const GOOD_DOLLAR_TOKEN = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
 
     const [distributionType, setDistributionType] = useState<DistributionType>(DistributionType.CONSTANT);
-    const [distributionParameter, setDistributionParameter] = useState<number>(0);
+    const [distributionParameter, setDistributionParameter] = useState<string>("");
     const [eligibilityType, setEligibilityType] = useState<EligibilityType>(EligibilityType.NONE);
     const [eligibilityParameter, setEligibilityParameter] = useState<string>("");
     const [tokenAddress, setTokenAddress] = useState<string>(chain?.id === 42220 ? GOOD_DOLLAR_TOKEN : "");
@@ -49,7 +49,9 @@ const CreateReward = ({id}: {id: bigint}) => {
 
     const { writeContractAsync: createReward } = wagmiWriteToContract();
     async function handleCreateReward() {
-        const scaledDistributionParameter = distributionParameter * (Number(10) ** Number(decimals));
+        const formattedDistributionParameter = distributionType == DistributionType.DRAW
+            ? BigInt(new Date(distributionParameter).getTime() / 1000)  // get unix timestamp in seconds
+            : BigInt(distributionParameter) * (BigInt(10) ** BigInt(decimals));  // add 18 decimals
 
         createReward({
             contractName: 'RewardFactory',
@@ -58,7 +60,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                 id,
                 tokenAddress,
                 Object.values(DistributionType).indexOf(distributionType),
-                BigInt(scaledDistributionParameter),
+                formattedDistributionParameter,
                 Object.values(EligibilityType).indexOf(eligibilityType),
                 eligibilityParameter || ZERO_ADDRESS
             ],
@@ -71,6 +73,7 @@ const CreateReward = ({id}: {id: bigint}) => {
 
     const labelMarginAndPadding = 'mb-2 mt-6 block';
 
+    console.log("distribution parameter:", distributionParameter);
     return (
         <ResponsivePageWrapper>
             <TitleWithLinkToExamPage id={id}>Create Reward</TitleWithLinkToExamPage>
@@ -112,6 +115,7 @@ const CreateReward = ({id}: {id: bigint}) => {
                 <label className={`${labelMarginAndPadding}`}>
                     {distributionParameterName(distributionType)}
                 </label>
+                {distributionType !== DistributionType.DRAW ?
                 <Input
                     value={distributionParameter}
                     type="number"
@@ -119,6 +123,13 @@ const CreateReward = ({id}: {id: bigint}) => {
                         setDistributionParameter(e.target.value);
                     }}
                 />
+                : <Input
+                    value={distributionParameter}
+                    type="datetime-local"
+                    onChange={(e: any) => {
+                        setDistributionParameter(e.target.value);
+                    }}
+                />}
                 
                 {/* Eligibility Type */}
                 <label className={`${labelMarginAndPadding}`}>Eligibility Type</label>

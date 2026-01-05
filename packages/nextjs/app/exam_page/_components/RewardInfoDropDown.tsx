@@ -5,6 +5,7 @@ import { Address } from '~~/components/scaffold-eth';
 import { Accordion, Text, Spacer } from '@chakra-ui/react';
 import ExamDetail from './ExamDetail';
 import { distributionParameterName, DistributionType, eligibilityParameterName, EligibilityType } from '~~/types/RewardTypes';
+import { winnerHasBeenDrawn } from '~~/utils/winnerHasBeenDrawn';
 
 
 const RewardInfoDropDown = ({id}: {id: bigint}) => {
@@ -133,10 +134,9 @@ const RewardInfoDropDown = ({id}: {id: bigint}) => {
                             value={scaledDistributionParameter.toString()} 
                         />}
 
-                        {Object.values(DistributionType)[distributionTypeNumber] === DistributionType.DRAW &&
-                            distributionParameter !== 0 &&
+                        {Object.values(DistributionType)[distributionTypeNumber] === DistributionType.DRAW && winnerHasBeenDrawn(usersThatClaimed) &&
                         <ExamDetail name={"Draw Winner"}
-                            value={<Address address={usersThatClaimed?.[Number(distributionParameter) % usersThatClaimed?.length]} className={"text-bold inline-block"} disableAddressLink={true} />}
+                            value={<Address address={usersThatClaimed[usersThatClaimed.length - 1]} className={"text-bold inline-block"} disableAddressLink={true} />}
                         />}
 
                         {/* Eligibility Type */}

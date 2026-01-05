@@ -9,8 +9,9 @@ import { Input, ResponsivePageWrapper } from "~~/components";
 import { TitleWithLinkToExamPage, BuyGoodDollarTokensMessage, ActionCard, LoadingButton } from '../components';
 import { distributionParameterName, DistributionType } from '~~/types/RewardTypes';
 import { RewardInfoDropDown } from '~~/app/exam_page/_components';
-import { random } from 'lodash';
 import { Box } from '@chakra-ui/react';
+import getTimeLeft from '~~/utils/GetTimeLeft';
+import { winnerHasBeenDrawn } from '~~/utils/winnerHasBeenDrawn';
 
 const ManageReward = ({id}: {id: bigint}) => {
     const { address, chain } = useNonUndefinedAccount();
@@ -47,16 +48,30 @@ const ManageReward = ({id}: {id: bigint}) => {
         functionName: "getUsersThatClaimed",
     }).data;
 
+    const contractDistributionType = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getDistributionType",
+    }).data;
+    const distributionType: DistributionType = Object.values(DistributionType)[contractDistributionType];
+    
     const contractDistributionParameter = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionParameter",
     }).data;
 
-    const timeToExecuteDraw = wagmiReadFromContract({
+    const timeToExecuteDrawPassed = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
-        functionName: "timeToExecuteDraw",
+        functionName: "timeToExecuteDrawPassed",
+    }).data;
+
+    const winnerHasClaimed = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUserHasClaimed",
+        args: [usersThatClaimed ? usersThatClaimed[usersThatClaimed.length-1] : false],
     }).data;
 
     const allowance: bigint  = wagmiReadFromContract({
@@ -80,32 +95,27 @@ const ManageReward = ({id}: {id: bigint}) => {
         setIsLoading(prev => ({ ...prev, [action]: loading }));
     };
 
-    const getWinners = (participants: string[]) => {
-        let foundAll;
-        const winners: string[] = [];
-
-        for (let i = participants.length - 1; i >= 0; i--) {
-            // suppose we found all winners
-            foundAll = true;
-            // if we don't find another winner
-            for (let j = 0; j < participants.length; j++) {
-                if (participants[j] === participants[i] && i !== j) {
-                    if (winners.includes(participants[j])) break;  // already recorded as winner e.g. [A, D, B, C, B, C]
-                    winners.push(participants[i]);
-                    foundAll = false;  // we found a new winner so we continue searching
-                    break;
-                }
-            }
-            // this will break the outer loop
-            if (foundAll) break;
-        }
-
-        return winners;
-    };
-
     /*//////////////////////////////////////////////////////////////
                            WRITE TO CONTRACT
     //////////////////////////////////////////////////////////////*/
+
+    // Pick Draw Winner
+    const { writeContractAsync: pickDrawWinner } = wagmiWriteToContract();
+    async function handlePickDrawWinner() {
+        try {
+            setLoadingState('drawWinner', true);
+            const seed = BigInt((Math.random() * Number.MAX_SAFE_INTEGER + 1).toFixed(0)); // +1 to avoid zero seed
+            console.log("seed", seed);
+            await pickDrawWinner({
+                contractName: 'Reward',
+                contractAddress: rewardAddress,
+                functionName: 'pickDrawWinner',
+                args: [seed],
+            });
+        } finally {
+            setLoadingState('drawWinner', false);
+        }
+    }
 
     // Approve
     const { writeContractAsync: approve } = wagmiWriteToContract();
@@ -145,31 +155,19 @@ const ManageReward = ({id}: {id: bigint}) => {
 
     // Set distribution parameter
     const { writeContractAsync: setDistributionParameterHook } = wagmiWriteToContract();
-    const { writeContractAsync: pickDrawWinner } = wagmiWriteToContract();
     async function handleSetDistributionParameter() {
         try {
             setLoadingState('distributionParameter', true);
             const scaledDistributionParameter = Number(distributionParameter) * (Number(10) ** Number(decimals));
-            if (Object.values(DistributionType)[distributionTypeNumber] !== DistributionType.DRAW) 
-                await setDistributionParameterHook({
-                    contractName: 'Reward',
-                    contractAddress: rewardAddress,
-                    functionName: 'setDistributionParameter',
-                    args: [
-                        BigInt(scaledDistributionParameter)
-                    ],
-                });
-            else {
-                const seed = BigInt(Math.random() * Number.MAX_SAFE_INTEGER + 1); // +1 to avoid zero seed
-                console.log("seed", seed);
-                await pickDrawWinner({
-                    contractName: 'Reward',
-                    contractAddress: rewardAddress,
-                    functionName: 'pickDrawWinner',
-                    args: [seed],
-                });
-            }
-            setDistributionParameter(BigInt(0));
+            await setDistributionParameterHook({
+                contractName: 'Reward',
+                contractAddress: rewardAddress,
+                functionName: 'setDistributionParameter',
+                args: [
+                    BigInt(scaledDistributionParameter)
+                ],
+            });
+            setDistributionParameter(BigInt(0));  // reset input
         } finally {
             setLoadingState('distributionParameter', false);
         }
@@ -228,18 +226,15 @@ const ManageReward = ({id}: {id: bigint}) => {
             <div className="mb-16"></div>
 
             {/* Pick Draw Winner */}
-            {timeToExecuteDraw && <ActionCard
+            {distributionType === DistributionType.DRAW && (timeToExecuteDrawPassed ? <ActionCard
                 title="🏆 Pick Draw Winner"
                 description="Pick a winner for the draw"
             >
-                <Box mb="4">There are {usersThatClaimed?.length} participants in the draw.</Box>
-                {getWinners(usersThatClaimed).length > 0 && <Box mb="4">
-                    Identified winners so far: {getWinners(usersThatClaimed).map((winner, index) => (
-                        <span key={index} className="badge badge-lg badge-primary mr-2">{winner}</span>
-                    ))}
-                </Box>}
+                <Box mb="4">
+                    {winnerHasBeenDrawn(usersThatClaimed) ? `Winner:  ${usersThatClaimed[usersThatClaimed.length - 1]}` : `There are ${usersThatClaimed?.length} participants in the draw.`}
+                </Box>
                 <LoadingButton
-                    onClick={handleSetDistributionParameter}
+                    onClick={handlePickDrawWinner}
                     loading={isLoading.distributionParameter}
                     bgColor="green"
                 >
@@ -247,7 +242,28 @@ const ManageReward = ({id}: {id: bigint}) => {
                         🎁 Pick Random Winner
                     </span>
                 </LoadingButton>
-            </ActionCard>}
+            </ActionCard>
+            :
+            <ActionCard
+                title="🏆 Pick Draw Winner"
+                description="Pick a winner for the draw"
+            >
+                <Box mb="4">There are {usersThatClaimed?.length} participants in the draw.</Box>
+                <Box mb="4">
+                    Draw will be executed in {getTimeLeft(Date.now(), contractDistributionParameter)}.
+                </Box>
+                <LoadingButton
+                    onClick={() => {}}
+                    loading={isLoading.distributionParameter}
+                    bgColor="green"
+                    disabled={true}
+                >
+                    <span className="flex items-center gap-2">
+                        🎁 Pick Random Winner
+                    </span>
+                </LoadingButton>
+            </ActionCard>
+            )}
 
             {/* Fund Reward */}
             <ActionCard
@@ -277,6 +293,7 @@ const ManageReward = ({id}: {id: bigint}) => {
             </ActionCard>
 
             {/* Set Distribution Parameter */}
+            {distributionType !== DistributionType.DRAW &&
             <ActionCard
                 title="⚙️ Distribution Parameter"
                 description="Set the value of the distribution parameter"
@@ -300,7 +317,7 @@ const ManageReward = ({id}: {id: bigint}) => {
                         ⚙️ Set Amount
                     </span>
                 </LoadingButton>
-            </ActionCard>
+            </ActionCard>}
 
             {/* Withdraw */}
             <ActionCard

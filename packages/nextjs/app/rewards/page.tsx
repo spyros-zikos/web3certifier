@@ -8,10 +8,14 @@ import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 import { Spinner } from "~~/components";
 
 const Page = () => {
-    const { address, chain } = useNonUndefinedAccount();
+    const { address } = useNonUndefinedAccount();
 
     const searchParams = useSearchParams();
     const id = BigInt(searchParams.get("id")!);
+
+    const NotOrganizerMessage = () => (
+        <div className="text-red-500 mx-auto mt-8">You are not the organizer!!!</div>
+    );
 
     /*//////////////////////////////////////////////////////////////
                           READ FROM CONTRACT
@@ -36,7 +40,12 @@ const Page = () => {
         else
             return <ManageReward id={id} />
     else
-        return <ErrorPage id={id} chain={chain} message="You are not the organizer!" />
+        if (rewardAddress === ZERO_ADDRESS)
+            return <><NotOrganizerMessage /><CreateReward id={id} /></>
+        else
+            return <><NotOrganizerMessage /><ManageReward id={id} /></>
+    // else
+    //     return <ErrorPage id={id} chain={chain} message="You are not the organizer!" />
 }
 
 export default Page;

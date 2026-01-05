@@ -12,10 +12,11 @@ import { SUPPORTED_NETWORKS, ZERO_ADDRESS } from "~~/constants";
 import { UserOpenNotSubmitted, UserCancelledClaimRefund, UserCorrectedClaimCertificate, UserCorrectedSucceededPatricipateInDraw, UserCorrectedSucceededClaimReward, CertifierUnderCorrection, CertifierCorrected } from "./pages";
 import StaticExamPage from "./pages/StaticExamPage";
 import { DropDowns, ImageNameDescription, InviteLinkMessage, ManageRewardsLink, Timer } from "./_components";
-import getTimeLeft from "./helperFunctions/GetTimeLeft";
+import getTimeLeft from "~~/utils/GetTimeLeft";
 import { useNonUndefinedAccount } from "~~/utils/NonUndefinedAccount";
 import examStageMessageFunction from "./_components/examStageMessage";
 import { DistributionType } from "~~/types/RewardTypes";
+import { winnerHasBeenDrawn } from "~~/utils/winnerHasBeenDrawn";
 
 
 const ExamPage = () => {
@@ -87,16 +88,29 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
+    const usersThatClaimed: string[] = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "getUsersThatClaimed",
+    }).data;
+
     const distributionTypeNumber: number  = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionType",
     }).data;
+    const distributionType = Object.values(DistributionType)[distributionTypeNumber];
 
     const distributionParameter = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionParameter",
+    }).data;
+    
+    const timeToExecuteDrawPassed = wagmiReadFromContract({
+        contractName: "Reward",
+        contractAddress: rewardAddress,
+        functionName: "timeToExecuteDrawPassed",
     }).data;
 
     useEffect(() => {
@@ -112,9 +126,8 @@ const ExamPage = () => {
         const userStatus = getUserStatusStr(userStatusNum);
         const hasReward = rewardAddress !== ZERO_ADDRESS;
         const rewardExistsAndUserHasNotClaimed = !userHasClaimedReward && hasReward;
-        const drawIsOpenForParticipants = 
-            (Object.values(DistributionType)[distributionTypeNumber] === DistributionType.DRAW) &&
-            distributionParameter === 0n;
+        const drawIsOpenForParticipants = (distributionType === DistributionType.DRAW) && !timeToExecuteDrawPassed;
+
         return examStage(
             examStatus,
             userStatus,
@@ -195,7 +208,7 @@ const ExamPage = () => {
             : getExamStage() === ExamStage.User_Corrected_SucceededPatricipateInDraw ?
                 <UserCorrectedSucceededPatricipateInDraw exam={exam} rewardAddress={rewardAddress} />
             : getExamStage() === ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw ?
-                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw)()} />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw)(getTimeLeft(Date.now(), distributionParameter))} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward ?
                 <UserCorrectedSucceededClaimReward exam={exam} rewardAddress={rewardAddress} rewardAmount={rewardAmount} />
             : getExamStage() === ExamStage.User_Corrected_SucceededClaimReward_NotEligible ?
@@ -204,7 +217,7 @@ const ExamPage = () => {
                 <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)()} />
             
             : getExamStage() === ExamStage.User_Corrected_SucceededNoReward ?
-                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededNoReward)()} />
+                <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_SucceededNoReward)(distributionType == DistributionType.DRAW, winnerHasBeenDrawn(usersThatClaimed), usersThatClaimed ? (usersThatClaimed[usersThatClaimed.length - 1] == address) : false)} />
             : getExamStage() === ExamStage.User_Corrected_Failed ?
                 <StaticExamPage exam={exam} message={examStageMessageFunction(ExamStage.User_Corrected_Failed)(exam, userScore, questionsAndPossibleAnswers)} />
             : getExamStage() === ExamStage.User_Corrected_NotSubmitted ?

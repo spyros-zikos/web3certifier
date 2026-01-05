@@ -7,7 +7,7 @@ import { wagmiReadFromContractAsync } from '~~/utils/wagmi/wagmiReadAsync';
 import { ZERO_ADDRESS } from '~~/constants';
 import { wagmiWriteToContract } from '~~/hooks/wagmi/wagmiWrite';
 import { Timer } from '../exam_page/_components';
-import getTimeLeft from '../exam_page/helperFunctions/GetTimeLeft';
+import getTimeLeft from '../../utils/GetTimeLeft';
 import { Spinner } from '~~/components';
 
 export default function MilestoneRoadmap() {

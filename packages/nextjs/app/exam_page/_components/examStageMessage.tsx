@@ -46,7 +46,7 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
     else if (examStage === ExamStage.User_Corrected_SucceededPatricipateInDraw)
         return () => "You can participate in the draw!";
     else if (examStage === ExamStage.User_Corrected_SucceededAlreadyParticipatesInDraw)
-        return () => "You already participate in the draw!";
+        return (timeLeft: string) => "You already participate in the draw! The draw will be executed in " + timeLeft + ". Good luck!";
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward)
         return (scaledRewardAmountForUser: bigint, tokenSymbol: string) => "You can claim " + scaledRewardAmountForUser + " " + tokenSymbol + "! Claim your reward now!";
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEligible)
@@ -54,7 +54,7 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
     else if (examStage === ExamStage.User_Corrected_SucceededClaimReward_NotEnoughTokens)
         return () => <>This exam has ended! You completed it successfully! Unfortunately, the reward pool does not have enough tokens to reward you. <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_SucceededNoReward)
-        return () => <>This exam has ended! You completed it successfully! <JoinDiscordMessage /> </>;
+        return (isDraw: boolean, drawHasBeenExecuted: boolean, won: boolean) => <>This exam has ended! You completed it successfully!{isDraw ? (drawHasBeenExecuted ? (won ? " You won the draw!" : " You did not win the draw!") : " The draw has not been executed yet.") : ""} <JoinDiscordMessage /> </>;
     else if (examStage === ExamStage.User_Corrected_Failed)
         return (exam: any, userScore: bigint | undefined, questionsAndPossibleAnswers: any) => {
             return (exam 
