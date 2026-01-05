@@ -29,6 +29,7 @@ contract Reward is Ownable, ReentrancyGuard {
     error Reward__NotADraw();
     error Reward__NoParticipants();
     error Reward__CannotDrawYet(uint256 distributionParameter, uint256 currentTime);
+    error Reward__NotOwnerOrAdmin(address user, address owner, address admin);
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -78,6 +79,14 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__NewReward(certifier, examId, distributionParameter, rewardToken, i_factory);
     }
     /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+    modifier onlyOwnerOrAdmin() {
+        if (msg.sender != owner() && msg.sender != RewardFactory(i_factory).owner())
+            revert Reward__NotOwnerOrAdmin(msg.sender, owner(), RewardFactory(i_factory).owner());
+        _;
+    }
+    /*//////////////////////////////////////////////////////////////
                           EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     /**
@@ -117,7 +126,7 @@ contract Reward is Ownable, ReentrancyGuard {
 
     /// @notice can draw multiple winners but only the last one can claim the reward
     /// @notice the winner that can claim is at the end of the s_usersThatClaimed array
-    function pickDrawWinner(uint256 seed) external onlyOwner {
+    function pickDrawWinner(uint256 seed) external onlyOwnerOrAdmin {
         if (i_distributionType != RewardFactory.DistributionType.DRAW) revert Reward__NotADraw();
         if (s_usersThatClaimed.length == 0) revert Reward__NoParticipants();
         if (rewardTokenBalance() == 0) revert Reward__NotEnoughRewardTokens(0, 0);
@@ -130,7 +139,7 @@ contract Reward is Ownable, ReentrancyGuard {
         emit Reward__DrawWinner(winner);
     }
 
-    function withdraw() external onlyOwner {
+    function withdraw() external onlyOwnerOrAdmin {
         uint256 contractBalance = rewardTokenBalance();
         if (contractBalance == 0) return;
         IERC20(i_rewardToken).approve(owner(), contractBalance);
@@ -193,6 +202,10 @@ contract Reward is Ownable, ReentrancyGuard {
 
     function rewardTokenBalance() public view returns (uint256) {
         return IERC20(i_rewardToken).balanceOf(address(this));
+    }
+
+    function version() external pure returns (uint256) {
+        return 1;
     }
 
     // Getter functions
