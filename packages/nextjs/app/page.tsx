@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Award, Coins, Zap, Shield, Users, TrendingUp, Target, CheckCircle, ArrowRight } from 'lucide-react';
+import { BookOpen, Award, Coins, Zap, Shield, Users, TrendingUp, Target, CheckCircle, ArrowRight, ExternalLink } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -15,7 +15,7 @@ const Home = () => {
               The Permissionless Learn-to-Earn Platform
             </p>
             <p className="text-lg sm:text-xl max-w-4xl mx-auto mb-12 text-base-content/80 leading-relaxed">
-              Web3 Certifier is the permissionless learn-to-earn platform that enables Web3 protocols to efficiently reward users for their knowledge and on-chain activity.
+              Web3 Certifier is the permissionless learn-to-earn platform that enables Web3 protocols to efficiently reward users for their knowledge and on-chain activity. Deployed on Celo.
             </p>
             <div className="flex flex-col sm:flex-row md:flex-row gap-6 justify-center justify-items-center mt-8">
               <a href="/search_exams" className="flex justify-center">
@@ -52,7 +52,90 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Dual Value Proposition */}
+      {/* Partners Section - NEW */}
+      <div className="bg-base-100 py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-base-content mb-4">Trusted Partners</h2>
+            <p className="text-xl text-base-content/70">Leading Web3 projects using Web3 Certifier to educate and grow their communities</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center justify-items-center">
+            {/* GoodDollar */}
+            <a href="https://www.gooddollar.org/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group">
+              <img src="https://cdn.prod.website-files.com/646cda7f7639d2f9f4394455/6481b6b0b30ca30eee949cf1_1_Gjb9O0HcjaiulAon6ZGXbA%402x-1.png" alt="GoodDollar Logo" className="h-24 object-contain grayscale group-hover:grayscale-0 transition-all" />
+              <p className="mt-4 text-base-content font-medium">GoodDollar</p>
+              <ExternalLink className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+            {/* Karma GAP */}
+            <a href="https://gap.karmahq.xyz/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group">
+              <img src="https://gap.karmahq.xyz/assets/previews/homepage.png" alt="Karma GAP Logo" className="h-24 object-contain grayscale group-hover:grayscale-0 transition-all" />
+              <p className="mt-4 text-base-content font-medium">Karma GAP</p>
+              <ExternalLink className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+            {/* Ubeswap */}
+            <a href="https://ubeswap.org/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group">
+              <img src="https://repository-images.githubusercontent.com/336191295/0671bf00-af59-11eb-97eb-83c42fe66edc" alt="Ubeswap Logo" className="h-24 object-contain grayscale group-hover:grayscale-0 transition-all" />
+              <p className="mt-4 text-base-content font-medium">Ubeswap</p>
+              <ExternalLink className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+            {/* Celo (as ecosystem) */}
+            <a href="https://celo.org/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group">
+              <img src="https://mms.businesswire.com/media/20221007005125/en/1595236/5/Celo_Logo.jpg" alt="Celo Logo" className="h-24 object-contain grayscale group-hover:grayscale-0 transition-all" />
+              <p className="mt-4 text-base-content font-medium">Built on Celo</p>
+              <ExternalLink className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Case Studies / Proof Section - NEW */}
+      <div className="bg-base-200 py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-base-content mb-4">Real Results & Case Studies</h2>
+            <p className="text-xl text-base-content/70">See how partners have achieved measurable growth with Web3 Certifier</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Ubeswap Case Study */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl border border-base-300">
+              <div className="flex items-center gap-4 mb-6">
+                <img src="https://repository-images.githubusercontent.com/336191295/0671bf00-af59-11eb-97eb-83c42fe66edc" alt="Ubeswap" className="h-16 object-contain" />
+                <div>
+                  <h3 className="text-2xl font-bold text-base-200">Ubeswap x GoodDollar Campaign</h3>
+                  <p className="text-primary">Latest educational exam</p>
+                </div>
+              </div>
+              <div className="mb-6">
+                <div className="text-5xl font-extrabold text-base-100 mb-2">2x</div>
+                <p className="text-lg text-base-100">Increase in users staking G$ on Ubeswap platform</p>
+              </div>
+              <p className="text-base-200/80">
+                By rewarding users for learning about their platform, Ubeswap doubled the number of users actively staking G$ tokens.
+              </p>
+              <div className="mt-6 flex items-center text-base-100 font-medium">
+                Learn more <ArrowRight className="w-5 h-5 ml-2" />
+              </div>
+            </div>
+
+            {/* Placeholder for more case studies */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl border border-base-300 opacity-80">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-base-300 w-24 h-16 rounded-xl"></div>
+                <div>
+                  <h3 className="text-2xl font-bold text-base-200">More Success Stories Coming Soon</h3>
+                  <p className="text-primary">From GoodDollar Academy, Karma GAP and others</p>
+                </div>
+              </div>
+              <p className="text-base-200/80">
+                Additional partners are running campaigns with impressive results in user education and on-chain engagement.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{/* Dual Value Proposition */}
       <div className="bg-base-100 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -277,35 +360,14 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Tutorial Section */}
-      {/* <div className="bg-primary py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-base-content mb-4">See It In Action</h2>
-            <p className="text-xl text-base-content/70">Watch how Web3 Certifier works</p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl">
-              <iframe 
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/8lyoX_Z1x2w" 
-                title="Web3 Certifier Tutorial" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen>
-              </iframe>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Final CTA */}
+      {/* Final CTA (slightly updated to reinforce proof) */}
       <div className="bg-base-200 text-white py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            Ready to Get Started?
+            Ready to Grow Like Ubeswap Did?
           </h2>
           <p className="text-xl mb-10 text-white/90">
-            Join the permissionless learn-to-earn revolution today
+            Join leading protocols using proven learn-to-earn mechanics
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a href="/search_exams">
