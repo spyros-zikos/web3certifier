@@ -8,15 +8,14 @@ import { usePublicClient, useWalletClient, useBlockNumber } from "wagmi";
 // components
 import { IndexSelector } from "~~/components/IndexSelector";
 import { Question, MessageForUser, SubmitAnswersFaucet } from "../../_components";
-import { Box } from "@chakra-ui/react";
-import { VerifyAccountMessage, QuestionTimer, ExamStartWarningBox } from "./components";
+import { QuestionTimer, ExamStartWarningBox } from "./components";
 // functions
 import Cookies from 'js-cookie';
 import periodicActions from "./functions/periodicActions";
 import removeExcessTime from "./functions/removeExcessTime";
 import getCurrentTimestamp from "./functions/getCurrentTimestamp";
 // constants
-import { chainsToContracts, cookieExpirationTime, DEFAULT_USER_ADDRESS, getStartTimeCookieName, timePerQuestion, ZERO_ADDRESS } from "~~/constants";
+import { chainsToContracts, cookieExpirationTime, getStartTimeCookieName, timePerQuestion } from "~~/constants";
 import onClickSubmitAnswersButton from "./functions/onClickSubmitAnswersButton";
 import examStageMessageFunction from "../../_components/examStageMessage";
 import { ExamStage } from "~~/types/ExamStage";
@@ -27,13 +26,11 @@ const Page = ({
 }: {
     id: bigint, exam: Exam | undefined, address: string | undefined, chain: any
 }) => {
-
     /*//////////////////////////////////////////////////////////////
                                USE_STATE
     //////////////////////////////////////////////////////////////*/
 
     const [questionNumber, setQuestionNumber] = useState<number>(0);
-    // const [answers, setAnswers] = useState<bigint[]>(Array(exam?.questions.length).fill(BigInt(0)));
     const [startTime, setStartTime] = useState(0);
     const [timeEnded, setTimeEnded] = useState(false);
     const [userHasAlreadyClaimedFaucetFunds, setUserHasAlreadyClaimedFaucetFunds] = useState(true);
