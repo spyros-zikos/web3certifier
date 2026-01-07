@@ -106,7 +106,7 @@ const ExamPage = () => {
         contractAddress: rewardAddress,
         functionName: "getDistributionParameter",
     }).data;
-    
+
     const timeToExecuteDrawPassed = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
@@ -170,11 +170,11 @@ const ExamPage = () => {
     return (
         <ResponsivePageWrapper>
             {/* Set Up/Manage Rewards */}
-            { address === exam?.certifier && 
-            <>
-            <ManageRewardsLink id={exam?.id || BigInt(0)} rewardAddress={rewardAddress} />
-            <ButtonLink href={`/exam_page/edit?id=${exam?.id || BigInt(0)}`} className="ml-4">🖊️ Edit Exam</ButtonLink>
-            </>
+            {address === exam?.certifier && 
+                <>
+                    <ManageRewardsLink id={exam?.id || BigInt(0)} rewardAddress={rewardAddress} />
+                    <ButtonLink href={`/exam_page/edit?id=${exam?.id || BigInt(0)}`} className="ml-4">🖊️ Edit Exam</ButtonLink>
+                </>
             }
 
             {/* Image, Name, Description */}
