@@ -68,14 +68,14 @@ const ExamPage = () => {
         args: [address],
     }).data;
 
-    const rewardAmount: bigint  = wagmiReadFromContract({
+    const rewardAmount: bigint = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "rewardAmountForUser",
         args: [address],
     }).data;
 
-    const totalRewardAmount: bigint  = wagmiReadFromContract({
+    const totalRewardAmount: bigint = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "rewardTokenBalance",
@@ -94,7 +94,7 @@ const ExamPage = () => {
         functionName: "getUsersThatClaimed",
     }).data;
 
-    const distributionTypeNumber: number  = wagmiReadFromContract({
+    const distributionTypeNumber: number = wagmiReadFromContract({
         contractName: "Reward",
         contractAddress: rewardAddress,
         functionName: "getDistributionType",
