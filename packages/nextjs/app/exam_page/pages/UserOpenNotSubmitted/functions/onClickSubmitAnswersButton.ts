@@ -26,7 +26,8 @@ const onClickSubmitAnswersButton = async (
     const validUntilBlock = (blockNumber.data || 1000000000n) + 600n // Valid for 600 blocks
 
     try {
-        let signature = "0x";
+        const signature = "0x";
+        // let signature = "0x";
         // if (canClaimEngagementRewards)
         //     signature = await engagementRewards?.signClaim(
         //         chainsToContracts[chain?.id]["Certifier"].address,
