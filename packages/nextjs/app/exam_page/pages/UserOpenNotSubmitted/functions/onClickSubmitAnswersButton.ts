@@ -27,12 +27,12 @@ const onClickSubmitAnswersButton = async (
 
     try {
         let signature = "0x";
-        if (canClaimEngagementRewards)
-            signature = await engagementRewards?.signClaim(
-                chainsToContracts[chain?.id]["Certifier"].address,
-                inviter || ZERO_ADDRESS,
-                validUntilBlock
-            ) as any;
+        // if (canClaimEngagementRewards)
+        //     signature = await engagementRewards?.signClaim(
+        //         chainsToContracts[chain?.id]["Certifier"].address,
+        //         inviter || ZERO_ADDRESS,
+        //         validUntilBlock
+        //     ) as any;
         
         console.log("id, hashedAnswer, examPrice, inviter, validUntilBlock, signature:",
             exam.id, hashedAnswerToSubmit, examPriceInEth, inviter, validUntilBlock, signature);

@@ -12,7 +12,7 @@ const examStageMessageFunction: any = (examStage: ExamStage) => {
     if (examStage === ExamStage.User_Open_NotSubmitted)
         return (needsVerification: boolean, canClaimEngagementRewards: boolean, address: string, publicClient: any, walletClient: any) => (
             <div>
-                {!needsVerification && canClaimEngagementRewards && <><Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you submit your answers to this exam!</Box><br /></>}
+                {/* {!needsVerification && canClaimEngagementRewards && <><Box color="green">You are eligible to claim engagement rewards (2k G$ tokens) if you pass this exam!</Box><br /></>} */}
                 {needsVerification && (address !== DEFAULT_USER_ADDRESS) && <VerifyAccountMessage publicClient={publicClient} walletClient={walletClient}/>}
                 
                 <Box color="lighterLighterBlack">
